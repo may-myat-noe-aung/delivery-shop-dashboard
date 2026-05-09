@@ -74,7 +74,7 @@ export default function SettingsPageOne() {
   }
 
   return (
-    <div className="p-6"> 
+    <div className=""> 
       <ShopAccountSettings shopId={shopId} />
     </div>
   );

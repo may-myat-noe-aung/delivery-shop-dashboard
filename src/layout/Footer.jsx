@@ -7,7 +7,7 @@ export default function Footer() {
 
 
       {/* Bottom Line */}
-      <div className="border-t border-slate-700 mt-6 text-center py-[23px] text-slate-500 text-sm">
+      <div className="border-t border-slate-700 text-center py-[23px] text-slate-500 text-sm sticky bottom-0">
         &copy; {new Date().getFullYear()} MyShop. All rights reserved.
       </div>
     </footer>

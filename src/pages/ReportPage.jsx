@@ -1,52 +1,35 @@
-// import React from "react";
-// import ReportTable from "../components/Report/ReportTable";
 
-// // ✅ Cookie helper (same as your MenuPage)
-// const getCookie = (name) => {
-//   const value = `; ${document.cookie}`;
-//   const parts = value.split(`; ${name}=`);
-//   if (parts.length === 2) return parts.pop().split(";").shift();
-//   return null;
-// };
+  import React from "react";
+  import { Navigate, useNavigate } from "react-router-dom";
+  import { getAuth } from "../utils/auth";
+  import ReportTable from "../components/Report/ReportTable";
+  import ReportSummaryCards from "../components/Report/ReportSummaryCards";
+import ShopDeliveryManCards from "../components/Report/ShopDeliveryManCards";
+import RevenueChart from "../components/Report/RevenueChart";
+import TopCategoryChart from "../components/Report/TopCategoryChart";
+import SystemDeliveryManCards from "../components/Report/SystemDeliveryManCards";
 
-// export default function ReportPage() {
-//   const shopId = getCookie("shopId");
+  export default function ReportPage() {
+    // const navigate = useNavigate();
+    const { shopId } = getAuth();
 
-//   if (!shopId) {
-//     return (
-//       <div className="text-center text-red-500 py-6">
-//         Shop ID not found
-//       </div>
-//     );
-//   }
 
-//   return (
-//     <div className="p-6">
-//       <ReportTable shopId={shopId} />
-//     </div>
-//   );
-// }
+      if (!shopId) {
+      return <Navigate to="/login" replace />;
+    }
 
-import React from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { getAuth } from "../utils/auth";
-import ReportTable from "../components/Report/ReportTable";
+    return (
+      <div className=""> 
+        <ReportSummaryCards shopId={shopId} />
+        <ReportTable shopId={shopId} />
+        <ShopDeliveryManCards shopId={shopId} />
+        <SystemDeliveryManCards shopId={shopId} />
 
-export default function ReportPage() {
-  // const navigate = useNavigate();
-  const { shopId } = getAuth();
+       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-  // if (!shopId) {
-  //   navigate("/login");
-  //   return null;
-  // }
-    if (!shopId) {
-    return <Navigate to="/login" replace />;
+        <RevenueChart />
+        <TopCategoryChart/>
+        </div>
+      </div>
+    );
   }
-
-  return (
-    <div className=""> 
-      <ReportTable shopId={shopId} />
-    </div>
-  );
-}

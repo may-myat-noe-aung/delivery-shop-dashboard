@@ -522,7 +522,7 @@ export default function OrdersTable({ shopId }) {
     // 🟡 Step 1: Show confirm popup
     const isConfirmed = await confirm("Are you sure to pickup this order?");
 
-    if (!isConfirmed) return; // ❌ user clicked NO
+    if (!isConfirmed) return;
 
     try {
       const res = await fetch(
@@ -650,7 +650,7 @@ export default function OrdersTable({ shopId }) {
   };
 
   return (
-    <div className="min-h-screen  text-white ">
+    <div className=" text-white ">
       {/* CSV Toast */}
       {csvMessage && (
         <div className="mb-2 text-center py-2 px-3 bg-green-600 text-white rounded-md animate-pulse">

@@ -51,7 +51,7 @@ export default function OrdersConfirm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white py-6">
+    <div className=" bg-[#0f172a] text-white ">
       <SummaryCards orders={orders} />
 
       <div className="mt-6">

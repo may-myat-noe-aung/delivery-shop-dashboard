@@ -7,22 +7,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-// ✅ Fake API
-function fetchDashboardSummary() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        totalMenu: 120,
-        totalIncome: 2500000,
-        totalWays: 320,
-        deliveryCost: 150000,
-        profit: 2350000,
-      });
-    });
-  });
-}
-
-// ✅ Reusable Card Component
 function SummaryCard({ title, value, icon, color }) {
   return (
     <div className="rounded-2xl border border-neutral-800 bg-neutral-600 p-4 relative overflow-hidden">
@@ -42,38 +26,40 @@ function SummaryCard({ title, value, icon, color }) {
   );
 }
 
-// ✅ Main Component
-export default function SummaryCards() {
-  const [data, setData] = useState(null);
+export default function SummaryCards({ shopId }) {
+  const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
+    const fetchSummary = async () => {
       try {
-        const res = await fetchDashboardSummary();
-        setData(res);
-      } catch (err) {
-        console.error(err);
+        const response = await fetch(
+          `http://38.60.244.137:3000/dashboard-summaries-by-shops/${shopId}`
+        );
+
+        const result = await response.json();
+
+        console.log(result);
+
+        if (result.success) {
+          setData(result.data);
+        }
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadData();
-  }, []);
+    if (shopId) {
+      fetchSummary();
+    }
+  }, [shopId]);
 
   if (loading) {
     return (
-      <div className="text-center text-neutral-400 py-10">
-        Loading dashboard...
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="text-center text-red-500 py-10">
-        Failed to load data.
+      <div className="text-center text-white py-10">
+        Loading...
       </div>
     );
   }
@@ -81,42 +67,37 @@ export default function SummaryCards() {
   return (
     <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
-      {/* Total Menu */}
       <SummaryCard
         title="Total Menu"
-        value={data.totalMenu}
+        value={data.today_menu_count || 0}
         icon={<Utensils className="w-5 h-5" />}
         color="from-indigo-400/50 to-transparent"
       />
 
-      {/* Total Income */}
       <SummaryCard
         title="Total Income"
-        value={`${data.totalIncome.toLocaleString()} Ks`}
+        value={`${(data.today_amount || 0).toLocaleString()} Ks`}
         icon={<DollarSign className="w-5 h-5" />}
         color="from-emerald-400/50 to-transparent"
       />
 
-      {/* Total Ways */}
       <SummaryCard
-        title="Total Ways"
-        value={data.totalWays}
+        title="Total Users"
+        value={data.today_users_count || 0}
         icon={<CreditCard className="w-5 h-5" />}
         color="from-sky-400/50 to-transparent"
       />
 
-      {/* Delivery Cost */}
       <SummaryCard
         title="Delivery Cost"
-        value={`${data.deliveryCost.toLocaleString()} Ks`}
+        value={`${(data.today_delivery_fees || 0).toLocaleString()} Ks`}
         icon={<Truck className="w-5 h-5" />}
         color="from-rose-400/50 to-transparent"
       />
 
-      {/* Profit (အမြတ်) */}
       <SummaryCard
         title="Profit (အမြတ်)"
-        value={`${data.profit.toLocaleString()} Ks`}
+        value={`${(data.today_profits || 0).toLocaleString()} Ks`}
         icon={<TrendingUp className="w-5 h-5" />}
         color="from-yellow-400/50 to-transparent"
       />

@@ -15,24 +15,20 @@
 //     </div>
 //   );
 // }
-import SummaryCards from "./SummaryCards";
+
 import MenuChart from "./MenuChart";
 import TopMenus from "./TopMenus";
 
 export default function ShopDashboard() {
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white py-6 space-y-6">
-
-      <SummaryCards />
-
+    <div className="">
 
       {/* Top Menu */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <MenuChart />
+        <MenuChart />
 
         <TopMenus />
       </div>
-
     </div>
   );
 }

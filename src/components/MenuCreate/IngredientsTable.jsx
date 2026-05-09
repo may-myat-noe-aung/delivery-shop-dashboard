@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Trash2, Edit2 } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
@@ -18,7 +16,9 @@ export default function IngredientsTable({ shopId }) {
   // Fetch ingredients
   const fetchData = async () => {
     try {
-      const res = await fetch(`http://38.60.244.137:3000/ingredients/${shopId}`);
+      const res = await fetch(
+        `http://38.60.244.137:3000/ingredients/${shopId}`,
+      );
       const data = await res.json();
 
       if (Array.isArray(data)) {
@@ -44,24 +44,24 @@ export default function IngredientsTable({ shopId }) {
   // }, [shopId]);
 
   // Search filter
- 
-useEffect(() => {
-  if (!shopId) return;
 
-  setLoading(true);
+  useEffect(() => {
+    if (!shopId) return;
 
-  fetchData(); // initial fetch
+    setLoading(true);
 
-  const interval = setInterval(() => {
-    fetchData();
-  }, 5000); // ⏱ every 5 seconds
+    fetchData(); // initial fetch
 
-  return () => clearInterval(interval);
-}, [shopId]);
+    const interval = setInterval(() => {
+      fetchData();
+    }, 5000); // ⏱ every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [shopId]);
 
   const filtered = useMemo(() => {
     return ingredients.filter((item) =>
-      (item.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+      (item.name || "").toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [ingredients, searchTerm]);
 
@@ -113,55 +113,57 @@ useEffect(() => {
       {loading ? (
         <div className="text-center text-gray-400 py-10">Loading...</div>
       ) : paginated.length === 0 ? (
-        <div className="text-center text-gray-400 py-10">No ingredients found</div>
+        <div className="text-center text-gray-400 py-10">
+          No ingredients found
+        </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-     {paginated.map((item) => (
-  <div
-    key={item.id}
-    className="relative rounded-2xl overflow-hidden border border-slate-700 bg-[#111827] shadow-lg hover:scale-[1.03] transition-all duration-300"
-  >
-    {/* IMAGE */}
-    <div className="relative">
-      <img
-        src={item.photoUrl}
-        alt={item.name}
-        className="w-full h-32 object-cover"
-        onError={(e) => (e.target.src = "/placeholder.png")}
-      />
+          {paginated.map((item) => (
+            <div
+              key={item.id}
+              className="relative rounded-2xl overflow-hidden border border-slate-700 bg-[#111827] shadow-lg hover:scale-[1.03] transition-all duration-300"
+            >
+              {/* IMAGE */}
+              <div className="relative">
+                <img
+                  src={item.photoUrl}
+                  alt={item.name}
+                  className="w-full h-32 object-cover"
+                  onError={(e) => (e.target.src = "/placeholder.png")}
+                />
 
-      {/* TOP RIGHT ICONS */}
-      <div className="absolute top-2 right-2 flex gap-2">
-        <button
-          onClick={() => setEditingId(item.id)}
-          className="bg-black/60 hover:bg-indigo-600 p-1.5 rounded-full transition"
-        >
-          <Edit2 size={14} className="text-white" />
-        </button>
+                {/* TOP RIGHT ICONS */}
+                <div className="absolute top-2 right-2 flex gap-2">
+                  <button
+                    onClick={() => setEditingId(item.id)}
+                    className="bg-black/60 hover:bg-indigo-600 p-1.5 rounded-full transition"
+                  >
+                    <Edit2 size={14} className="text-white" />
+                  </button>
 
-        <button
-          onClick={() => handleDelete(item.id)}
-          className="bg-black/60 hover:bg-red-600 p-1.5 rounded-full transition"
-        >
-          <Trash2 size={14} className="text-white" />
-        </button>
-      </div>
-    </div>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="bg-black/60 hover:bg-red-600 p-1.5 rounded-full transition"
+                  >
+                    <Trash2 size={14} className="text-white" />
+                  </button>
+                </div>
+              </div>
 
-    {/* BODY */}
-    <div className="p-3 text-center flex items-center justify-between">
-      {/* NAME */}
-      <h3 className="text-white font-semibold text-sm truncate">
-        {item.name}
-      </h3>
+              {/* BODY */}
+              <div className="p-3 text-center flex items-center justify-between">
+                {/* NAME */}
+                <h3 className="text-white font-semibold text-sm truncate">
+                  {item.name}
+                </h3>
 
-      {/* PRICE */}
-      <p className="text-indigo-400 text-sm mt-1">
-        {item.prices} MMK
-      </p>
-    </div>
-  </div>
-))}
+                {/* PRICE */}
+                <p className="text-indigo-400 text-sm mt-1">
+                  {item.prices} MMK
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

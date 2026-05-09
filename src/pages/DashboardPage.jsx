@@ -1,18 +1,22 @@
-import React from 'react'
-import ShopDashboard from '../components/Dashboard/ShopDashboard'
-import { getAuth } from '../auth';
+import React from "react";
+import ShopDashboard from "../components/Dashboard/ShopDashboard";
+import { getAuth } from "../auth";
+import SummaryCards from "../components/Dashboard/SummaryCards";
 
 const DashboardPage = () => {
-    const { shopId } = getAuth();
-    if (!shopId) {
+  const { shopId } = getAuth();
+  if (!shopId) {
     return <Navigate to="/login" replace />;
   }
   return (
- <ShopDashboard/>
-  )
-}
+    <div className="h-screen overflow-hidden bg-[#0f172a] text-white space-y-6">
+      <SummaryCards shopId={shopId} />
+      <ShopDashboard shopId={shopId} />
+    </div>
+  );
+};
 
-export default DashboardPage
+export default DashboardPage;
 
 // import React from "react";
 // import { Navigate } from "react-router-dom";

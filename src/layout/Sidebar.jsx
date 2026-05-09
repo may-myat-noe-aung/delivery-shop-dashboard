@@ -1,113 +1,3 @@
-// import { NavLink } from "react-router-dom";
-// import {
-//   MdDashboard,
-//   MdRestaurantMenu,
-//   MdDeliveryDining,
-//   MdAddBox,
-//   MdAssessment,
-// } from "react-icons/md";
-// import { useEffect, useState } from "react";
-// import { getAuth } from "../auth";
-
-// export default function Sidebar() {
-//   const [shopPhoto, setShopPhoto] = useState(null);
-//   const [shopName, setShopName] = useState("Shop Admin");
-
-//   useEffect(() => {
-//     const { shopId } = getAuth();
-
-//     if (!shopId) return;
-
-//     fetch(`http://38.60.244.137:3000/shops/${shopId}`)
-//       .then((res) => res.json())
-//       .then((data) => {
-//         if (data && data.length > 0) {
-//           setShopName(data[0].shop_name);
-//         }
-//       })
-//       .catch((err) => console.error(err));
-//   }, []);
-
-//   useEffect(() => {
-//     const { shopId } = getAuth();
-
-//     if (!shopId) return;
-
-//     fetch(`http://38.60.244.137:3000/shops/${shopId}`)
-//       .then((res) => res.json())
-//       .then((data) => {
-//         if (data && data.length > 0) {
-//           const shop = data[0];
-
-//           setShopName(shop.shop_name);
-//           setShopPhoto(shop.photo); // ✅ add this
-//         }
-//       })
-//       .catch((err) => console.error(err));
-//   }, []);
-//   const navStyle = ({ isActive }) =>
-//     `flex items-center gap-3 p-3 rounded-xl text-sm transition
-//     ${
-//       isActive
-//         ? "bg-slate-800 text-white"
-//         : "text-slate-400 hover:bg-slate-800 hover:text-white"
-//     }`;
-
-//   return (
-//     <aside className="w-64 bg-[#0f172a] border-r border-slate-800 p-6 min-h-screen">
-//       <div className="flex items-center gap-3 mb-6 ">
-//         {/* Profile Photo */}
-//         <img
-//           src={
-//             shopPhoto
-//               ? `http://38.60.244.137:3000/shop-uploads/${shopPhoto}`
-//               : "https://via.placeholder.com/40"
-//           }
-//           alt="Shop"
-//           className="w-10 h-10 rounded-full object-cover border border-slate-600"
-//         />
-
-//         {/* Shop Name */}
-//         <h2 className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-//           {shopName}
-//         </h2>
-//       </div>
-
-//       <div className="space-y-2">
-//         {/* Dashboard */}
-//         <NavLink to="/" end className={navStyle}>
-//           <MdDashboard size={20} />
-//           Dashboard
-//         </NavLink>
-
-//         {/* Orders */}
-//         <NavLink to="/orders" className={navStyle}>
-//           <MdRestaurantMenu size={20} />
-//           Food Orders
-//         </NavLink>
-
-//         {/* Create Menu */}
-//         <NavLink to="/create-menu" className={navStyle}>
-//           <MdAddBox size={20} />
-//           Create Menu
-//         </NavLink>
-
-//         {/* Add Delivery Man */}
-//         <NavLink to="/delivery-men" className={navStyle}>
-//           <MdDeliveryDining size={20} />
-//           Delivery Men
-//         </NavLink>
-
-//         {/* Report  */}
-//         <NavLink to="/report" className={navStyle}>
-//           <MdAssessment size={20} />
-//           Report
-//         </NavLink>
-//       </div>
-//     </aside>
-//   );
-// }
-
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   MdDashboard,
@@ -176,7 +66,7 @@ export default function Sidebar() {
     <motion.aside
       animate={{ width: collapsed ? 80 : 260 }}
       transition={{ duration: 0.3 }}
-      className="bg-[#0f172a] border-r border-slate-800 p-4 min-h-screen flex flex-col relative"
+      className="bg-[#0f172a] border-r border-slate-800 p-4   flex-col  flex min-h-screen  text-natural-100 h-screen sticky top-0"
     >
       {/*  Modern Toggle Button */}
       <button
@@ -188,7 +78,7 @@ export default function Sidebar() {
 
       {/* 👤 Profile */}
       <div
-        className={`flex items-center mb-8 ${
+        className={`flex items-center mb-4 ${
           collapsed ? "justify-center" : "gap-3"
         }`}
       >
@@ -236,14 +126,12 @@ export default function Sidebar() {
             icon: <MdDeliveryDining size={20} />,
             label: "Delivery Men",
           },
-          { to: "/report", 
-          icon: <MdAssessment size={20} />,
-          label: "Report" },
+          { to: "/report", icon: <MdAssessment size={20} />, label: "Report" },
           {
             to: "/settings",
             icon: <MdSettings size={20} />,
             label: "Settings",
-          }
+          },
         ].map((item, i) => (
           <NavLink key={i} to={item.to} className={navStyle}>
             {item.icon}

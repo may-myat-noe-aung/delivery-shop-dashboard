@@ -5,14 +5,17 @@ import Footer from "./Footer";
 
 export default function AdminLayout() {
   return (
-    <div className="flex min-h-screen bg-[#0f172a] text-white">
+    <div className="flex h-screen bg-[#0f172a] text-white">
       <Sidebar />
+
       <div className="flex-1 flex flex-col">
         <Navbar />
-        <div className="flex-1 overflow-auto p-8">
+
+        <div className="flex-1 overflow-y-auto p-8">
           <Outlet />
         </div>
-      <Footer />
+
+        <Footer />
       </div>
     </div>
   );
