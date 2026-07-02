@@ -43,10 +43,11 @@ export default function CategoryTable({ shopId }) {
     "sweets",
   ];
 
-
   const fetchData = async () => {
     try {
-      const res = await fetch(`https://api.pwezayshops.com/categories/${shopId}`);
+      const res = await fetch(
+        `https://api.pwezayshops.com/categories/${shopId}`,
+      );
 
       const data = await res.json();
 

@@ -837,13 +837,9 @@ export default function OrdersTable({ shopId }) {
 
   const pageWindow = 10;
 
-const startPage =
-  Math.floor((page - 1) / pageWindow) * pageWindow + 1;
+  const startPage = Math.floor((page - 1) / pageWindow) * pageWindow + 1;
 
-const endPage = Math.min(
-  startPage + pageWindow - 1,
-  totalPages
-);
+  const endPage = Math.min(startPage + pageWindow - 1, totalPages);
   return (
     <div className=" text-white ">
       {/* CSV Toast */}
@@ -967,7 +963,7 @@ const endPage = Math.min(
                       <td className="py-4">
                         <button
                           onClick={() => {
-                            if (pickedOrders[order.id]) return;
+                            // if (pickedOrders[order.id]) return;
 
                             const status = getOrderStatus(order);
 
@@ -985,7 +981,7 @@ const endPage = Math.min(
                               handlePickup(order.id, order);
                             }, 1500);
                           }}
-                          disabled={pickedOrders[order.id]}
+                        
                           className={`
     flex items-center gap-2
     px-3 py-2
@@ -996,7 +992,7 @@ const endPage = Math.min(
 
     ${
       pickedOrders[order.id]
-        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 cursor-not-allowed"
+        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 "
         : "bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-white"
     }
   `}
@@ -1072,22 +1068,22 @@ const endPage = Math.min(
                   Prev
                 </button>
 
-              {Array.from(
-  { length: endPage - startPage + 1 },
-  (_, i) => startPage + i
-).map((n) => (
-  <button
-    key={n}
-    onClick={() => setPage(n)}
-    className={`px-3 py-1 rounded-md border border-neutral-700 ${
-      page === n
-        ? "bg-indigo-300 text-black font-semibold"
-        : "text-indigo-300 hover:bg-neutral-900"
-    }`}
-  >
-    {n}
-  </button>
-))}
+                {Array.from(
+                  { length: endPage - startPage + 1 },
+                  (_, i) => startPage + i,
+                ).map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setPage(n)}
+                    className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                      page === n
+                        ? "bg-indigo-300 text-black font-semibold"
+                        : "text-indigo-300 hover:bg-neutral-900"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
 
                 <button
                   disabled={page === totalPages}
