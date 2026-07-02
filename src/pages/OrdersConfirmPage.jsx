@@ -36,9 +36,9 @@
 // }
 import React, { useState } from "react";
 import { Navigate } from "react-router-dom";
-import SummaryCards from "../components/OrderConfirm/SummaryCards";
 import OrdersTable from "../components/OrderConfirm/OrdersTable";
 import { getAuth } from "../utils/auth"; // ✅ add this
+import OrderSummaryCards from "../components/OrderConfirm/OrderSummaryCards";
 
 export default function OrdersConfirm() {
   const [orders, setOrders] = useState([]);
@@ -52,7 +52,7 @@ export default function OrdersConfirm() {
 
   return (
     <div className=" bg-[#0f172a] text-white ">
-      <SummaryCards orders={orders} />
+      <OrderSummaryCards shopId={shopId} />
 
       <div className="mt-6">
         <OrdersTable shopId={shopId} />

@@ -1,274 +1,15 @@
-// import React, { useState, useRef, useEffect } from "react";
-// import { Camera, Eye, EyeOff } from "lucide-react";
-// import axios from "axios";
-// import { useAlert } from "../../AlertProvider";
-
-// export default function AddDeliveryForm({ onClose, onAdded }) {
-//   const [formData, setFormData] = useState({
-//     name: "",
-//     email: "",
-//     phone: "",
-//     password: "",
-//     confirmPassword: "",
-//     work_type: "Full time",
-//     photo: null,
-//   });
-
-//   const [showPasscode, setShowPasscode] = useState(false);
-//   const [passcode, setPasscode] = useState("");
-//   const { showAlert } = useAlert();
-
-//   const nameInputRef = useRef(null);
-//   const passcodeInputRef = useRef(null);
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-//   useEffect(() => {
-//     const timer = setTimeout(() => {
-//       axios
-//         .get("http://38.60.244.137:3000/deliverymen")
-//         .then((res) => console.log("Auto fetch success:", res.data))
-//         .catch((err) => console.log("Auto fetch error:", err));
-//     }, 500);
-//     return () => clearTimeout(timer);
-//   }, []);
-
-//   useEffect(() => {
-//     if (nameInputRef.current) nameInputRef.current.focus();
-//   }, []);
-
-//   useEffect(() => {
-//     if (showPasscode && passcodeInputRef.current) passcodeInputRef.current.focus();
-//   }, [showPasscode]);
-
-//   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-//   const handleImageChange = (e) => {
-//     const file = e.target.files[0];
-//     if (file) setFormData({ ...formData, photo: file });
-//   };
-
-//   const openPasscodeBox = (e) => {
-//     e.preventDefault();
-//     if (formData.password !== formData.confirmPassword) {
-//  showAlert("Passwords do not match!", "warning");
-//       return;
-//     }
-//     setShowPasscode(true);
-//   };
-
-//   const verifyPasscode = async () => {
-//   if (passcode !== "234567") {
-//  showAlert("Invalid Passcode!", "error");
-//     return;
-//   }
-
-//   setShowPasscode(false);
-
-//   try {
-//     const payload = new FormData();
-//     payload.append("name", formData.name);
-//     payload.append("email", formData.email);
-//     payload.append("phone", formData.phone);
-//     payload.append("password", formData.password);
-//     payload.append("work_type", formData.work_type);
-
-//     if (formData.photo instanceof File) {
-//       payload.append("photo", formData.photo);
-//     }
-
-//     const response = await axios.post(
-//       "http://38.60.244.137:3000/deliverymen",
-//       payload,
-//       { headers: { "Content-Type": "multipart/form-data" } }
-//     );
-
-//     showAlert(response.data.message || "Added successfully", "success");
-
-//     onAdded?.();
-//     onClose?.();
-
-//     setFormData({
-//       name: "",
-//       email: "",
-//       phone: "",
-//       password: "",
-//       confirmPassword: "",
-//       work_type: "Full time",
-//       photo: null,
-//     });
-
-//     setPasscode("");
-//   } catch (error) {
-//     showAlert(
-//       error.response?.data?.message || error.message || "Something went wrong.",
-//       "error"
-//     );
-//   }
-// };
-//   return (
-//     <>
-//       {/* Main Modal */}
-//       <div className="fixed inset-0 flex justify-center items-center z-50 bg-[rgba(0,0,0,0.6)]">
-//         <div className="relative w-[450px] p-6 rounded-2xl shadow-lg bg-gray-800 text-gray-100">
-//           <h2 className="text-lg font-semibold mb-4 text-indigo-500">Add Delivery Man</h2>
-
-//           <form onSubmit={openPasscodeBox} className="space-y-3">
-//             {/* Photo */}
-//             <div className="flex flex-col items-center mb-4">
-//               <div className="relative w-28 h-28">
-//                 <img
-//                   src={
-//                     formData.photo
-//                       ? URL.createObjectURL(formData.photo)
-//                       : "https://i.pinimg.com/736x/4a/6b/e0/4a6be0cad2a1bb290e43477834fdf8ad.jpg"
-//                   }
-//                   alt="Profile Preview"
-//                   className="w-full h-full rounded-full object-cover border-2 border-dashed border-gray-600 shadow-sm"
-//                 />
-//                 <label className="absolute bottom-0 right-0 bg-indigo-500 hover:bg-[#9b5de5] text-white w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shadow-md">
-//                   <Camera className="w-4 h-4" />
-//                   <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-//                 </label>
-//               </div>
-//               <p className="mt-2 text-sm text-gray-300">Upload profile image (optional)</p>
-//             </div>
-
-//             {/* Inputs */}
-//             <input
-//               type="text"
-//               name="name"
-//               value={formData.name}
-//               onChange={handleChange}
-//               placeholder="Name"
-//               className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100"
-//               required
-//               ref={nameInputRef}
-//             />
-//             <input
-//               type="email"
-//               name="email"
-//               value={formData.email}
-//               onChange={handleChange}
-//               placeholder="Email"
-//               className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100"
-//               required
-//             />
-
-//             {/* Password */}
-//             <div className="relative">
-//               <input
-//                 type={showPassword ? "text" : "password"}
-//                 name="password"
-//                 value={formData.password}
-//                 onChange={handleChange}
-//                 placeholder="Password"
-//                 className="w-full px-3 py-2 rounded-lg text-sm border pr-10 bg-gray-700 border-gray-600 text-gray-100"
-//                 required
-//               />
-//               <span className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-300" onClick={() => setShowPassword(!showPassword)}>
-//                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-//               </span>
-//             </div>
-
-//             {/* Confirm Password */}
-//             <div className="relative">
-//               <input
-//                 type={showConfirmPassword ? "text" : "password"}
-//                 name="confirmPassword"
-//                 value={formData.confirmPassword}
-//                 onChange={handleChange}
-//                 placeholder="Confirm Password"
-//                 className="w-full px-3 py-2 rounded-lg text-sm border pr-10 bg-gray-700 border-gray-600 text-gray-100"
-//                 required
-//               />
-//               <span className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-300" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-//                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-//               </span>
-//             </div>
-
-//             <input
-//               type="text"
-//               name="phone"
-//               value={formData.phone}
-//               onChange={handleChange}
-//               placeholder="Phone"
-//               className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100"
-//               required
-//             />
-
-//             <select
-//               name="work_type"
-//               value={formData.work_type}
-//               onChange={handleChange}
-//               className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100"
-//             >
-//               <option>Full time</option>
-//               <option>Part time</option>
-//             </select>
-
-//             <div className="flex justify-end gap-2 pt-3">
-//               <button
-//                 type="button"
-//                 onClick={onClose}
-//                 className="px-4 py-2 rounded-lg text-sm border border-gray-600 text-gray-100 hover:bg-gray-700"
-//               >
-//                 Cancel
-//               </button>
-//               <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm">
-//                 Save
-//               </button>
-//             </div>
-//           </form>
-
-//           <button onClick={onClose} className="absolute top-3 right-3 text-gray-300 hover:text-white">
-//             ✕
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Passcode Modal */}
-//       {showPasscode && (
-//         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
-//           <div className="absolute inset-0 bg-[rgba(0,0,0,0.6)]" onClick={() => setShowPasscode(false)} />
-//           <div className="relative p-6 w-[330px] rounded-xl shadow-2xl border bg-gray-800 border-gray-600 text-gray-100">
-//             <h3 className="text-lg font-bold text-center mb-4 bg-gradient-to-r from-indigo-500 to-indigo-600 bg-clip-text text-transparent">
-//               Enter Passcode
-//             </h3>
-//             <input
-//               ref={passcodeInputRef}
-//               type="password"
-//               className="border rounded-lg w-full px-3 py-2 mb-4 focus:ring-2 focus:ring-indigo-500 bg-gray-700 border-gray-600 text-gray-100"
-//               placeholder="Passcode"
-//               value={passcode}
-//               onChange={(e) => setPasscode(e.target.value)}
-//               onKeyDown={(e) => e.key === "Enter" && verifyPasscode()}
-//             />
-//             <div className="flex justify-between gap-2">
-//               <button
-//                 onClick={() => setShowPasscode(false)}
-//                 className="px-4 py-1.5 rounded-lg border border-gray-600 text-sm text-gray-100 hover:bg-gray-700"
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 onClick={verifyPasscode}
-//                 className="px-4 py-1.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg shadow hover:opacity-90"
-//               >
-//                 Confirm
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// }
 
 import React, { useState, useRef, useEffect } from "react";
 import { Camera, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { useAlert } from "../../AlertProvider";
+
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+const isValidPhone = (phone) => {
+  return /^[0-9]{9,15}$/.test(phone);
+};
 
 export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
   const [formData, setFormData] = useState({
@@ -277,54 +18,23 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
     phone: "",
     password: "",
     confirmPassword: "",
-    work_type: null, // null OR shop_id
     location: "",
     photo: null,
   });
 
-  const [showPasscode, setShowPasscode] = useState(false);
-  const [passcode, setPasscode] = useState("");
   const { showAlert } = useAlert();
 
   const nameInputRef = useRef(null);
-  const passcodeInputRef = useRef(null);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     axios
-  //       .get("http://38.60.244.137:3000/deliverymen")
-  //       .then((res) => console.log("Auto fetch success:", res.data))
-  //       .catch((err) => console.log("Auto fetch error:", err));
-  //   }, 500);
-  //   return () => clearTimeout(timer);
-  // }, []);
-
-  // useEffect(() => {
-  //   axios
-  //     .get("http://38.60.244.137:3000/shops")
-  //     .then((res) => setShops(res.data))
-  //     .catch((err) => console.log(err));
-  // }, []);
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (nameInputRef.current) nameInputRef.current.focus();
   }, []);
-
-  useEffect(() => {
-    if (showPasscode && passcodeInputRef.current)
-      passcodeInputRef.current.focus();
-  }, [showPasscode]);
-
-  useEffect(() => {
-    if (shopId) {
-      setFormData((prev) => ({
-        ...prev,
-        work_type: shopId, // or shop_id (recommended)
-      }));
-    }
-  }, [shopId]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -334,80 +44,124 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
     if (file) setFormData({ ...formData, photo: file });
   };
 
-  const openPasscodeBox = (e) => {
+  // ✅ FINAL SUBMIT
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // -------------------------
+    // VALIDATION
+    // -------------------------
+    const newErrors = {};
+
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!formData.password.trim()) newErrors.password = "Password is required";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      showAlert("Please fill required fields", "warning");
+      return;
+    }
+
+    // -------------------------
+    // EMAIL CHECK
+    // -------------------------
+    if (!isValidEmail(formData.email)) {
+      showAlert("Email သည် မှန်ကန်သော format မဟုတ်ပါ", "warning");
+      return;
+    }
+
+    if (!isValidPhone(formData.phone)) {
+      showAlert("ဖုန်းနံပါတ် format မမှန်ကန်ပါ", "warning");
+      return;
+    }
+
+    // -------------------------
+    // PASSWORD CHECK
+    // -------------------------
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (!strongPasswordRegex.test(formData.password)) {
+      showAlert(
+        "Password သည် အနည်းဆုံး 8 လုံးရှိရမည်၊ Uppercase, Lowercase, Number, Special Character ပါဝင်ရမည်",
+        "error",
+      );
+      return;
+    }
+
+    // -------------------------
+    // CONFIRM PASSWORD
+    // -------------------------
     if (formData.password !== formData.confirmPassword) {
-      showAlert("Passwords do not match!", "warning");
-      return;
-    }
-    setShowPasscode(true);
-  };
-
-  const verifyPasscode = async () => {
-    if (passcode !== "234567") {
-      showAlert("Invalid Passcode!", "error");
+      showAlert("စကားဝှက်နှစ်ခု မကိုက်ညီပါ", "warning");
       return;
     }
 
-    setShowPasscode(false);
+    // -------------------------
+    // API REQUEST
+    // -------------------------
+    const payload = new FormData();
+    payload.append("name", formData.name);
+    payload.append("email", formData.email);
+    payload.append("phone", formData.phone || "");
+    payload.append("password", formData.password);
+    payload.append("work_type", shopId);
+    payload.append("location", formData.location || "");
+
+    if (formData.photo instanceof File) {
+      payload.append("photo", formData.photo);
+    }
 
     try {
-      const payload = new FormData();
-      payload.append("name", formData.name);
-      payload.append("email", formData.email);
-      payload.append("phone", formData.phone);
-      payload.append("password", formData.password);
-      payload.append("work_type", formData.work_type);
-      // payload.append("work_type", formData.work_type || null);
-      payload.append("location", formData.location || null);
+      setSaving(true);
 
-      if (formData.photo instanceof File) {
-        payload.append("photo", formData.photo);
-      }
-
-      const response = await axios.post(
-        "http://38.60.244.137:3000/deliverymen",
+      const res = await axios.post(
+        "https://api.pwezayshops.com/deliverymen",
         payload,
         { headers: { "Content-Type": "multipart/form-data" } },
       );
 
-      showAlert(response.data.message || "Added successfully", "success");
+      const data = res.data;
 
-      onAdded?.();
-      onClose?.();
+      if (res.status === 200 || data.success) {
+        showAlert(data.message || "Delivery added successfully", "success");
 
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: "",
-        work_type: shopId || null,
-        location: "",
-        photo: null,
-      });
+        onAdded?.();
+        onClose?.();
 
-      setPasscode("");
-    } catch (error) {
-      showAlert(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong.",
-        "error",
-      );
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          password: "",
+          confirmPassword: "",
+          location: "",
+          photo: null,
+        });
+
+        setErrors({});
+      } else {
+        showAlert(data.message || "Failed to add delivery", "error");
+      }
+    } catch (err) {
+      showAlert(err.response?.data?.message || "Network error", "error");
+    } finally {
+      setSaving(false);
     }
   };
   return (
     <>
-      {/* Main Modal */}
+      {/* MAIN MODAL */}
       <div className="fixed inset-0 flex justify-center items-center z-50 bg-[rgba(0,0,0,0.6)]">
         <div className="relative w-[450px] p-6 rounded-2xl shadow-lg bg-gray-800 text-gray-100">
           <h2 className="text-lg font-semibold mb-4 text-indigo-500">
             Add Delivery Man
           </h2>
 
-          <form onSubmit={openPasscodeBox} className="space-y-3">
-            {/* Photo */}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {/* PHOTO */}
             <div className="flex flex-col items-center mb-4">
               <div className="relative w-28 h-28">
                 <img
@@ -429,12 +183,10 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
                   />
                 </label>
               </div>
-              <p className="mt-2 text-sm text-gray-300">
-                Upload profile image (optional)
-              </p>
+              <p className="mt-2 text-sm text-gray-300">Upload profile image</p>
             </div>
 
-            {/* Inputs */}
+            {/* NAME */}
             <input
               type="text"
               name="name"
@@ -445,14 +197,9 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
               required
               ref={nameInputRef}
             />
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="Location (optional)"
-              className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100"
-            />
+
+
+            {/* EMAIL */}
             <input
               type="email"
               name="email"
@@ -463,7 +210,7 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
               required
             />
 
-            {/* Password */}
+            {/* PASSWORD */}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -482,7 +229,7 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
               </span>
             </div>
 
-            {/* Confirm Password */}
+            {/* CONFIRM PASSWORD */}
             <div className="relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
@@ -501,26 +248,17 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
               </span>
             </div>
 
+            {/* PHONE (no need but kept UI) */}
             <input
               type="text"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              placeholder="Phone"
+              placeholder="Phone "
               className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100"
-              required
             />
 
-            {/* <select
-              name="work_type"
-              value={formData.work_type}
-              onChange={handleChange}
-              className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100"
-            >
-              <option>Full time</option>
-              <option>Part time</option>
-            </select> */}
-
+            {/* BUTTONS */}
             <div className="flex justify-end gap-2 pt-3">
               <button
                 type="button"
@@ -529,110 +267,36 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
               >
                 Cancel
               </button>
+
               <button
                 type="submit"
-                className="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm"
+                disabled={saving}
+                className={`px-4 py-2 rounded-lg text-sm text-white ${
+                  saving ? "bg-gray-500 cursor-not-allowed" : "bg-indigo-500"
+                }`}
               >
-                Save
+                {saving ? "Creating New Delivery..." : "Creating New Delivery "}
               </button>
             </div>
           </form>
 
-          <button
+          {/* <button
             onClick={onClose}
             className="absolute top-3 right-3 text-gray-300 hover:text-white"
+          >
+            ✕
+          </button> */}
+
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-5 w-9 h-9 flex items-center justify-center 
+  bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white 
+  rounded-full transition duration-200"
           >
             ✕
           </button>
         </div>
       </div>
-
-      {/* Passcode Modal */}
-      {showPasscode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
-          <div
-            className="absolute inset-0 bg-[rgba(0,0,0,0.6)]"
-            onClick={() => setShowPasscode(false)}
-          />
-          <div className="relative p-6 w-[330px] rounded-xl shadow-2xl border bg-gray-800 border-gray-600 text-gray-100">
-            <h3 className="text-lg font-bold text-center mb-4 bg-gradient-to-r from-indigo-500 to-indigo-600 bg-clip-text text-transparent">
-              Enter Passcode
-            </h3>
-            <input
-              ref={passcodeInputRef}
-              type="password"
-              className="border rounded-lg w-full px-3 py-2 mb-4 focus:ring-2 focus:ring-indigo-500 bg-gray-700 border-gray-600 text-gray-100"
-              placeholder="Passcode"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && verifyPasscode()}
-            />
-            <div className="flex justify-between gap-2">
-              <button
-                onClick={() => setShowPasscode(false)}
-                className="px-4 py-1.5 rounded-lg border border-gray-600 text-sm text-gray-100 hover:bg-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={verifyPasscode}
-                className="px-4 py-1.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg shadow hover:opacity-90"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
-
-{
-  /* Work Type */
-}
-
-// <div className="relative w-full">
-//   {/* SELECT BOX */}
-//   <div
-//     onClick={() => setOpen(!open)}
-//     className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100 cursor-pointer"
-//   >
-//     {formData.work_type
-//       ? shops.find((s) => s.id === formData.work_type)?.shop_name
-//       : "None"}
-//   </div>
-
-//   {/* DROPDOWN LIST */}
-//   {open && (
-//     <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg max-h-52 overflow-y-auto">
-//       {/* NONE */}
-//       <div
-//         onClick={() => {
-//           setFormData({ ...formData, work_type: null });
-//           setOpen(false);
-//         }}
-//         className="px-3 py-2 hover:bg-gray-700 cursor-pointer"
-//       >
-//         None
-//       </div>
-
-//       {/* SHOPS */}
-//       {shops.map((shop) => (
-//         <div
-//           key={shop.id}
-//           onClick={() => {
-//             setFormData({
-//               ...formData,
-//               work_type: shop.id,
-//             });
-//             setOpen(false);
-//           }}
-//           className="px-3 py-2 hover:bg-gray-700 cursor-pointer"
-//         >
-//           {shop.shop_name}
-//         </div>
-//       ))}
-//     </div>
-//   )}
-// </div>

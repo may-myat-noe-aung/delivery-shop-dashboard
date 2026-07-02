@@ -3,7 +3,7 @@ import axios from "axios";
 import AddDeliveryForm from "./AddDeliveryForm";
 import DeliveryTable from "./DeliveryTable";
 
-const AddDeliveryMan = ({ shopId }) => {
+const DeliveryManDashboard = ({ shopId }) => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -12,14 +12,14 @@ const AddDeliveryMan = ({ shopId }) => {
     password: "",
     confirmPassword: "",
     location: "",
-    status: "Full time",
+    // status: "Full time",
     photo: "",
   });
   const [deliveryMen, setDeliveryMen] = useState([]);
 
   const fetchDeliveryMen = async () => {
     try {
-      const res = await axios.get(`http://38.60.244.137:3000/deliverymen-shop/${shopId}`);
+      const res = await axios.get(`https://api.pwezayshops.com/deliverymen-shop/${shopId}`);
       setDeliveryMen(res.data);
     } catch (err) {
       console.error(err);
@@ -66,4 +66,4 @@ const AddDeliveryMan = ({ shopId }) => {
   );
 };
 
-export default AddDeliveryMan;
+export default DeliveryManDashboard;

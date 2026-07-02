@@ -1,270 +1,698 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Download, Search } from "lucide-react";
+
+// import React, { useEffect, useState, useMemo } from "react";
+// import { Download, Search } from "lucide-react";
+// import ReportPopup from "./ReportPopup";
+
+// export default function ReportTable({ shopId }) {
+//   const [orders, setOrders] = useState([]);
+//   const [selected, setSelected] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState("");
+
+//   // ===== New states for filtering, pagination, export =====
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [fromDate, setFromDate] = useState("");
+//   const [toDate, setToDate] = useState("");
+//   const [page, setPage] = useState(1);
+//   const [pageSize] = useState(5);
+//   const [csvMessage, setCsvMessage] = useState("");
+
+//   useEffect(() => {
+//     const fetchOrders = async () => {
+//       try {
+//         const res = await fetch(
+//           `https://api.pwezayshops.com/report-shops/${shopId}`,
+//         );
+//         const data = await res.json();
+
+//         if (data.success) {
+//           // 🔥 keep only this shop's items
+//           const filteredOrders = data.data.map((item) => {
+//             const order = item.order;
+
+//             const shopOrders = order.orders.filter((o) => o.shop_id === shopId);
+
+//             return {
+//               ...order,
+//               orders: shopOrders,
+//               deliveryman: item.deliveryman,
+//             };
+//           });
+
+//           setOrders(filteredOrders);
+//           setError("");
+//         } else {
+//           setError("Failed to fetch orders.");
+//         }
+//       } catch (err) {
+//         console.error(err);
+//         setError("Something went wrong.");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchOrders();
+//   }, [shopId]);
+
+//   // ===== Filtering =====
+//   const filtered = useMemo(() => {
+//     return orders.filter((order) => {
+//       const matchesSearch =
+//         order.id?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         order.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         order.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+
+//       const orderDate = new Date(order.created_at);
+//       const fromMatch = fromDate ? orderDate >= new Date(fromDate) : true;
+//       const toMatch = toDate ? orderDate <= new Date(toDate) : true;
+
+//       return matchesSearch && fromMatch && toMatch;
+//     });
+//   }, [orders, searchTerm, fromDate, toDate]);
+
+//   // ===== Pagination =====
+//   const totalPages = Math.ceil(filtered.length / pageSize);
+//   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+//   useEffect(() => {
+//     if (page > totalPages) setPage(1);
+//   }, [filtered]);
+
+//   // ===== CSV Export =====
+//   const handleExport = () => {
+//     const rows = filtered.map((order) => [
+//       order.id,
+//       order.name,
+//       order.phone,
+//       order.address,
+//       order.type,
+//       order.grand_total,
+//       order.payment_method,
+//       order.created_at,
+//     ]);
+
+//     const csvContent = [
+//       [
+//         "Order ID",
+//         "Customer",
+//         "Phone",
+//         "Address",
+//         "Type",
+//         "Total",
+//         "Payment Method",
+//         "Date",
+//       ],
+//       ...rows,
+//     ]
+//       .map((row) => row.map((field) => `"${field}"`).join(","))
+//       .join("\n");
+
+//     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+//     const url = URL.createObjectURL(blob);
+//     const link = document.createElement("a");
+//     link.href = url;
+//     link.setAttribute("download", "report-orders.csv");
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+
+//     setCsvMessage("CSV exported successfully!");
+//     setTimeout(() => setCsvMessage(""), 2000);
+//   };
+
+//   return (
+//     <div className="">
+//       {csvMessage && (
+//         <div className="mb-2 text-center  px-3 bg-green-600 text-white rounded-md animate-pulse">
+//           {csvMessage}
+//         </div>
+//       )}
+
+//       {/* ===== Header: search, date filter, export ===== */}
+//       <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+//         <h2 className="text-2xl text-indigo-500 font-semibold mb-6">
+//           Report Orders
+//         </h2>
+//         <div className="flex flex-col md:flex-row gap-3">
+//           <div className="relative">
+//             <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-400" />
+//             <input
+//               value={searchTerm}
+//               onChange={(e) => setSearchTerm(e.target.value)}
+//               placeholder="Search orders..."
+//               className="rounded-2xl bg-neutral-900 border border-neutral-700 pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//             />
+//           </div>
+//           <button
+//             onClick={handleExport}
+//             className="flex items-center gap-1 px-3 py-2 rounded-2xl border border-neutral-700 text-sm text-neutral-300 hover:text-white"
+//           >
+//             <Download size={14} /> Export
+//           </button>
+
+//           <input
+//             type="date"
+//             value={fromDate}
+//             onChange={(e) => setFromDate(e.target.value)}
+//             className="rounded-2xl bg-indigo-500 focus:ring-indigo-400 text-white px-3 py-2 text-sm"
+//           />
+
+//           <input
+//             type="date"
+//             value={toDate}
+//             onChange={(e) => setToDate(e.target.value)}
+//             className="rounded-2xl bg-indigo-500 focus:ring-indigo-400 text-white px-3 py-2 text-sm"
+//           />
+//         </div>
+//       </div>
+
+//       {loading ? (
+//         <div className="text-center text-slate-400 py-10">Loading...</div>
+//       ) : error ? (
+//         <div className="text-center text-red-500 py-10">{error}</div>
+//       ) : paginated.length === 0 ? (
+//         <div className="text-center text-slate-400 py-10">No orders found.</div>
+//       ) : (
+//         <div className="overflow-x-auto bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
+//           <table className="w-full text-sm">
+//             <thead className="text-slate-400 border-b border-slate-700">
+//               <tr>
+//                 <th className="py-4 text-left">Order ID</th>
+//                 <th className="py-4 text-left">Customer</th>
+//                 <th className="py-4 text-left">Phone</th>
+//                 <th className="py-4 text-left">Address</th>
+//                 <th className="py-4 text-left">Type</th>
+//                 <th className="py-4 text-left">Total</th>
+//                 <th className="py-4 text-left">Payment Method</th>
+//                 <th className="py-4 text-left">Action</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {paginated.map((order) => (
+//                 <tr
+//                   key={order.id}
+//                   className="border-b border-slate-800 hover:bg-slate-800/40 transition"
+//                 >
+//                   <td className="py-4 font-semibold text-cyan-400">
+//                     {order.id}
+//                   </td>
+//                   <td className="py-4 text-slate-300">{order.name}</td>
+//                   <td className="py-4 text-slate-300">{order.phone}</td>
+//                   <td className="py-4 text-slate-300">{order.address}</td>
+//                   <td className="py-4 text-indigo-400">{order.type}</td>
+//                   <td className="py-4 text-yellow-400">
+//                     {order.grand_total?.toLocaleString()} Ks
+//                   </td>
+//                   <td className="py-4 text-indigo-400">
+//                     {order.payment_method}
+//                   </td>
+//                   <td className="py-4 flex gap-2 items-center">
+//                     <button
+//                       onClick={() => setSelected(order)}
+//                       className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-sm"
+//                     >
+//                       Details
+//                     </button>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+
+//           {/* ===== Pagination ===== */}
+//           <div className="flex justify-between px-4 pt-4 text-sm text-neutral-400">
+//             <p>
+//               Page {totalPages === 0 ? 0 : page} of {totalPages}
+//             </p>
+
+//             {/* ===== Pagination ===== */}
+//             <div className="flex justify-center items-center gap-2 pt-4 text-sm text-neutral-400">
+//               <button
+//                 disabled={page === 1}
+//                 onClick={() => setPage(page - 1)}
+//                 className="px-3 py-1 rounded-md border border-neutral-700"
+//               >
+//                 Prev
+//               </button>
+
+//               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+//                 <button
+//                   key={p}
+//                   onClick={() => setPage(p)}
+//                   className={`px-3 py-1 rounded-md border border-neutral-700 ${
+//                     page === p
+//                       ? "bg-indigo-500 text-white border-indigo-600"
+//                       : ""
+//                   }`}
+//                 >
+//                   {p}
+//                 </button>
+//               ))}
+
+//               <button
+//                 disabled={page === totalPages || totalPages === 0}
+//                 onClick={() => setPage(page + 1)}
+//                 className="px-3 py-1 rounded-md border border-neutral-700"
+//               >
+//                 Next
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ================= POPUP ================= */}
+//       {selected && (
+//         <ReportPopup order={selected} close={() => setSelected(null)} />
+//       )}
+//     </div>
+//   );
+// }
+
+import React, { useEffect, useMemo, useState } from "react";
+import { Search, Download, Eye } from "lucide-react";
 import ReportPopup from "./ReportPopup";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default function ReportTable({ shopId }) {
-  const [orders, setOrders] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  // ===== New states for filtering, pagination, export =====
   const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+
+    const [selected, setSelected] = useState(null);
+  
+
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(5);
-  const [csvMessage, setCsvMessage] = useState("");
+  const pageSize = 5;
+
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalAmount: 0,
+    totalDeliveryFees: 0,
+  });
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    if (!shopId) return;
+
+    const fetchReport = async () => {
       try {
+        setLoading(true);
+
         const res = await fetch(
-          `http://38.60.244.137:3000/report-shops/${shopId}`,
+          `https://api.pwezayshops.com/report-shops/${shopId}`
         );
+
         const data = await res.json();
 
         if (data.success) {
-          // 🔥 keep only this shop's items
-          const filteredOrders = data.data.map((item) => {
-            const order = item.order;
+          setReports(data.data);
 
-            const shopOrders = order.orders.filter((o) => o.shop_id === shopId);
-
-            return {
-              ...order,
-              orders: shopOrders,
-              deliveryman: item.deliveryman,
-            };
+          setStats({
+            totalOrders: data.total,
+            totalAmount: data.total_amount,
+            totalDeliveryFees: data.total_delivery_fees,
           });
-
-          setOrders(filteredOrders);
-          setError("");
-        } else {
-          setError("Failed to fetch orders.");
         }
       } catch (err) {
         console.error(err);
-        setError("Something went wrong.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrders();
+    fetchReport();
   }, [shopId]);
 
-  // ===== Filtering =====
-  const filtered = useMemo(() => {
-    return orders.filter((order) => {
-      const matchesSearch =
-        order.id?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.phone?.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const orderDate = new Date(order.created_at);
-      const fromMatch = fromDate ? orderDate >= new Date(fromDate) : true;
-      const toMatch = toDate ? orderDate <= new Date(toDate) : true;
-
-      return matchesSearch && fromMatch && toMatch;
-    });
-  }, [orders, searchTerm, fromDate, toDate]);
-
-  // ===== Pagination =====
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
-
   useEffect(() => {
-    if (page > totalPages) setPage(1);
-  }, [filtered]);
+    setPage(1);
+  }, [searchTerm, fromDate, toDate]);
 
-  // ===== CSV Export =====
+const filteredReports = useMemo(() => {
+  return reports.filter((row) => {
+    const order = row.order;
+
+    const matchesSearch =
+      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.type || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(order.total_order).includes(searchTerm) ||
+      String(order.grand_total).includes(searchTerm) ||
+      (order.payment_method || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      (row.deliveryman?.name || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+    const orderDate = new Date(order.created_at);
+    orderDate.setHours(0, 0, 0, 0);
+
+    let matchesDate = true;
+
+    if (fromDate && toDate) {
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+
+      matchesDate =
+        orderDate.getTime() >= from.getTime() &&
+        orderDate.getTime() <= to.getTime();
+    } else if (fromDate || toDate) {
+      const selected = new Date(fromDate || toDate);
+      selected.setHours(0, 0, 0, 0);
+
+      matchesDate = orderDate.getTime() === selected.getTime();
+    }
+
+    return matchesSearch && matchesDate;
+  });
+}, [reports, searchTerm, fromDate, toDate]);
+
+  const totalPages = Math.ceil(filteredReports.length / pageSize);
+
+  const paginatedReports = filteredReports.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
+  // const handleExport = () => {
+  //   const csvContent = [
+  //     [
+  //       "Order ID",
+  //       "Customer",
+  //       "Phone",
+  //       "Type",
+  //       "Items",
+  //       "Grand Total",
+  //       "Delivery Fee",
+  //       "Payment",
+  //       "Delivery Man",
+  //       "Date",
+  //     ],
+
+  //     ...filteredReports.map((row) => [
+  //       row.order.id,
+  //       row.order.name,
+  //       row.order.phone,
+  //       row.order.type,
+  //       row.order.total_order,
+  //       row.order.grand_total,
+  //       row.order.delivery_fees,
+  //       row.order.payment_method,
+  //       row.deliveryman?.name || "-",
+  //       row.order.created_at,
+  //     ]),
+  //   ]
+  //     .map((row) => row.join(","))
+  //     .join("\n");
+
+  //   const blob = new Blob([csvContent], {
+  //     type: "text/csv;charset=utf-8;",
+  //   });
+
+  //   const url = URL.createObjectURL(blob);
+
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.download = `report_${shopId}.csv`;
+
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  // };
+
   const handleExport = () => {
-    const rows = filtered.map((order) => [
-      order.id,
-      order.name,
-      order.phone,
-      order.address,
-      order.type,
-      order.grand_total,
-      order.payment_method,
-      order.created_at,
-    ]);
+  try {
+    const exportData = [
+      {
+        "Order ID": "Order ID",
+        Customer: "Customer",
+        Phone: "Phone",
+        Type: "Type",
+        Items: "Items",
+        "Grand Total": "Grand Total",
+        "Delivery Fee": "Delivery Fee",
+        Payment: "Payment",
+        "Delivery Man": "Delivery Man",
+        Date: "Date",
+      },
 
-    const csvContent = [
-      [
-        "Order ID",
-        "Customer",
-        "Phone",
-        "Address",
-        "Type",
-        "Total",
-        "Payment Method",
-        "Date",
-      ],
-      ...rows,
-    ]
-      .map((row) => row.map((field) => `"${field}"`).join(","))
-      .join("\n");
+      ...filteredReports.map((row) => ({
+        "Order ID": row.order.id,
+        Customer: row.order.name,
+        Phone: row.order.phone,
+        Type: row.order.type,
+        Items: row.order.total_order,
+        "Grand Total": row.order.grand_total,
+        "Delivery Fee": row.order.delivery_fees,
+        Payment: row.order.payment_method,
+        "Delivery Man": row.deliveryman?.name || "-",
+        Date: new Date(row.order.created_at).toLocaleString(),
+      })),
+    ];
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    worksheet["!cols"] = [
+      { wch: 15 }, // Order ID
+      { wch: 20 }, // Customer
+      { wch: 15 }, // Phone
+      { wch: 10 }, // Type
+      { wch: 10 }, // Items
+      { wch: 15 }, // Grand Total
+      { wch: 15 }, // Delivery Fee
+      { wch: 15 }, // Payment
+      { wch: 20 }, // Delivery Man
+      { wch: 25 }, // Date
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Reports");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "report-orders.csv");
+    link.download = `report_${shopId}.xlsx`;
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    setCsvMessage("CSV exported successfully!");
-    setTimeout(() => setCsvMessage(""), 2000);
-  };
-
+  } catch (error) {
+    console.error("Export error:", error);
+  }
+};
   return (
-    <div className="">
-      {csvMessage && (
-        <div className="mb-2 text-center  px-3 bg-green-600 text-white rounded-md animate-pulse">
-          {csvMessage}
-        </div>
-      )}
+    <div className="text-white">
 
-      {/* ===== Header: search, date filter, export ===== */}
-      <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h2 className="text-2xl text-indigo-500 font-semibold mb-6">
-          Report Orders
-        </h2>
-        <div className="flex flex-col md:flex-row gap-3">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-400" />
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search orders..."
-              className="rounded-2xl bg-neutral-900 border border-neutral-700 pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            />
+   
+
+       {/* Header */}
+            <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h2 className="text-2xl font-semibold text-indigo-400">
+                Report Table
+              </h2>
+              <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative">
+                    <Search
+                      size={14}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
+                    />
+                    <input
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search..."
+                      className="pl-10 pr-4 py-2 rounded-2xl text-sm bg-slate-900/60 border border-slate-700 text-white outline-none focus:border-indigo-500 w-full sm:w-[250px]"
+                    />
+                  </div>
+      
+                  <button
+                    onClick={handleExport}
+                    className="px-4 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium hover:bg-indigo-500/20 transition flex items-center gap-1"
+                  >
+                    <Download size={14} /> Export
+                  </button>
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    className="rounded-2xl bg-indigo-400 text-neutral-900 pl-3 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 hover:bg-indigo-300 focus:ring-indigo-300"
+                  />
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                    className="rounded-2xl bg-indigo-400 text-neutral-900 pl-3 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 hover:bg-indigo-300 focus:ring-indigo-300"
+                  />
+                </div>
+              </div>
+            </div>
+
+      {/* Table */}
+      <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
+
+        {loading ? (
+          <div className="text-center py-10">
+            Loading...
           </div>
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-1 px-3 py-2 rounded-2xl border border-neutral-700 text-sm text-neutral-300 hover:text-white"
-          >
-            <Download size={14} /> Export
-          </button>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
 
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="rounded-2xl bg-indigo-500 focus:ring-indigo-400 text-white px-3 py-2 text-sm"
-          />
+              <table className="w-full text-sm">
 
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="rounded-2xl bg-indigo-500 focus:ring-indigo-400 text-white px-3 py-2 text-sm"
-          />
-        </div>
-      </div>
+                <thead className="border-b border-slate-700 text-slate-400">
+                  <tr>
+                    <th className="py-4 text-left">Order ID</th>
+                    <th className="py-4 text-left">Customer</th>
+                    <th className="py-4 text-left">Phone</th>
+                    <th className="py-4 text-left">Type</th>
+                    <th className="py-4 text-left">Items</th>
+                    <th className="py-4 text-left">Grand Total</th>
+                    {/* <th className="py-4 text-left">Delivery Fee</th> */}
+                    <th className="py-4 text-left">Payment</th>
+                    <th className="py-4 text-left">Delivery Man</th>
+                    <th className="py-4 text-left">Date</th>
+                    <th className="py-4 text-left"> 	Action</th>
+                  </tr>
+                </thead>
 
-      {loading ? (
-        <div className="text-center text-slate-400 py-10">Loading...</div>
-      ) : error ? (
-        <div className="text-center text-red-500 py-10">{error}</div>
-      ) : paginated.length === 0 ? (
-        <div className="text-center text-slate-400 py-10">No orders found.</div>
-      ) : (
-        <div className="overflow-x-auto bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
-          <table className="w-full text-sm">
-            <thead className="text-slate-400 border-b border-slate-700">
-              <tr>
-                <th className="py-4 text-left">Order ID</th>
-                <th className="py-4 text-left">Customer</th>
-                <th className="py-4 text-left">Phone</th>
-                <th className="py-4 text-left">Address</th>
-                <th className="py-4 text-left">Type</th>
-                <th className="py-4 text-left">Total</th>
-                <th className="py-4 text-left">Payment Method</th>
-                <th className="py-4 text-left">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.map((order) => (
-                <tr
-                  key={order.id}
-                  className="border-b border-slate-800 hover:bg-slate-800/40 transition"
-                >
-                  <td className="py-4 font-semibold text-cyan-400">
-                    {order.id}
-                  </td>
-                  <td className="py-4 text-slate-300">{order.name}</td>
-                  <td className="py-4 text-slate-300">{order.phone}</td>
-                  <td className="py-4 text-slate-300">{order.address}</td>
-                  <td className="py-4 text-indigo-400">{order.type}</td>
-                  <td className="py-4 text-yellow-400">
-                    {order.grand_total?.toLocaleString()} Ks
-                  </td>
-                  <td className="py-4 text-indigo-400">
-                    {order.payment_method}
-                  </td>
-                  <td className="py-4 flex gap-2 items-center">
-                    <button
-                      onClick={() => setSelected(order)}
-                      className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-sm"
+                <tbody>
+                  {paginatedReports.map((row) => (
+                    <tr
+                      key={row.order.id}
+                      className="border-b border-slate-800 hover:bg-slate-800/40"
                     >
-                      Details
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <td className="py-4 text-cyan-400 font-semibold">
+                        {row.order.id}
+                      </td>
 
-          {/* ===== Pagination ===== */}
-          <div className="flex justify-between px-4 pt-4 text-sm text-neutral-400">
-            <p>
-              Page {totalPages === 0 ? 0 : page} of {totalPages}
-            </p>
+                      <td className="py-4">{row.order.name}</td>
 
-            {/* ===== Pagination ===== */}
-            <div className="flex justify-center items-center gap-2 pt-4 text-sm text-neutral-400">
-              <button
-                disabled={page === 1}
-                onClick={() => setPage(page - 1)}
-                className="px-3 py-1 rounded-md border border-neutral-700"
-              >
-                Prev
-              </button>
+                      <td className="py-4">{row.order.phone}</td>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                      <td className="py-4">{row.order.type}</td>
+
+                      <td className="py-4">
+                        {row.order.total_order}
+                      </td>
+
+                      <td className="py-4 text-green-400 font-semibold">
+                        {row.order.grand_total.toLocaleString()} Ks
+                      </td>
+
+                      {/* <td className="py-4 text-yellow-400">
+                        {row.order.delivery_fees.toLocaleString()} Ks
+                      </td> */}
+
+                      <td className="py-4">
+                        {row.order.payment_method}
+                      </td>
+
+                      <td className="py-4">
+                        {row.deliveryman?.name || "-"}
+                      </td>
+
+                      <td className="py-4 text-slate-300">
+                        {new Date(
+                          row.order.created_at
+                        ).toLocaleDateString("en-GB")}
+                      </td>
+                         <td className="py-4">
+                        <button
+                       onClick={() => setSelected(row)}
+                          className="flex items-center gap-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-sm transition"
+                        >
+                          <Eye size={16} />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+
+                    
+                  ))}
+                </tbody>
+
+              </table>
+            </div>
+
+            {/* Pagination */}
+          
+            {/* Pagination */}
+            <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
+              <p>
+                Page {totalPages === 0 ? 0 : page} of {totalPages}
+              </p>
+              <div className="flex gap-2 flex-wrap">
                 <button
-                  key={p}
-                  onClick={() => setPage(p)}
+                  disabled={page === 1}
+                  onClick={() => setPage(Math.max(1, page - 1))}
                   className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                    page === p
-                      ? "bg-indigo-500 text-white border-indigo-600"
-                      : ""
+                    page === 1
+                      ? "text-neutral-500 cursor-not-allowed"
+                      : "text-indigo-400 hover:bg-neutral-900"
                   }`}
                 >
-                  {p}
+                  Prev
                 </button>
-              ))}
 
-              <button
-                disabled={page === totalPages || totalPages === 0}
-                onClick={() => setPage(page + 1)}
-                className="px-3 py-1 rounded-md border border-neutral-700"
-              >
-                Next
-              </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (n) => (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n)}
+                      className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                        page === n
+                          ? "bg-indigo-300 text-black font-semibold"
+                          : "text-indigo-300 hover:bg-neutral-900"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  disabled={page === totalPages}
+                  onClick={() => setPage(Math.min(totalPages, page + 1))}
+                  className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                    page === totalPages
+                      ? "text-neutral-500 cursor-not-allowed"
+                      : "text-indigo-500 hover:bg-neutral-900"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* ================= POPUP ================= */}
-      {selected && (
-        <ReportPopup order={selected} close={() => setSelected(null)} />
-      )}
+          </>
+        )}
+      </div>
+                  {/* Open Modal */}
+                {selected && (
+      <ReportPopup
+        data={selected}
+        close={() => setSelected(null)}
+      />
+    )}
     </div>
+    
   );
 }

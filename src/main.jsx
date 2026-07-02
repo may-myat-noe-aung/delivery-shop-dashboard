@@ -18,6 +18,7 @@ import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import router from "./routes/router.jsx";
 import { AlertProvider } from "./AlertProvider.jsx";
+import "leaflet/dist/leaflet.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <AlertProvider>

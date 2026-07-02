@@ -4,6 +4,17 @@
 
 @tailwind utilities;
 
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  body {
+    margin: 0;
+  }
+}
+
 /* Hide scrollbar but keep scrollable */
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
@@ -11,4 +22,60 @@
 .hide-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* Print  */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Remove default browser header/footer */
+  @page {
+    margin: 10mm;
+  }
+}
+/* ===== MAC STYLE FLOATING SCROLLBAR (CLEAN) ===== */
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.4) transparent;
+}
+
+/* Chrome / Edge / Safari */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 12px 0; /* floating effect */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.35);
+  border-radius: 999px;
+  transition: 0.3s ease;
+}
+
+/* hover only thumb (correct way) */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.85);
+}
+
+/* optional: active click state */
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: #4f46e5;
 }

@@ -26,9 +26,9 @@
 //       let url = "";
 
 //       if (isOpen) {
-//         url = `http://38.60.244.137:3000/off-shop-deli/${shopId}`;
+//         url = `https://api.pwezayshops.com/off-shop-deli/${shopId}`;
 //       } else {
-//         url = `http://38.60.244.137:3000/open-shop-deli/${shopId}`;
+//         url = `https://api.pwezayshops.com/open-shop-deli/${shopId}`;
 //       }
 
 //       const res = await axios.patch(url);
@@ -99,7 +99,7 @@
 //         setInitialLoading(true);
 
 //         const res = await axios.get(
-//           `http://38.60.244.137:3000/shops-deli-open/${shopId}`
+//           `https://api.pwezayshops.com/shops-deli-open/${shopId}`
 //         );
 
 //         const status = res.data?.[0]?.open_shop_deli;
@@ -134,8 +134,8 @@
 
 //     try {
 //       const url = isOpen
-//         ? `http://38.60.244.137:3000/off-shop-deli/${shopId}`
-//         : `http://38.60.244.137:3000/open-shop-deli/${shopId}`;
+//         ? `https://api.pwezayshops.com/off-shop-deli/${shopId}`
+//         : `https://api.pwezayshops.com/open-shop-deli/${shopId}`;
 
 //       const res = await axios.patch(url);
 
@@ -220,7 +220,7 @@ export default function DeliveryToggle({ shopId }) {
 
       try {
         const res = await axios.get(
-          `http://38.60.244.137:3000/shops-deli-open/${shopId}`
+          `https://api.pwezayshops.com/shops-deli-open/${shopId}`
         );
 
         const status = res.data?.[0]?.open_shop_deli;
@@ -257,8 +257,8 @@ export default function DeliveryToggle({ shopId }) {
 
     try {
       const url = isOpen
-        ? `http://38.60.244.137:3000/off-shop-deli/${shopId}`
-        : `http://38.60.244.137:3000/open-shop-deli/${shopId}`;
+        ? `https://api.pwezayshops.com/off-shop-deli/${shopId}`
+        : `https://api.pwezayshops.com/open-shop-deli/${shopId}`;
 
       const res = await axios.patch(url);
 

@@ -17,6 +17,9 @@
 //   const [selectedMenus, setSelectedMenus] = useState([]);
 //   const [selectedMonths, setSelectedMonths] = useState([]);
 
+//   // For Loading
+//   const [loading, setLoading] = useState(false);
+
 //   // =========================
 //   // ✅ ADDED ONLY (ACCORDION STATE)
 //   // =========================
@@ -45,14 +48,20 @@
 //     const fetchIngredients = async () => {
 //       try {
 //         const res = await fetch(
-//           `http://38.60.244.137:3000/ingredients/${shopId}`,
+//           `https://api.pwezayshops.com/ingredients/${shopId}`,
 //         );
 //         const data = await res.json();
 
+//         if (!res.ok || !Array.isArray(data)) {
+//           setIngredientsList([]);
+//           return;
+//         }
+
 //         const withPhoto = data.map((item) => ({
 //           ...item,
-//           photo: `http://38.60.244.137:3000/ingredients-uploads/${item.photo}`,
+//           photo: `https://api.pwezayshops.com/ingredients-uploads/${item.photo}`,
 //         }));
+
 //         setIngredientsList(withPhoto);
 //       } catch (err) {
 //         console.error("Failed to fetch ingredients", err);
@@ -62,10 +71,16 @@
 //     const fetchCategories = async () => {
 //       try {
 //         const res = await fetch(
-//           `http://38.60.244.137:3000/categories/${shopId}`,
+//           `https://api.pwezayshops.com/categories/${shopId}`,
 //         );
 //         const data = await res.json();
-//         setCategoriesList(Array.isArray(data) ? data : []);
+
+//         if (!res.ok || !Array.isArray(data)) {
+//           setCategoriesList([]);
+//           return;
+//         }
+
+//         setCategoriesList(data);
 //       } catch (err) {
 //         console.error("Failed to fetch categories", err);
 //       }
@@ -114,25 +129,36 @@
 //   };
 
 //   const handleSubmit = async () => {
-//     if (!name.trim() || !selectedCategory.trim() || prices.length === 0) {
-//       showAlert("Please fill required fields", "error");
+//     // if (!name.trim() || !photo || prices.length === 0) {
+//     //   showAlert("menu name, photo and prices ကို ဖြည့်သွင်းပေးပါ။", "error");
+//     //   return;
+//     // }
+
+//     const cleanedPrices = prices
+//       .filter((p) => Number(p.price) > 0)
+//       .map((p) => ({
+//         size: p.size || null,
+//         price: Number(p.price),
+//       }));
+
+//     if (!name.trim()) {
+//       showAlert("Menu Name ဖြည့်ပေးပါ", "error");
 //       return;
 //     }
 
-//     // ✅ ADD THIS HERE
-//     // const cleanedPrices = prices.map((p) => ({
-//     //   size: p.size || null,
-//     //   price: p.price || 0,
-//     // }));
-//     const cleanedPrices = prices
-//       .filter((p) => p.price > 0) // remove empty price
-//       .map((p) => ({
-//         size: p.size || null,
-//         price: p.price,
-//       }));
+//     if (!photo) {
+//       showAlert("Photo ရွေးပေးပါ", "error");
+//       return;
+//     }
+
+//     if (cleanedPrices.length === 0) {
+//       showAlert("Price အနည်းဆုံး တစ်ခုထည့်ပေးပါ", "error");
+//       return;
+//     }
+//     setLoading(true);
 
 //     try {
-//       const res = await fetch("http://38.60.244.137:3000/menu", {
+//       const res = await fetch("https://api.pwezayshops.com/menu", {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify({
@@ -149,23 +175,29 @@
 //         }),
 //       });
 
-//       const data = await res.json();
+//   const data = await res.json();
 
-//       if (data.success) {
-//         showAlert(data.message || "Menu created successfully", "success");
-//         onSuccess();
-//       } else {
-//         showAlert(data.message || "Failed to create menu", "error");
-//       }
+// console.log(data);
+
+// if (res.ok) {
+//   showAlert(data.message || "Menu created successfully", "success");
+
+//   onSuccess?.(); // close modal
+
+//   return;
+// }
+
+// showAlert(data.message || "Failed to create menu", "error");
 //     } catch (err) {
 //       console.error(err);
 //       showAlert("Server error", "error");
+//     } finally {
+//       setLoading(false);
 //     }
 //   };
-
 //   return (
 //     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-//       <div className="bg-[#111827] w-[550px] rounded-2xl p-6 border border-gray-700 shadow-xl overflow-y-auto max-h-[90vh]">
+//       <div className="bg-[#111827] w-[550px] rounded-2xl p-6 border border-gray-700 shadow-xl overflow-y-auto max-h-[90vh] custom-scrollbar">
 //         <h2 className="text-2xl font-semibold text-white mb-5">Create Menu</h2>
 
 //         {/* ================= PHOTO ================= */}
@@ -177,7 +209,7 @@
 //             </label>
 
 //             <div
-//               className="relative w-full h-40 border-2 border-dashed border-gray-600 rounded-xl flex items-center justify-center cursor-pointer bg-gray-900 hover:border-indigo-500 transition-colors"
+//               className="relative w-full h-36 border-2 border-dashed border-gray-600 rounded-xl flex items-center justify-center cursor-pointer bg-gray-900 hover:border-indigo-500 transition-colors"
 //               onClick={() => document.getElementById("menuPhotoInput").click()}
 //             >
 //               {!photo ? (
@@ -221,37 +253,7 @@
 //           />
 
 //           {/* ================= CATEGORY (ACCORDION) ================= */}
-//           {/* <div className="border border-gray-700 rounded-lg overflow-hidden">
-//             <div
-//               onClick={() => setOpenCategory(!openCategory)}
-//               className="flex justify-between items-center p-3 bg-gray-900 cursor-pointer"
-//             >
-//               <span className="text-white font-medium">Category</span>
-//               {openCategory ? <ChevronUp /> : <ChevronDown />}
-//             </div>
 
-//             {openCategory && (
-//               <div className="p-2 max-h-32 overflow-y-auto bg-gray-950">
-//                 {Array.isArray(categoriesList) &&
-//                   categoriesList.map((cat) => (
-//                     <label
-//                       key={cat.id}
-//                       className="flex items-center gap-2 p-1 hover:bg-gray-800 rounded"
-//                     >
-//                       <input
-//                         type="radio"
-//                         checked={selectedCategory === cat.id}
-//                         onChange={() => setSelectedCategory(cat.id)}
-//                         className="accent-indigo-400"
-//                       />
-//                       <span className="text-white">
-//                         {cat.icon_id} - {cat.name}
-//                       </span>
-//                     </label>
-//                   ))}
-//               </div>
-//             )}
-//           </div> */}
 //           <div className="border border-gray-700 rounded-lg overflow-hidden">
 //             <div
 //               onClick={() => setOpenCategory(!openCategory)}
@@ -264,8 +266,8 @@
 //             </div>
 
 //             {openCategory && (
-//               <div className="p-3 flex flex-wrap gap-2 bg-gray-950">
-//                 {categoriesList.map((cat) => (
+//               <div className="p-3 flex flex-wrap gap-2 ">
+//                 {/* {categoriesList.map((cat) => (
 //                   <button
 //                     key={cat.id}
 //                     onClick={() => setSelectedCategory(String(cat.id))}
@@ -278,7 +280,27 @@
 //                   >
 //                     {cat.name}
 //                   </button>
-//                 ))}
+//                 ))} */}
+//                 {categoriesList.length === 0 ? (
+//                   <p className="text-gray-400 text-sm py-2">
+//                     Category မရှိသေးပါ
+//                   </p>
+//                 ) : (
+//                   categoriesList.map((cat) => (
+//                     <button
+//                       key={cat.id}
+//                       onClick={() => setSelectedCategory(String(cat.id))}
+//                       className={`px-3 py-1.5 rounded-full border text-sm transition-all
+//       ${
+//         selectedCategory === String(cat.id)
+//           ? "bg-indigo-600 text-white border-indigo-500"
+//           : "bg-gray-900 text-gray-300 border-gray-700 hover:border-indigo-400"
+//       }`}
+//                     >
+//                       {cat.name}
+//                     </button>
+//                   ))
+//                 )}
 //               </div>
 //             )}
 //           </div>
@@ -299,13 +321,13 @@
 //                 <input
 //                   value={p.size}
 //                   onChange={(e) => updatePrice(i, "size", e.target.value)}
-//                   className="flex-1 p-2 rounded bg-gray-900 border border-gray-700"
+//                   className="flex-1 p-2  bg-gray-900 border border-gray-700 rounded-lg"
 //                 />
 //                 <input
 //                   type="number"
 //                   value={p.price}
 //                   onChange={(e) => updatePrice(i, "price", e.target.value)}
-//                   className="w-24 p-2 rounded bg-gray-900 border border-gray-700"
+//                   className="w-24 p-2  bg-gray-900 border border-gray-700 rounded-lg"
 //                 />
 //                 <button onClick={() => removePrice(i)}>X</button>
 //               </div>
@@ -314,7 +336,7 @@
 //               {" "}
 //               <button
 //                 onClick={addPrice}
-//                 className="bg-indigo-600 px-3 py-1 rounded "
+//                 className="bg-indigo-600 px-3 py-1 rounded-lg "
 //               >
 //                 Add Price
 //               </button>
@@ -333,7 +355,7 @@
 
 //             {openIngredients && (
 //               <div className="p-2 max-h-40 overflow-y-auto">
-//                 {ingredientsList.map((ing) => (
+//                 {/* {ingredientsList.map((ing) => (
 //                   <label key={ing.id} className="flex items-center gap-2 p-1">
 //                     <input
 //                       type="checkbox"
@@ -344,46 +366,34 @@
 //                     <img src={ing.photo} className="w-10 h-10 rounded" />
 //                     <span className="text-white">{ing.name}</span>
 //                   </label>
-//                 ))}
+//                 ))} */}
+//                 {ingredientsList.length === 0 ? (
+//                   <p className="text-gray-400 text-sm py-2">
+//                     Ingredient မရှိသေးပါ
+//                   </p>
+//                 ) : (
+//                   ingredientsList.map((ing) => (
+//                     <label key={ing.id} className="flex items-center gap-2 p-1">
+//                       <input
+//                         type="checkbox"
+//                         checked={selectedIngredients.includes(ing.id)}
+//                         onChange={() => toggleIngredient(ing.id)}
+//                         className="accent-indigo-400"
+//                       />
+//                       <img src={ing.photo} className="w-10 h-10 rounded" />
+//                       <span className="text-white">{ing.name}</span>
+//                     </label>
+//                   ))
+//                 )}
 //               </div>
 //             )}
 //           </div>
 
 //           {/* ================= MONTHS (ACCORDION) ================= */}
-//           {/* <div className="border border-gray-700 rounded-lg overflow-hidden">
-//             <div
-//               onClick={() => setOpenMonths(!openMonths)}
-//               className="flex justify-between items-center p-3 bg-gray-900 cursor-pointer"
-//             >
-//               <span className="text-white font-medium">Available Months</span>
-//               {openMonths ? <ChevronUp /> : <ChevronDown />}
-//             </div>
-
-//             {openMonths && (
-//               <div className="p-3 flex flex-wrap gap-2 bg-gray-950">
-//                 {monthsOptions.map((m) => (
-//                   <label key={m} className="flex gap-1">
-//                     <input
-//                       type="checkbox"
-//                       checked={selectedMonths.includes(m)}
-//                       onChange={() =>
-//                         selectedMonths.includes(m)
-//                           ? setSelectedMonths(
-//                               selectedMonths.filter((x) => x !== m),
-//                             )
-//                           : setSelectedMonths([...selectedMonths, m])
-//                       }
-//                     />
-//                     <span className="text-white">{m}</span>
-//                   </label>
-//                 ))}
-//               </div>
-//             )}
-//           </div> */}
 //           <div className="border border-gray-700 rounded-lg overflow-hidden">
 //             <div
 //               onClick={() => setOpenMonths(!openMonths)}
-//               className="flex justify-between items-center p-3 bg-gray-900 cursor-pointer"
+//               className="flex justify-between items-center p-3 cursor-pointer"
 //             >
 //               <span className="text-white font-medium">
 //                 Available Months ({selectedMonths.length})
@@ -392,7 +402,7 @@
 //             </div>
 
 //             {openMonths && (
-//               <div className="p-3 flex flex-wrap gap-2 bg-gray-950">
+//               <div className="p-3 flex flex-wrap gap-2">
 //                 {monthsOptions.map((m) => {
 //                   const active = selectedMonths.includes(m);
 
@@ -409,14 +419,33 @@
 //                       className={`px-3 py-1.5 rounded-full text-sm border transition-all
 //               ${
 //                 active
-//                   ? "bg-green-600 text-white border-green-500"
-//                   : "bg-gray-900 text-gray-300 border-gray-700 hover:border-green-400"
+//                   ? "bg-indigo-600 text-white border-indigo-500"
+//                   : "bg-gray-900 text-gray-300 border-gray-700 hover:border-indigo-400"
 //               }`}
 //                     >
 //                       {m}
 //                     </button>
 //                   );
 //                 })}
+//                 {/* Select All Button */}
+//                 <div className="flex justify-end pl-[130px]">
+//                   <button
+//                     onClick={() => {
+//                       if (selectedMonths.length === monthsOptions.length) {
+//                         // Deselect all
+//                         setSelectedMonths([]);
+//                       } else {
+//                         // Select all
+//                         setSelectedMonths(monthsOptions);
+//                       }
+//                     }}
+//                     className="text-xs px-3 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white transition"
+//                   >
+//                     {selectedMonths.length === monthsOptions.length
+//                       ? "Deselect All"
+//                       : "Select All"}
+//                   </button>
+//                 </div>
 //               </div>
 //             )}
 //           </div>
@@ -424,20 +453,23 @@
 
 //         {/* BUTTONS */}
 //         <div className="flex justify-end gap-3 mt-5">
-//           <button onClick={close} className="px-4 py-2 bg-gray-600 rounded">
+//           <button onClick={close} className="px-4 py-2 bg-gray-600 rounded-lg">
 //             Cancel
 //           </button>
 //           <button
 //             onClick={handleSubmit}
-//             className="px-4 py-2 bg-indigo-600 rounded"
+//             disabled={loading}
+//             className={`px-4 py-2 rounded-lg text-white ${
+//               loading ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600"
+//             }`}
 //           >
-//             Create Menu
+//             {loading ? "Creating..." : "Create Menu"}
 //           </button>
 //         </div>
 //       </div>
 //     </div>
 //   );
-// }
+// } in my code i want to also add Relate Menus before Relate Ingredients relate_menu: [S001_M007, S001_M006], ui like this Relate Ingredients
 
 import React, { useState, useEffect } from "react";
 import { useAlert } from "../../AlertProvider";
@@ -453,15 +485,20 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
 
   const [ingredientsList, setIngredientsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
+  const [menusList, setMenusList] = useState([]);
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedMenus, setSelectedMenus] = useState([]);
   const [selectedMonths, setSelectedMonths] = useState([]);
 
+  // For Loading
+  const [loading, setLoading] = useState(false);
+
   // =========================
   // ✅ ADDED ONLY (ACCORDION STATE)
   // =========================
   const [openCategory, setOpenCategory] = useState(false);
+  const [openMenus, setOpenMenus] = useState(false);
   const [openIngredients, setOpenIngredients] = useState(false);
   const [openMonths, setOpenMonths] = useState(false);
 
@@ -486,33 +523,72 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
     const fetchIngredients = async () => {
       try {
         const res = await fetch(
-          `http://38.60.244.137:3000/ingredients/${shopId}`,
+          `https://api.pwezayshops.com/ingredients/${shopId}`,
         );
         const data = await res.json();
 
+        if (!res.ok || !Array.isArray(data)) {
+          setIngredientsList([]);
+          return;
+        }
+
         const withPhoto = data.map((item) => ({
           ...item,
-          photo: `http://38.60.244.137:3000/ingredients-uploads/${item.photo}`,
+          photo: `https://api.pwezayshops.com/ingredients-uploads/${item.photo}`,
         }));
+
         setIngredientsList(withPhoto);
       } catch (err) {
         console.error("Failed to fetch ingredients", err);
+      }
+    };
+    const fetchMenus = async () => {
+      try {
+        const res = await fetch(`https://api.pwezayshops.com/menu/${shopId}`);
+
+        const data = await res.json();
+
+    if(!res.ok || !Array.isArray(data.menus)){
+  setMenusList([]);
+  return;
+}
+
+
+const withPhoto = data.menus.map((item)=>({
+  ...item,
+  photo:
+    item.photo
+      ? `https://api.pwezayshops.com/menu-uploads/${item.photo}`
+      : null
+}));
+
+
+setMenusList(withPhoto);
+      } catch (err) {
+        console.error("Failed fetch menus", err);
       }
     };
 
     const fetchCategories = async () => {
       try {
         const res = await fetch(
-          `http://38.60.244.137:3000/categories/${shopId}`,
+          `https://api.pwezayshops.com/categories/${shopId}`,
         );
         const data = await res.json();
-        setCategoriesList(Array.isArray(data) ? data : []);
+
+        if (!res.ok || !Array.isArray(data)) {
+          setCategoriesList([]);
+          return;
+        }
+
+        setCategoriesList(data);
       } catch (err) {
         console.error("Failed to fetch categories", err);
       }
     };
 
     fetchIngredients();
+    fetchMenus();
     fetchCategories();
   }, [shopId]);
 
@@ -555,25 +631,36 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
   };
 
   const handleSubmit = async () => {
-    if (!name.trim() || !selectedCategory.trim() || prices.length === 0) {
-      showAlert("Please fill required fields", "error");
+    // if (!name.trim() || !photo || prices.length === 0) {
+    //   showAlert("menu name, photo and prices ကို ဖြည့်သွင်းပေးပါ။", "error");
+    //   return;
+    // }
+
+    const cleanedPrices = prices
+      .filter((p) => Number(p.price) > 0)
+      .map((p) => ({
+        size: p.size || null,
+        price: Number(p.price),
+      }));
+
+    if (!name.trim()) {
+      showAlert("Menu Name ဖြည့်ပေးပါ", "error");
       return;
     }
 
-    // ✅ ADD THIS HERE
-    // const cleanedPrices = prices.map((p) => ({
-    //   size: p.size || null,
-    //   price: p.price || 0,
-    // }));
-    const cleanedPrices = prices
-      .filter((p) => p.price > 0) // remove empty price
-      .map((p) => ({
-        size: p.size || null,
-        price: p.price,
-      }));
+    if (!photo) {
+      showAlert("Photo ရွေးပေးပါ", "error");
+      return;
+    }
+
+    if (cleanedPrices.length === 0) {
+      showAlert("Price အနည်းဆုံး တစ်ခုထည့်ပေးပါ", "error");
+      return;
+    }
+    setLoading(true);
 
     try {
-      const res = await fetch("http://38.60.244.137:3000/menu", {
+      const res = await fetch("https://api.pwezayshops.com/menu", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -592,24 +679,27 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
 
       const data = await res.json();
 
-      if (data.success) {
+      console.log(data);
+
+      if (res.ok) {
         showAlert(data.message || "Menu created successfully", "success");
-        onSuccess();
-        setTimeout(() => {
-          close();
-        }, 500);
-      } else {
-        showAlert(data.message || "Failed to create menu", "error");
+
+        onSuccess?.(); // close modal
+
+        return;
       }
+
+      showAlert(data.message || "Failed to create menu", "error");
     } catch (err) {
       console.error(err);
       showAlert("Server error", "error");
+    } finally {
+      setLoading(false);
     }
   };
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[#111827] w-[550px] rounded-2xl p-6 border border-gray-700 shadow-xl overflow-y-auto max-h-[90vh]">
+    <div className="fixed -inset-10 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-[#111827] w-[550px] rounded-2xl p-6 border border-gray-700 shadow-xl overflow-y-auto max-h-[85vh] custom-scrollbar">
         <h2 className="text-2xl font-semibold text-white mb-5">Create Menu</h2>
 
         {/* ================= PHOTO ================= */}
@@ -678,8 +768,8 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
             </div>
 
             {openCategory && (
-              <div className="p-3 flex flex-wrap gap-2 bg-gray-950">
-                {categoriesList.map((cat) => (
+              <div className="p-3 flex flex-wrap gap-2 ">
+                {/* {categoriesList.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(String(cat.id))}
@@ -692,7 +782,27 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
                   >
                     {cat.name}
                   </button>
-                ))}
+                ))} */}
+                {categoriesList.length === 0 ? (
+                  <p className="text-gray-400 text-sm py-2">
+                    Category မရှိသေးပါ
+                  </p>
+                ) : (
+                  categoriesList.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(String(cat.id))}
+                      className={`px-3 py-1.5 rounded-full border text-sm transition-all
+      ${
+        selectedCategory === String(cat.id)
+          ? "bg-indigo-600 text-white border-indigo-500"
+          : "bg-gray-900 text-gray-300 border-gray-700 hover:border-indigo-400"
+      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -713,13 +823,13 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
                 <input
                   value={p.size}
                   onChange={(e) => updatePrice(i, "size", e.target.value)}
-                  className="flex-1 p-2 rounded bg-gray-900 border border-gray-700"
+                  className="flex-1 p-2  bg-gray-900 border border-gray-700 rounded-lg"
                 />
                 <input
                   type="number"
                   value={p.price}
                   onChange={(e) => updatePrice(i, "price", e.target.value)}
-                  className="w-24 p-2 rounded bg-gray-900 border border-gray-700"
+                  className="w-24 p-2  bg-gray-900 border border-gray-700 rounded-lg"
                 />
                 <button onClick={() => removePrice(i)}>X</button>
               </div>
@@ -728,11 +838,51 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
               {" "}
               <button
                 onClick={addPrice}
-                className="bg-indigo-600 px-3 py-1 rounded "
+                className="bg-indigo-600 px-3 py-1 rounded-lg "
               >
                 Add Price
               </button>
             </div>
+          </div>
+          {/* ================= MENUS (ACCORDION) ================= */}
+
+          <div className="border border-gray-700 rounded-lg overflow-hidden">
+            <div
+              onClick={() => setOpenMenus(!openMenus)}
+              className="flex justify-between items-center p-3 bg-gray-900 cursor-pointer"
+            >
+              <span className="text-white font-medium">
+                Relate Menus ({selectedMenus.length})
+              </span>
+
+              {openMenus ? <ChevronUp /> : <ChevronDown />}
+            </div>
+
+            {openMenus && (
+              <div className="p-2 max-h-40 overflow-y-auto">
+                {menusList.length === 0 ? (
+                  <p className="text-gray-400 text-sm py-2">Menu မရှိသေးပါ</p>
+                ) : (
+                  menusList.map((menu) => (
+                    <label
+                      key={menu.id}
+                      className="flex items-center gap-2 p-1"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedMenus.includes(menu.id)}
+                        onChange={() => toggleMenu(menu.id)}
+                        className="accent-indigo-400"
+                      />
+
+                      <img src={menu.photo} className="w-10 h-10 rounded" />
+
+                      <span className="text-white">{menu.name}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+            )}
           </div>
 
           {/* ================= INGREDIENTS (ACCORDION) ================= */}
@@ -747,7 +897,7 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
 
             {openIngredients && (
               <div className="p-2 max-h-40 overflow-y-auto">
-                {ingredientsList.map((ing) => (
+                {/* {ingredientsList.map((ing) => (
                   <label key={ing.id} className="flex items-center gap-2 p-1">
                     <input
                       type="checkbox"
@@ -758,7 +908,25 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
                     <img src={ing.photo} className="w-10 h-10 rounded" />
                     <span className="text-white">{ing.name}</span>
                   </label>
-                ))}
+                ))} */}
+                {ingredientsList.length === 0 ? (
+                  <p className="text-gray-400 text-sm py-2">
+                    Ingredient မရှိသေးပါ
+                  </p>
+                ) : (
+                  ingredientsList.map((ing) => (
+                    <label key={ing.id} className="flex items-center gap-2 p-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedIngredients.includes(ing.id)}
+                        onChange={() => toggleIngredient(ing.id)}
+                        className="accent-indigo-400"
+                      />
+                      <img src={ing.photo} className="w-10 h-10 rounded" />
+                      <span className="text-white">{ing.name}</span>
+                    </label>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -767,7 +935,7 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
           <div className="border border-gray-700 rounded-lg overflow-hidden">
             <div
               onClick={() => setOpenMonths(!openMonths)}
-              className="flex justify-between items-center p-3 bg-gray-900 cursor-pointer"
+              className="flex justify-between items-center p-3 cursor-pointer"
             >
               <span className="text-white font-medium">
                 Available Months ({selectedMonths.length})
@@ -776,7 +944,7 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
             </div>
 
             {openMonths && (
-              <div className="p-3 flex flex-wrap gap-2 bg-gray-950">
+              <div className="p-3 flex flex-wrap gap-2">
                 {monthsOptions.map((m) => {
                   const active = selectedMonths.includes(m);
 
@@ -793,14 +961,33 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
                       className={`px-3 py-1.5 rounded-full text-sm border transition-all
               ${
                 active
-                  ? "bg-green-600 text-white border-green-500"
-                  : "bg-gray-900 text-gray-300 border-gray-700 hover:border-green-400"
+                  ? "bg-indigo-600 text-white border-indigo-500"
+                  : "bg-gray-900 text-gray-300 border-gray-700 hover:border-indigo-400"
               }`}
                     >
                       {m}
                     </button>
                   );
                 })}
+                {/* Select All Button */}
+                <div className="flex justify-end pl-[130px]">
+                  <button
+                    onClick={() => {
+                      if (selectedMonths.length === monthsOptions.length) {
+                        // Deselect all
+                        setSelectedMonths([]);
+                      } else {
+                        // Select all
+                        setSelectedMonths(monthsOptions);
+                      }
+                    }}
+                    className="text-xs px-3 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white transition"
+                  >
+                    {selectedMonths.length === monthsOptions.length
+                      ? "Deselect All"
+                      : "Select All"}
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -808,14 +995,17 @@ export default function MenuCreateModal({ shopId, close, onSuccess }) {
 
         {/* BUTTONS */}
         <div className="flex justify-end gap-3 mt-5">
-          <button onClick={close} className="px-4 py-2 bg-gray-600 rounded">
+          <button onClick={close} className="px-4 py-2 bg-gray-600 rounded-lg">
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-indigo-600 rounded"
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg text-white ${
+              loading ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600"
+            }`}
           >
-            Create Menu
+            {loading ? "Creating..." : "Create Menu"}
           </button>
         </div>
       </div>

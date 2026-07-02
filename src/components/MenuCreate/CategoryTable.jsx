@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Search, Trash2 } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
 import EditCategory from "./EditCategory";
 
@@ -12,9 +12,26 @@ export default function CategoryTable({ shopId }) {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const pageSize = 5;
+  // const pageSize = 5;
+  const [pageSize, setPageSize] = useState(12);
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (window.innerWidth > 1280) {
+        setPageSize(7);
+      } else {
+        setPageSize(5);
+      }
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   const icons = [
+    "snack",
     "alcoholic",
     "breakfast",
     "cake",
@@ -23,28 +40,34 @@ export default function CategoryTable({ shopId }) {
     "fastfood",
     "lunch",
     "morning",
-    "snack",
     "sweets",
   ];
 
+
   const fetchData = async () => {
     try {
-      const res = await fetch(`http://38.60.244.137:3000/categories/${shopId}`);
+      const res = await fetch(`https://api.pwezayshops.com/categories/${shopId}`);
+
       const data = await res.json();
 
-      if (Array.isArray(data)) {
+      // no categories
+      if (res.status === 400) {
+        setCategories([]);
+        return;
+      }
+
+      if (res.ok && Array.isArray(data)) {
         setCategories(data);
       } else {
-        showAlert("Failed to fetch categories", "error");
+        setCategories([]);
       }
     } catch (err) {
       console.error(err);
-      showAlert("Server error", "error");
+      setCategories([]);
     } finally {
       setLoading(false);
     }
   };
-
   // ⏱ Live fetch every 5 seconds
   useEffect(() => {
     if (!shopId) return;
@@ -75,7 +98,7 @@ export default function CategoryTable({ shopId }) {
     if (!ok) return;
 
     try {
-      const res = await fetch(`http://38.60.244.137:3000/categories/${id}`, {
+      const res = await fetch(`https://api.pwezayshops.com/categories/${id}`, {
         method: "DELETE",
       });
 
@@ -97,20 +120,28 @@ export default function CategoryTable({ shopId }) {
     <div className="mb-6">
       {/* 🔥 TITLE */}
       <div className="flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-bold text-white tracking-wide">
+        <h2 className="text-2xl font-semibold text-indigo-400">
           Category List
         </h2>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative">
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
+            />
 
-        <input
-          type="text"
-          placeholder="Search Categories..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(1);
-          }}
-          className="bg-neutral-900 border border-neutral-700 px-3 py-2 rounded-xl text-sm text-white"
-        />
+            <input
+              type="text"
+              placeholder="Search Categories..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+              className="pl-10 pr-4 py-2 rounded-2xl text-sm bg-slate-900/60 border border-slate-700 text-white outline-none focus:border-indigo-500 w-full sm:w-[250px]"
+            />
+          </div>
+        </div>
       </div>
 
       {/* CONTENT */}
@@ -121,7 +152,7 @@ export default function CategoryTable({ shopId }) {
           No categories found
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6  gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-7  gap-4">
           {paginated.map((item) => {
             const iconName = icons[item.icon - 1];
 
@@ -168,30 +199,57 @@ export default function CategoryTable({ shopId }) {
         </div>
       )}
 
-      {/* PAGINATION */}
-      <div className="flex justify-between items-center mt-6 text-sm text-gray-400">
-        <p>
-          Page {totalPages === 0 ? 0 : page} of {totalPages}
-        </p>
+      {/* Pagination */}
+      {totalPages > 0 && (
+        <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
+          <p>
+            Page {totalPages === 0 ? 0 : page} of {totalPages}
+          </p>
 
-        <div className="flex gap-2">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="px-3 py-1 rounded-lg border border-neutral-700 disabled:opacity-40"
-          >
-            Prev
-          </button>
+          <div className="flex gap-2 flex-wrap">
+            {/* Prev Button */}
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(Math.max(1, page - 1))}
+              className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                page === 1
+                  ? "text-neutral-500 cursor-not-allowed"
+                  : "text-indigo-400 hover:bg-neutral-900"
+              }`}
+            >
+              Prev
+            </button>
 
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-            className="px-3 py-1 rounded-lg border border-neutral-700 disabled:opacity-40"
-          >
-            Next
-          </button>
+            {/* Page Numbers */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                  page === n
+                    ? "bg-indigo-300 text-black font-semibold"
+                    : "text-indigo-300 hover:bg-neutral-900"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+
+            {/* Next Button */}
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                page === totalPages
+                  ? "text-neutral-500 cursor-not-allowed"
+                  : "text-indigo-500 hover:bg-neutral-900"
+              }`}
+            >
+              Next
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Edit Modal */}
       {editingCategory && (

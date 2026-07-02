@@ -2,9 +2,10 @@
 
 import React from "react";
 import { Navigate } from "react-router-dom"; // ✅ ADD THIS
-import AddDeliveryMan from "../components/Delivery/AddDeliveryMan";
 import DeliveryToggle from "../components/Delivery/DeliveryToggle";
 import { getAuth } from "../utils/auth";
+import DeliverySummaryCards from "../components/Delivery/DeliverySummaryCards";
+import DeliveryManDashboard from "../components/Delivery/DeliveryManDashboard";
 
 const DeliveryPage = () => {
   const { shopId } = getAuth();
@@ -16,8 +17,9 @@ const DeliveryPage = () => {
 
   return (
     <section className="">
+      <DeliverySummaryCards shopId={shopId} />
       <DeliveryToggle shopId={shopId} />
-      <AddDeliveryMan shopId={shopId} />
+      <DeliveryManDashboard shopId={shopId} />
     </section>
   );
 };

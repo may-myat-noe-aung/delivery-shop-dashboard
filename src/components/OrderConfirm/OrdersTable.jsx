@@ -1,13 +1,24 @@
 // import React, { useEffect, useState, useMemo } from "react";
 // import { Eye, Download, Search } from "lucide-react";
 // import OrderPopup from "./OrderPopup";
+// import { useAlert } from "../../AlertProvider";
+// import PrintInvoice from "../Print/PrintInvoice";
+// import PrintReceipt from "../Print/PrintReceipt";
+// import * as XLSX from "xlsx";
+// import { saveAs } from "file-saver";
 
 // export default function OrdersTable({ shopId }) {
+//   const { showAlert, confirm } = useAlert();
+//   const [pickedOrders, setPickedOrders] = useState({});
 //   const [orders, setOrders] = useState([]);
 //   const [selected, setSelected] = useState(null);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState("");
 //   const [orderTab, setOrderTab] = useState("normal");
+
+//   // Print
+//   const [printOrder, setPrintOrder] = useState(null);
+//   const [printType, setPrintType] = useState("a4"); // a4 | thermal
 
 //   // Pagination & Search
 //   const [page, setPage] = useState(1);
@@ -31,10 +42,22 @@
 //     const fetchAndUpdate = async () => {
 //       try {
 //         const res = await fetch(
-//           `http://38.60.244.137:3000/orders-by-shop/${shopId}`,
+//           `https://api.pwezayshops.com/orders-by-shop/${shopId}`,
 //         );
 //         const data = await res.json();
-//         if (data.success) setOrders(data.data);
+//         if (data.success) {
+//           setOrders(data.data);
+
+//           // ✅ sync pickup state from API
+//           const pickedMap = {};
+//           data.data.forEach((order) => {
+//             if (order.orders_pickup === 1) {
+//               pickedMap[order.id] = true;
+//             }
+//           });
+
+//           setPickedOrders(pickedMap);
+//         }
 //       } catch (err) {
 //         console.error(err);
 //       } finally {
@@ -56,7 +79,7 @@
 //     setError("");
 //     try {
 //       const res = await fetch(
-//         `http://38.60.244.137:3000/orders-by-shop/${shopId}`,
+//         `https://api.pwezayshops.com/orders-by-shop/${shopId}`,
 //       );
 //       const data = await res.json();
 
@@ -73,8 +96,57 @@
 //       setPage(1); // Reset page after new fetch
 //     }
 //   };
+//   const handlePrint = (order, type = "a4") => {
+//     setPrintOrder(order);
+//     setPrintType(type);
 
-//   // --- Helpers ---
+//     setTimeout(() => {
+//       window.print();
+//     }, 300);
+
+//     setTimeout(() => {
+//       setPrintOrder(null);
+//     }, 1200);
+//   };
+
+//   const handlePickup = async (orderId, order) => {
+//     const status = getOrderStatus(order);
+
+//     if (status.label === "Pending") {
+//       showAlert("ကျေးဇူးပြု၍ အရင်ဆုံး order ကို လက်ခံပေးပါ", "warning");
+//       return;
+//     }
+
+//     const isConfirmed = await confirm("Are you sure to pickup this order?");
+//     if (!isConfirmed) return;
+
+//     try {
+//       const res = await fetch(
+//         `https://api.pwezayshops.com/pickup-order/${orderId}`,
+//         {
+//           method: "PATCH",
+//         },
+//       );
+
+//       const data = await res.json();
+
+//       console.log("pickup response:", data);
+
+//       if (data.success) {
+//         setPickedOrders((prev) => ({
+//           ...prev,
+//           [orderId]: true,
+//         }));
+
+//         showAlert(data.message, "success");
+//       } else {
+//         showAlert(data.message || "Pickup failed", "error");
+//       }
+//     } catch (err) {
+//       console.error("pickup error:", err);
+//       showAlert("Something went wrong", "error");
+//     }
+//   };
 //   const getOrderTotal = (order) =>
 //     order.orders.reduce((sum, item) => sum + item.total, 0);
 
@@ -89,92 +161,121 @@
 //     return { label: "Unknown", color: "text-slate-400" };
 //   };
 
-//   // Filtered orders by search & date
-//   // const filteredOrders = useMemo(() => {
-//   //   return orders.filter((order) => {
-//   //     const matchesSearch =
-//   //       order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//   //       order.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//   //       order.id.toLowerCase().includes(searchTerm.toLowerCase());
-//   //     const orderDate = order.date ? new Date(order.date) : new Date();
-//   //     const matchesFrom = fromDate ? orderDate >= new Date(fromDate) : true;
-//   //     const matchesTo = toDate ? orderDate <= new Date(toDate) : true;
-//   //     return matchesSearch && matchesFrom && matchesTo;
-//   //   });
-//   // }, [orders, searchTerm, fromDate, toDate]);
-//   // --- Filtered orders by search & date ---
-// // --- Filtered orders by search & date ---
-// const filteredOrders = useMemo(() => {
-//   return orders.filter((order) => {
-//     const matchesSearch =
-//       order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       order.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       order.id.toLowerCase().includes(searchTerm.toLowerCase());
+//   const filteredOrders = useMemo(() => {
+//     return orders.filter((order) => {
+//       const formattedDate = new Date(order.created_at).toLocaleDateString(
+//         "en-GB",
+//       );
 
-//     const orderDate = order.created_at
-//       ? new Date(order.created_at.split(" ")[0])
-//       : new Date();
+//       const statusLabel = getOrderStatus(order).label;
 
-//     const matchesFrom = fromDate ? orderDate >= new Date(fromDate) : true;
-//     const matchesTo = toDate ? orderDate <= new Date(toDate) : true;
+//       const matchesSearch =
+//         order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         order.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         formattedDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         (order.type || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         String(order.orders.length).includes(searchTerm) ||
+//         String(getOrderTotal(order)).includes(searchTerm) ||
+//         statusLabel.toLowerCase().includes(searchTerm.toLowerCase());
 
-//     return matchesSearch && matchesFrom && matchesTo;
-//   });
-// }, [orders, searchTerm, fromDate, toDate]);
+//       const orderDate = new Date(order.created_at);
+//       orderDate.setHours(0, 0, 0, 0);
 
-// // --- Filtered by orderTab before pagination ---
-// const tabFilteredOrders = useMemo(() => {
-//   return filteredOrders.filter((order) =>
-//     orderTab === "normal" ? !order.timer : order.timer
+//       let matchesDate = true;
+
+//       if (fromDate && toDate) {
+//         const from = new Date(fromDate);
+//         const to = new Date(toDate);
+
+//         matchesDate =
+//           orderDate.getTime() >= from.getTime() &&
+//           orderDate.getTime() <= to.getTime();
+//       } else if (fromDate || toDate) {
+//         const selected = new Date(fromDate || toDate);
+//         selected.setHours(0, 0, 0, 0);
+
+//         matchesDate = orderDate.getTime() === selected.getTime();
+//       }
+
+//       return matchesSearch && matchesDate;
+//     });
+//   }, [orders, searchTerm, fromDate, toDate]);
+
+//   // --- Filtered by orderTab before pagination ---
+//   const tabFilteredOrders = useMemo(() => {
+//     return filteredOrders.filter((order) =>
+//       orderTab === "normal" ? !order.timer : order.timer,
+//     );
+//   }, [filteredOrders, orderTab]);
+
+//   // --- Pagination ---
+//   const totalPages = Math.ceil(tabFilteredOrders.length / pageSize);
+//   const paginatedOrders = tabFilteredOrders.slice(
+//     (page - 1) * pageSize,
+//     page * pageSize,
 //   );
-// }, [filteredOrders, orderTab]);
 
-// // --- Pagination ---
-// const totalPages = Math.ceil(tabFilteredOrders.length / pageSize);
-// const paginatedOrders = tabFilteredOrders.slice(
-//   (page - 1) * pageSize,
-//   page * pageSize
-// );
-
-// // --- Displayed orders (just alias for clarity) ---
-// const displayOrders = paginatedOrders;
-
-// // // Filter by tab (Normal / Timer)
-// // const displayOrders = paginatedOrders.filter((order) =>
-// //   orderTab === "normal" ? !order.timer : order.timer
-// // );
-//   // CSV Export
+//   // --- Displayed orders (just alias for clarity) ---
+//   const displayOrders = paginatedOrders;
 //   const handleExport = () => {
-//     const csvContent = [
-//       ["Order ID", "User ID", "Customer", "Type", "Items", "Total", "Status"],
-//       ...filteredOrders.map((order) => [
-//         order.id,
-//         order.userId,
-//         order.name,
-//         order.type,
-//         order.orders.length,
-//         getOrderTotal(order),
-//         getOrderStatus(order).label,
-//       ]),
-//     ]
-//       .map((row) => row.join(","))
-//       .join("\n");
+//     try {
+//       const exportData = filteredOrders.map((order, index) => ({
+//         No: index + 1,
+//         OrderID: order.id,
+//         Customer: order.name,
+//         Phone: order.phone,
+//         Type: order.type,
+//         Items: order.orders.length,
+//         Total: getOrderTotal(order),
+//         Status: getOrderStatus(order).label,
+//         Date: new Date(order.created_at).toLocaleDateString(),
+//         Time: new Date(order.created_at).toLocaleTimeString([], {
+//           hour: "2-digit",
+//           minute: "2-digit",
+//           hour12: true,
+//         }),
+//       }));
 
-//     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-//     const url = URL.createObjectURL(blob);
-//     const link = document.createElement("a");
-//     link.href = url;
-//     link.setAttribute("download", `orders_shop_${shopId}.csv`);
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
+//       const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-//     setCsvMessage("CSV exported successfully!");
-//     setTimeout(() => setCsvMessage(""), 2000);
+//       // Optional column widths
+//       worksheet["!cols"] = [
+//         { wch: 8 }, // No
+//         { wch: 20 }, // OrderID
+//         { wch: 25 }, // Customer
+//         { wch: 20 }, // Phone
+//         { wch: 15 }, // Type
+//         { wch: 10 }, // Items
+//         { wch: 15 }, // Total
+//         { wch: 15 }, // Status
+//         { wch: 15 }, // Date
+//         { wch: 15 }, // Time
+//       ];
+
+//       const workbook = XLSX.utils.book_new();
+
+//       XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+//       const excelBuffer = XLSX.write(workbook, {
+//         bookType: "xlsx",
+//         type: "array",
+//       });
+
+//       const blob = new Blob([excelBuffer], {
+//         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+//       });
+
+//       saveAs(blob, `orders_shop_${shopId}.xlsx`);
+
+//       showAlert("Excel exported successfully!", "success");
+//     } catch (error) {
+//       console.error("Export error:", error);
+//       showAlert("Failed to export orders", "error");
+//     }
 //   };
-
 //   return (
-//     <div className="min-h-screen  text-white ">
+//     <div className=" text-white ">
 //       {/* CSV Toast */}
 //       {csvMessage && (
 //         <div className="mb-2 text-center py-2 px-3 bg-green-600 text-white rounded-md animate-pulse">
@@ -185,22 +286,26 @@
 //       {/* Header */}
 //       <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
 //         <h2 className="text-2xl font-semibold text-indigo-400">
-//           Customer Orders ({shopId || "Unknown"})
+//           Customer Orders
 //         </h2>
 //         <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-//           <div className="flex gap-3">
+//           <div className="flex flex-col sm:flex-row gap-3">
 //             <div className="relative">
-//               <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-400" />
+//               <Search
+//                 size={14}
+//                 className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
+//               />
 //               <input
 //                 value={searchTerm}
 //                 onChange={(e) => setSearchTerm(e.target.value)}
-//                 placeholder="Search orders..."
-//                 className="w-full md:w-64 rounded-2xl bg-neutral-900 border border-neutral-700 pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//                 placeholder="Search..."
+//                 className="pl-10 pr-4 py-2 rounded-2xl text-sm bg-slate-900/60 border border-slate-700 text-white outline-none focus:border-indigo-500 w-full sm:w-[250px]"
 //               />
 //             </div>
+
 //             <button
 //               onClick={handleExport}
-//               className="flex items-center gap-1 px-3 py-1 rounded-2xl border border-neutral-700 text-xs text-neutral-300 hover:text-white"
+//               className="px-4 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium hover:bg-indigo-500/20 transition flex items-center gap-1"
 //             >
 //               <Download size={14} /> Export
 //             </button>
@@ -224,142 +329,165 @@
 
 //       {/* Table */}
 //       <div className="flex gap-3 mb-4">
-//   <button
-//     onClick={() => setOrderTab("normal")}
-//     className={`px-4 py-2 rounded-full text-sm ${
-//       orderTab === "normal"
-//         ? "bg-indigo-500 text-white"
-//         : "bg-neutral-800 text-neutral-400"
-//     }`}
-//   >
-//     Normal Orders
-//   </button>
+//         <button
+//           onClick={() => setOrderTab("normal")}
+//           className={`px-4 py-2 rounded-full text-sm ${
+//             orderTab === "normal"
+//               ? "bg-indigo-500 text-white"
+//               : "bg-neutral-800 text-neutral-400"
+//           }`}
+//         >
+//           Normal Orders
+//         </button>
 
-//   <button
-//     onClick={() => setOrderTab("timer")}
-//     className={`px-4 py-2 rounded-full text-sm ${
-//       orderTab === "timer"
-//         ? "bg-yellow-500 text-black"
-//         : "bg-neutral-800 text-neutral-400"
-//     }`}
-//   >
-//     Timer Orders
-//   </button>
-// </div>
+//         <button
+//           onClick={() => setOrderTab("timer")}
+//           className={`px-4 py-2 rounded-full text-sm ${
+//             orderTab === "timer"
+//               ? "bg-yellow-500 text-black"
+//               : "bg-neutral-800 text-neutral-400"
+//           }`}
+//         >
+//           Timer Orders
+//         </button>
+//       </div>
 //       <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
 //         {loading ? (
-//           <div className="text-center text-slate-400 py-10">
+//           <div className="text-center text-slate-400 py-20">
 //             Loading orders...
 //           </div>
 //         ) : error ? (
-//           <div className="text-center text-red-500 py-10">{error}</div>
+//           <div className="text-center text-red-500 py-20">{error}</div>
 //         ) : paginatedOrders.length === 0 ? (
-//           <div className="text-center text-slate-400 py-10">
+//           <div className="text-center text-slate-400 py-20">
 //             No orders found.
 //           </div>
 //         ) : (
 //           <div className="overflow-x-auto">
+//             <table className="w-full text-sm">
+//               <thead className="text-slate-400 border-b border-slate-700">
+//                 <tr>
+//                   <th className="py-4 text-left">Pickup</th>
+//                   <th className="py-4 text-left">Order ID</th>
+//                   <th className="py-4 text-left">Customer</th>
+//                   <th className="py-4 text-left">Phone Number</th>
+//                   <th className="py-4 text-left">Type</th>
+//                   <th className="py-4 text-left">Items</th>
+//                   <th className="py-4 text-left">Total</th>
+//                   <th className="py-4 text-left">Date</th>
+//                   <th className="py-4 text-left">Status</th>
 
-// <table className="w-full text-sm">
-//   <thead className="text-slate-400 border-b border-slate-700">
-//     <tr>
-//       <th className="py-4 text-left">Orders Done</th>
-//       <th className="py-4 text-left">Order ID</th>
-//       <th className="py-4 text-left">User ID</th>
-//       <th className="py-4 text-left">Customer</th>
-//       <th className="py-4 text-left">Phone Number</th>
-//       <th className="py-4 text-left">Type</th>
-//       <th className="py-4 text-left">Items</th>
-//       <th className="py-4 text-left">Total</th>
-//       <th className="py-4 text-left">Status</th>
+//                   {/* Timer Column Header */}
+//                   {orderTab === "timer" && (
+//                     <th className="py-4 text-left">Timer</th>
+//                   )}
 
-//       {/* Timer Column Header */}
-//       {orderTab === "timer" && <th className="py-4 text-left">Timer</th>}
+//                   <th className="py-4 text-left">Action</th>
+//                 </tr>
+//               </thead>
 
-//       <th className="py-4 text-left">Action</th>
-//     </tr>
-//   </thead>
+//               <tbody>
+//                 {displayOrders.map((order) => {
+//                   const status = getOrderStatus(order);
+//                   return (
+//                     <tr
+//                       key={order.id}
+//                       className="border-b border-slate-800 hover:bg-slate-800/40 transition duration-200"
+//                     >
+//                       <td className="py-4">
+//                         <div
+//                           onClick={() => {
+//                             if (pickedOrders[order.id]) return;
 
-//   <tbody>
-//     {displayOrders.map((order) => {
-//       const status = getOrderStatus(order);
-//       return (
-//         <tr
-//           key={order.id}
-//           className="border-b border-slate-800 hover:bg-slate-800/40 transition duration-200"
-//         >
-//           <td className="py-4">
-//             <label className="relative inline-flex items-center cursor-pointer">
-//               <input
-//                 type="checkbox"
-//                 checked={order.orders_done === 1}
-//                 readOnly
-//                 className="sr-only"
-//               />
-//               <div
-//                 className={`w-6 h-6 rounded-md border-2 border-neutral-600 flex items-center justify-center transition ${
-//                   order.orders_done === 1
-//                     ? "bg-green-500 border-green-500"
-//                     : "bg-transparent"
-//                 }`}
-//               >
-//                 {order.orders_done === 1 && (
-//                   <svg
-//                     className="w-4 h-4 text-white"
-//                     fill="none"
-//                     stroke="currentColor"
-//                     strokeWidth="3"
-//                     viewBox="0 0 24 24"
-//                   >
-//                     <path
-//                       strokeLinecap="round"
-//                       strokeLinejoin="round"
-//                       d="M5 13l4 4L19 7"
-//                     />
-//                   </svg>
-//                 )}
-//               </div>
-//             </label>
-//           </td>
+//                             const status = getOrderStatus(order);
 
-//           <td className="py-4 font-semibold text-cyan-400">{order.id}</td>
-//           <td className="py-4 font-semibold text-green-400">{order.userId}</td>
-//           <td className="py-4 font-semibold">{order.name}</td>
-//           <td className="py-4 font-semibold">{order.phone}</td>
-//           <td
-//             className={`py-4 font-semibold ${
-//               typeColors[order.type] || "text-white"
-//             }`}
-//           >
-//             {order.type}
-//           </td>
-//           <td className="py-4">{order.orders.length} items</td>
-//           <td className="py-4 font-semibold text-indigo-400">
-//             {getOrderTotal(order).toLocaleString()} Ks
-//           </td>
-//           <td className={`py-4 font-semibold ${status.color}`}>{status.label}</td>
+//                             //  Pending ဖြစ်ရင် block
+//                             if (status.label === "Pending") {
+//                               showAlert(
+//                                 "ကျေးဇူးပြု၍ အရင်ဆုံး order ကို လက်ခံပေးပါ",
+//                                 "warning",
+//                               );
+//                               return;
+//                             }
 
-//           {/* Timer Column Cell */}
-//           {orderTab === "timer" && (
-//             <td className="py-4 font-semibold text-yellow-400">
-//               {order.timer ? new Date(order.timer).toLocaleString() : "-"}
-//             </td>
-//           )}
+//                             // ✅ Approved ဖြစ်မှ print + pickup
+//                             handlePrint(order, "a4");
 
-//           <td className="py-4">
-//             <button
-//               onClick={() => setSelected(order)}
-//               className="flex items-center gap-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-sm transition"
-//             >
-//               <Eye size={16} />
-//               View
-//             </button>
-//           </td>
-//         </tr>
-//       );
-//     })}
-//   </tbody>
-// </table>
+//                             // setTimeout(() => {
+//                             //   handlePickup(order.id);
+//                             // }, 1500);
+//                             setTimeout(() => {
+//                               handlePickup(order.id, order);
+//                             }, 1500);
+//                           }}
+//                           className={`w-5 h-5 flex items-center justify-center rounded border transition
+//   ${
+//     pickedOrders[order.id]
+//       ? "bg-indigo-500 border-indigo-500 cursor-not-allowed opacity-70"
+//       : "border-slate-500 hover:border-indigo-400 cursor-pointer"
+//   }
+// `}
+//                         >
+//                           {pickedOrders[order.id] && (
+//                             <svg
+//                               className="w-3 h-3 text-white"
+//                               fill="none"
+//                               stroke="currentColor"
+//                               strokeWidth="3"
+//                               viewBox="0 0 24 24"
+//                             >
+//                               <path d="M5 13l4 4L19 7" />
+//                             </svg>
+//                           )}
+//                         </div>
+//                       </td>
+//                       <td className="py-4 font-semibold text-cyan-400">
+//                         {order.id}
+//                       </td>
+//                       <td className="py-4 font-semibold">{order.name}</td>
+//                       <td className="py-4 font-semibold">{order.phone}</td>
+//                       <td
+//                         className={`py-4 font-semibold ${
+//                           typeColors[order.type] || "text-white"
+//                         }`}
+//                       >
+//                         {order.type}
+//                       </td>
+//                       <td className="py-4">{order.orders.length} items</td>
+//                       {/* <td className="py-4">
+//   {order.orders.reduce((sum, item) => sum + item.quantity, 0)} items
+// </td> */}
+//                       <td className="py-4 font-semibold text-indigo-400">
+//                         {getOrderTotal(order).toLocaleString()} Ks
+//                       </td>
+//                       <td className="py-4 font-semibold text-green-400">
+//                         {new Date(order.created_at).toLocaleDateString("en-GB")}
+//                       </td>{" "}
+//                       <td className={`py-4 font-semibold ${status.color}`}>
+//                         {status.label}
+//                       </td>
+//                       {/* Timer Column Cell */}
+//                       {orderTab === "timer" && (
+//                         <td className="py-4 font-semibold text-yellow-400">
+//                           {order.timer
+//                             ? new Date(order.timer).toLocaleString()
+//                             : "-"}
+//                         </td>
+//                       )}
+//                       <td className="py-4">
+//                         <button
+//                           onClick={() => setSelected(order)}
+//                           className="flex items-center gap-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-sm transition"
+//                         >
+//                           <Eye size={16} />
+//                           View
+//                         </button>
+//                       </td>
+//                     </tr>
+//                   );
+//                 })}
+//               </tbody>
+//             </table>
 
 //             {/* Pagination */}
 //             <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
@@ -412,25 +540,32 @@
 //         )}
 //       </div>
 
-//       {/* Order Popup */}
-//       {/* {selected && (
-//         <OrderPopup order={selected} close={() => setSelected(null)} />
-//       )} */}
 //       {selected && (
-//   <OrderPopup
-//     order={selected}
-//     close={() => setSelected(null)}
-//     shopId={shopId} // ✅ pass shopId here
-//   />
-// )}
+//         <OrderPopup
+//           order={selected}
+//           close={() => setSelected(null)}
+//           shopId={shopId} // ✅ pass shopId here
+//         />
+//       )}
+
+//       <div className="print-area">
+//         {/* <PrintReceipt order={printOrder} /> */}
+//       </div>
+//       <div className="print-area">
+//         <PrintReceipt order={printOrder} shopId={shopId} />
+//       </div>
 //     </div>
 //   );
 // }
 
 import React, { useEffect, useState, useMemo } from "react";
-import { Eye, Download, Search } from "lucide-react";
+import { Eye, Download, Search, CheckCircle2 } from "lucide-react";
 import OrderPopup from "./OrderPopup";
 import { useAlert } from "../../AlertProvider";
+import PrintInvoice from "../Print/PrintInvoice";
+import PrintReceipt from "../Print/PrintReceipt";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default function OrdersTable({ shopId }) {
   const { showAlert, confirm } = useAlert();
@@ -440,6 +575,10 @@ export default function OrdersTable({ shopId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [orderTab, setOrderTab] = useState("normal");
+
+  // Print
+  const [printOrder, setPrintOrder] = useState(null);
+  const [printType, setPrintType] = useState("a4"); // a4 | thermal
 
   // Pagination & Search
   const [page, setPage] = useState(1);
@@ -463,7 +602,7 @@ export default function OrdersTable({ shopId }) {
     const fetchAndUpdate = async () => {
       try {
         const res = await fetch(
-          `http://38.60.244.137:3000/orders-by-shop/${shopId}`,
+          `https://api.pwezayshops.com/orders-by-shop/${shopId}`,
         );
         const data = await res.json();
         if (data.success) {
@@ -500,7 +639,7 @@ export default function OrdersTable({ shopId }) {
     setError("");
     try {
       const res = await fetch(
-        `http://38.60.244.137:3000/orders-by-shop/${shopId}`,
+        `https://api.pwezayshops.com/orders-by-shop/${shopId}`,
       );
       const data = await res.json();
 
@@ -517,40 +656,57 @@ export default function OrdersTable({ shopId }) {
       setPage(1); // Reset page after new fetch
     }
   };
+  const handlePrint = (order, type = "a4") => {
+    setPrintOrder(order);
+    setPrintType(type);
 
-  const handlePickup = async (orderId) => {
-    // 🟡 Step 1: Show confirm popup
+    setTimeout(() => {
+      window.print();
+    }, 300);
+
+    setTimeout(() => {
+      setPrintOrder(null);
+    }, 1200);
+  };
+
+  const handlePickup = async (orderId, order) => {
+    const status = getOrderStatus(order);
+
+    if (status.label === "Pending") {
+      showAlert("ကျေးဇူးပြု၍ အရင်ဆုံး order ကို လက်ခံပေးပါ", "warning");
+      return;
+    }
+
     const isConfirmed = await confirm("Are you sure to pickup this order?");
-
     if (!isConfirmed) return;
 
     try {
       const res = await fetch(
-        `http://38.60.244.137:3000/pickup-order/${orderId}`,
-        { method: "PATCH" },
+        `https://api.pwezayshops.com/pickup-order/${orderId}`,
+        {
+          method: "PATCH",
+        },
       );
 
       const data = await res.json();
 
+      console.log("pickup response:", data);
+
       if (data.success) {
-        // ✅ mark checkbox checked
         setPickedOrders((prev) => ({
           ...prev,
           [orderId]: true,
         }));
 
-        // ✅ show API message
         showAlert(data.message, "success");
       } else {
-        showAlert("Pickup failed", "error");
+        showAlert(data.message || "Pickup failed", "error");
       }
     } catch (err) {
-      console.error(err);
+      console.error("pickup error:", err);
       showAlert("Something went wrong", "error");
     }
   };
-
-  // --- Helpers ---
   const getOrderTotal = (order) =>
     order.orders.reduce((sum, item) => sum + item.total, 0);
 
@@ -565,36 +721,44 @@ export default function OrdersTable({ shopId }) {
     return { label: "Unknown", color: "text-slate-400" };
   };
 
-  // Filtered orders by search & date
-  // const filteredOrders = useMemo(() => {
-  //   return orders.filter((order) => {
-  //     const matchesSearch =
-  //       order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       order.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       order.id.toLowerCase().includes(searchTerm.toLowerCase());
-  //     const orderDate = order.date ? new Date(order.date) : new Date();
-  //     const matchesFrom = fromDate ? orderDate >= new Date(fromDate) : true;
-  //     const matchesTo = toDate ? orderDate <= new Date(toDate) : true;
-  //     return matchesSearch && matchesFrom && matchesTo;
-  //   });
-  // }, [orders, searchTerm, fromDate, toDate]);
-  // --- Filtered orders by search & date ---
-  // --- Filtered orders by search & date ---
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
+      const formattedDate = new Date(order.created_at).toLocaleDateString(
+        "en-GB",
+      );
+
+      const statusLabel = getOrderStatus(order).label;
+
       const matchesSearch =
         order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.id.toLowerCase().includes(searchTerm.toLowerCase());
+        order.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        formattedDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (order.type || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(order.orders.length).includes(searchTerm) ||
+        String(getOrderTotal(order)).includes(searchTerm) ||
+        statusLabel.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const orderDate = order.created_at
-        ? new Date(order.created_at.split(" ")[0])
-        : new Date();
+      const orderDate = new Date(order.created_at);
+      orderDate.setHours(0, 0, 0, 0);
 
-      const matchesFrom = fromDate ? orderDate >= new Date(fromDate) : true;
-      const matchesTo = toDate ? orderDate <= new Date(toDate) : true;
+      let matchesDate = true;
 
-      return matchesSearch && matchesFrom && matchesTo;
+      if (fromDate && toDate) {
+        const from = new Date(fromDate);
+        const to = new Date(toDate);
+
+        matchesDate =
+          orderDate.getTime() >= from.getTime() &&
+          orderDate.getTime() <= to.getTime();
+      } else if (fromDate || toDate) {
+        const selected = new Date(fromDate || toDate);
+        selected.setHours(0, 0, 0, 0);
+
+        matchesDate = orderDate.getTime() === selected.getTime();
+      }
+
+      return matchesSearch && matchesDate;
     });
   }, [orders, searchTerm, fromDate, toDate]);
 
@@ -614,41 +778,72 @@ export default function OrdersTable({ shopId }) {
 
   // --- Displayed orders (just alias for clarity) ---
   const displayOrders = paginatedOrders;
-
-  // // Filter by tab (Normal / Timer)
-  // const displayOrders = paginatedOrders.filter((order) =>
-  //   orderTab === "normal" ? !order.timer : order.timer
-  // );
-  // CSV Export
   const handleExport = () => {
-    const csvContent = [
-      ["Order ID", "User ID", "Customer", "Type", "Items", "Total", "Status"],
-      ...filteredOrders.map((order) => [
-        order.id,
-        order.userId,
-        order.name,
-        order.type,
-        order.orders.length,
-        getOrderTotal(order),
-        getOrderStatus(order).label,
-      ]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n");
+    try {
+      const exportData = filteredOrders.map((order, index) => ({
+        No: index + 1,
+        OrderID: order.id,
+        Customer: order.name,
+        Phone: order.phone,
+        Type: order.type,
+        Items: order.orders.length,
+        Total: getOrderTotal(order),
+        Status: getOrderStatus(order).label,
+        Date: new Date(order.created_at).toLocaleDateString(),
+        Time: new Date(order.created_at).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+      }));
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `orders_shop_${shopId}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-    setCsvMessage("CSV exported successfully!");
-    setTimeout(() => setCsvMessage(""), 2000);
+      // Optional column widths
+      worksheet["!cols"] = [
+        { wch: 8 }, // No
+        { wch: 20 }, // OrderID
+        { wch: 25 }, // Customer
+        { wch: 20 }, // Phone
+        { wch: 15 }, // Type
+        { wch: 10 }, // Items
+        { wch: 15 }, // Total
+        { wch: 15 }, // Status
+        { wch: 15 }, // Date
+        { wch: 15 }, // Time
+      ];
+
+      const workbook = XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      saveAs(blob, `orders_shop_${shopId}.xlsx`);
+
+      showAlert("Excel exported successfully!", "success");
+    } catch (error) {
+      console.error("Export error:", error);
+      showAlert("Failed to export orders", "error");
+    }
   };
 
+  const pageWindow = 10;
+
+const startPage =
+  Math.floor((page - 1) / pageWindow) * pageWindow + 1;
+
+const endPage = Math.min(
+  startPage + pageWindow - 1,
+  totalPages
+);
   return (
     <div className=" text-white ">
       {/* CSV Toast */}
@@ -661,22 +856,26 @@ export default function OrdersTable({ shopId }) {
       {/* Header */}
       <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-2xl font-semibold text-indigo-400">
-          Customer Orders ({shopId || "Unknown"})
+          Customer Orders
         </h2>
         <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-400" />
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
+              />
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search orders..."
-                className="w-full md:w-64 rounded-2xl bg-neutral-900 border border-neutral-700 pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                placeholder="Search..."
+                className="pl-10 pr-4 py-2 rounded-2xl text-sm bg-slate-900/60 border border-slate-700 text-white outline-none focus:border-indigo-500 w-full sm:w-[250px]"
               />
             </div>
+
             <button
               onClick={handleExport}
-              className="flex items-center gap-1 px-3 py-1 rounded-2xl border border-neutral-700 text-xs text-neutral-300 hover:text-white"
+              className="px-4 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium hover:bg-indigo-500/20 transition flex items-center gap-1"
             >
               <Download size={14} /> Export
             </button>
@@ -724,13 +923,13 @@ export default function OrdersTable({ shopId }) {
       </div>
       <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
         {loading ? (
-          <div className="text-center text-slate-400 py-10">
+          <div className="text-center text-slate-400 py-20">
             Loading orders...
           </div>
         ) : error ? (
-          <div className="text-center text-red-500 py-10">{error}</div>
+          <div className="text-center text-red-500 py-20">{error}</div>
         ) : paginatedOrders.length === 0 ? (
-          <div className="text-center text-slate-400 py-10">
+          <div className="text-center text-slate-400 py-20">
             No orders found.
           </div>
         ) : (
@@ -740,12 +939,12 @@ export default function OrdersTable({ shopId }) {
                 <tr>
                   <th className="py-4 text-left">Pickup</th>
                   <th className="py-4 text-left">Order ID</th>
-                  <th className="py-4 text-left">User ID</th>
                   <th className="py-4 text-left">Customer</th>
                   <th className="py-4 text-left">Phone Number</th>
                   <th className="py-4 text-left">Type</th>
                   <th className="py-4 text-left">Items</th>
                   <th className="py-4 text-left">Total</th>
+                  <th className="py-4 text-left">Date</th>
                   <th className="py-4 text-left">Status</th>
 
                   {/* Timer Column Header */}
@@ -766,45 +965,49 @@ export default function OrdersTable({ shopId }) {
                       className="border-b border-slate-800 hover:bg-slate-800/40 transition duration-200"
                     >
                       <td className="py-4">
-                        <div
+                        <button
                           onClick={() => {
-                            if (!pickedOrders[order.id]) {
-                              handlePickup(order.id);
+                            if (pickedOrders[order.id]) return;
+
+                            const status = getOrderStatus(order);
+
+                            if (status.label === "Pending") {
+                              showAlert(
+                                "ကျေးဇူးပြု၍ အရင်ဆုံး order ကို လက်ခံပေးပါ",
+                                "warning",
+                              );
+                              return;
                             }
+
+                            handlePrint(order, "a4");
+
+                            setTimeout(() => {
+                              handlePickup(order.id, order);
+                            }, 1500);
                           }}
-                          //                       className={`w-5 h-5 flex items-center justify-center rounded border cursor-pointer transition
-                          //   ${
-                          //     pickedOrders[order.id]
-                          //       ? "bg-indigo-500 border-indigo-500"
-                          //       : "border-slate-500 hover:border-indigo-400"
-                          //   }
-                          // `}
-                          className={`w-5 h-5 flex items-center justify-center rounded border transition
-  ${
-    pickedOrders[order.id]
-      ? "bg-indigo-500 border-indigo-500 cursor-not-allowed opacity-70"
-      : "border-slate-500 hover:border-indigo-400 cursor-pointer"
-  }
-`}
+                          disabled={pickedOrders[order.id]}
+                          className={`
+    flex items-center gap-2
+    px-3 py-2
+    rounded-xl
+    text-xs font-semibold
+    transition-all duration-200
+    shadow-md
+
+    ${
+      pickedOrders[order.id]
+        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 cursor-not-allowed"
+        : "bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-white"
+    }
+  `}
                         >
-                          {pickedOrders[order.id] && (
-                            <svg
-                              className="w-3 h-3 text-white"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path d="M5 13l4 4L19 7" />
-                            </svg>
-                          )}
-                        </div>
+                          <CheckCircle2 size={16} />
+
+                          {pickedOrders[order.id] ? "Picked" : "Pickup"}
+                        </button>
                       </td>
                       <td className="py-4 font-semibold text-cyan-400">
                         {order.id}
-                      </td>
-                      <td className="py-4 font-semibold text-green-400">
-                        {order.userId}
                       </td>
                       <td className="py-4 font-semibold">{order.name}</td>
                       <td className="py-4 font-semibold">{order.phone}</td>
@@ -816,13 +1019,18 @@ export default function OrdersTable({ shopId }) {
                         {order.type}
                       </td>
                       <td className="py-4">{order.orders.length} items</td>
+                      {/* <td className="py-4">
+  {order.orders.reduce((sum, item) => sum + item.quantity, 0)} items
+</td> */}
                       <td className="py-4 font-semibold text-indigo-400">
                         {getOrderTotal(order).toLocaleString()} Ks
                       </td>
+                      <td className="py-4 font-semibold text-green-400">
+                        {new Date(order.created_at).toLocaleDateString("en-GB")}
+                      </td>{" "}
                       <td className={`py-4 font-semibold ${status.color}`}>
                         {status.label}
                       </td>
-
                       {/* Timer Column Cell */}
                       {orderTab === "timer" && (
                         <td className="py-4 font-semibold text-yellow-400">
@@ -831,7 +1039,6 @@ export default function OrdersTable({ shopId }) {
                             : "-"}
                         </td>
                       )}
-
                       <td className="py-4">
                         <button
                           onClick={() => setSelected(order)}
@@ -865,21 +1072,22 @@ export default function OrdersTable({ shopId }) {
                   Prev
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (n) => (
-                    <button
-                      key={n}
-                      onClick={() => setPage(n)}
-                      className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                        page === n
-                          ? "bg-indigo-300 text-black font-semibold"
-                          : "text-indigo-300 hover:bg-neutral-900"
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ),
-                )}
+              {Array.from(
+  { length: endPage - startPage + 1 },
+  (_, i) => startPage + i
+).map((n) => (
+  <button
+    key={n}
+    onClick={() => setPage(n)}
+    className={`px-3 py-1 rounded-md border border-neutral-700 ${
+      page === n
+        ? "bg-indigo-300 text-black font-semibold"
+        : "text-indigo-300 hover:bg-neutral-900"
+    }`}
+  >
+    {n}
+  </button>
+))}
 
                 <button
                   disabled={page === totalPages}
@@ -897,6 +1105,7 @@ export default function OrdersTable({ shopId }) {
           </div>
         )}
       </div>
+
       {selected && (
         <OrderPopup
           order={selected}
@@ -904,6 +1113,13 @@ export default function OrdersTable({ shopId }) {
           shopId={shopId} // ✅ pass shopId here
         />
       )}
+
+      <div className="print-area">
+        {/* <PrintReceipt order={printOrder} /> */}
+      </div>
+      <div className="print-area">
+        <PrintReceipt order={printOrder} shopId={shopId} />
+      </div>
     </div>
   );
 }

@@ -27,7 +27,8 @@ export default function Sidebar() {
     const { shopId } = getAuth();
     if (!shopId) return;
 
-    fetch(`http://38.60.244.137:3000/shops/${shopId}`)
+    // Shop Data
+    fetch(`https://api.pwezayshops.com/shops/${shopId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.length > 0) {
@@ -37,7 +38,44 @@ export default function Sidebar() {
         }
       })
       .catch((err) => console.error(err));
+
+    // Sidebar State
+    fetch(`https://api.pwezayshops.com/get-sidebar/${shopId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.length > 0) {
+          // 1 = open
+          // 0 = close
+          setCollapsed(Number(data[0].sidebar) === 0);
+        }
+      })
+      .catch((err) => console.error(err));
   }, []);
+
+  const handleSidebarToggle = async () => {
+    const { shopId } = getAuth();
+
+    const newCollapsed = !collapsed;
+
+    // UI update
+    setCollapsed(newCollapsed);
+
+    try {
+      await fetch(`https://api.pwezayshops.com/change-sidebar/${shopId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // collapsed = true => sidebar 0
+          // collapsed = false => sidebar 1
+          sidebar: newCollapsed ? 0 : 1,
+        }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleLogout = async () => {
     const ok = await confirm("Are you sure you want to logout?");
@@ -66,12 +104,12 @@ export default function Sidebar() {
     <motion.aside
       animate={{ width: collapsed ? 80 : 260 }}
       transition={{ duration: 0.3 }}
-      className="bg-[#0f172a] border-r border-slate-800 p-4   flex-col  flex min-h-screen  text-natural-100 h-screen sticky top-0"
+      className="bg-[#0f172a] border-r border-slate-800 p-4 flex-col flex min-h-screen text-natural-100 h-screen sticky top-0"
     >
-      {/*  Modern Toggle Button */}
+      {/* Modern Toggle Button */}
       <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-6 bg-slate-800 border border-slate-700 rounded-full p-1 hover:bg-slate-700 transition"
+        onClick={handleSidebarToggle}
+        className="absolute -right-3 top-4 z-50 bg-slate-800 border border-slate-700 rounded-full p-1 hover:bg-slate-700 transition"
       >
         {collapsed ? <MdChevronRight size={18} /> : <MdChevronLeft size={18} />}
       </button>
@@ -85,7 +123,7 @@ export default function Sidebar() {
         <img
           src={
             shopPhoto
-              ? `http://38.60.244.137:3000/shop-uploads/${shopPhoto}`
+              ? `https://api.pwezayshops.com/shop-uploads/${shopPhoto}`
               : "https://via.placeholder.com/40"
           }
           alt="Shop"
@@ -107,7 +145,7 @@ export default function Sidebar() {
         </AnimatePresence>
       </div>
 
-      {/*  Menu */}
+      {/* Menu */}
       <div className="space-y-2 flex-1">
         {[
           { to: "/", icon: <MdDashboard size={20} />, label: "Dashboard" },
@@ -152,7 +190,7 @@ export default function Sidebar() {
         ))}
       </div>
 
-      {/*  Logout */}
+      {/* Logout */}
       <button
         onClick={handleLogout}
         className={`flex items-center p-3 rounded-xl text-sm text-red-400 hover:bg-slate-800 transition mt-4 border-t border-slate-800 pt-4 ${

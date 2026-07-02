@@ -54,7 +54,7 @@ export default function IngredientsCreateModal({ shopId, close, onSuccess }) {
 
       console.log("🚀 Sending payload:", payload); // 🔥 DEBUG
 
-      const res = await fetch("http://38.60.244.137:3000/ingredients", {
+      const res = await fetch("https://api.pwezayshops.com/ingredients", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export default function IngredientsCreateModal({ shopId, close, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed -inset-10 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-[#111827] w-[500px] rounded-2xl p-6 border border-gray-700 shadow-xl max-h-[90vh] overflow-y-auto">
         
         <h2 className="text-2xl font-semibold text-white mb-5">

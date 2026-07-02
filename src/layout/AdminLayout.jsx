@@ -11,7 +11,7 @@ export default function AdminLayout() {
       <div className="flex-1 flex flex-col">
         <Navbar />
 
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto py-6 px-8 ">
           <Outlet />
         </div>
 

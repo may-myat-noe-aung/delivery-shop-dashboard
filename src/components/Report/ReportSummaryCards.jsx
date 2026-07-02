@@ -1,99 +1,152 @@
+
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { ShoppingBag, DollarSign, Truck, Bike } from "lucide-react";
+import {
+  ShoppingCart,
+  DollarSign,
+  Bike,
+  Truck,
+} from "lucide-react";
 
-function SummaryCard({ title, value, icon, color }) {
+/* ================= CARD ================= */
+function DashboardCard({ title, value, icon, gradient, iconBg }) {
   return (
-    <div className="rounded-2xl border border-neutral-800 bg-neutral-600 p-4 relative overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-br ${color}`} />
+    <div
+      className="
+        relative overflow-hidden rounded-3xl border border-white/10
+        bg-white/5 backdrop-blur-xl
+        p-3 lg:p-4 xl:p-5 2xl:p-6
+        transition-all duration-300 hover:scale-[1.02]
+      "
+    >
+      <div
+        className={`absolute inset-0 opacity-20 bg-gradient-to-br ${gradient}`}
+      />
 
-      <div className="relative ">
+      <div
+        className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl ${iconBg} opacity-20`}
+      />
+
+      <div className="relative z-10 flex items-center justify-between">
         <div>
-          <p className="flex items-center justify-between text-lg text-neutral-100 mb-2">
-            <span>{title}</span>
-            {icon}
+          <p className="text-[10px] lg:text-[11px] xl:text-xs 2xl:text-sm text-slate-300">
+            {title}
           </p>
 
-          <h2 className="text-xl font-semibold text-white">{value}</h2>
+          <h2 className="mt-1 font-bold text-white text-sm lg:text-base xl:text-lg 2xl:text-xl">
+            {value}
+          </h2>
+        </div>
+
+        <div
+          className={`
+            flex items-center justify-center border border-white/10 rounded-xl
+            ${iconBg}
+            w-8 h-8
+            lg:w-9 lg:h-9
+            xl:w-10 xl:h-10
+            2xl:w-12 2xl:h-12
+          `}
+        >
+          {icon}
         </div>
       </div>
     </div>
   );
 }
 
+/* ================= LOADING ================= */
+function LoadingCard() {
+  return (
+    <div className="h-[120px] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
+  );
+}
+
+/* ================= MAIN ================= */
 export default function ReportSummaryCards({ shopId }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem("adminToken");
-
   useEffect(() => {
-    const fetchSummary = async () => {
+    if (!shopId) return;
+
+    const fetchData = async () => {
       try {
-        const res = await axios.get(
-          `http://38.60.244.137:3000/report-shops-summaries/${shopId}`,
-          //   {
-          //     headers: {
-          //       Authorization: `Bearer ${token}`,
-          //     },
-          //   }
+        const res = await fetch(
+          `https://api.pwezayshops.com/report-shops-summaries/${shopId}`
         );
 
-        setData(res.data.data);
+        const result = await res.json();
+
+        if (result.success) {
+          setData(result.data);
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSummary();
+    fetchData();
+
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
   }, [shopId]);
 
-  if (loading) {
+  if (loading || !data) {
     return (
-      <div className="text-center text-neutral-400 py-10">
-        Loading summary...
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="text-center text-red-500 py-10">
-        Failed to load summary.
-      </div>
+      <section className="grid grid-cols-4 gap-3 lg:gap-4 xl:gap-5 mb-5">
+        {[...Array(4)].map((_, i) => (
+          <LoadingCard key={i} />
+        ))}
+      </section>
     );
   }
 
   return (
-    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <SummaryCard
+    <section className="grid grid-cols-4 gap-3 lg:gap-4 xl:gap-5 mb-5">
+      {/* TOTAL ORDERS */}
+      <DashboardCard
         title="Total Orders"
         value={data.total_orders}
-        icon={<ShoppingBag className="w-5 h-5" />}
-        color="from-indigo-400/50 to-transparent"
+        icon={
+          <ShoppingCart className="text-indigo-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-indigo-500 to-transparent"
+        iconBg="bg-indigo-500/20"
       />
 
-      <SummaryCard
+      {/* TOTAL AMOUNT */}
+      <DashboardCard
         title="Total Amount"
-        value={`${Number(data.total_amount).toLocaleString()} Ks`}
-        icon={<DollarSign className="w-5 h-5" />}
-        color="from-emerald-400/50 to-transparent"
+        value={`${Number(data.total_amount || 0).toLocaleString()} Ks`}
+        icon={
+          <DollarSign className="text-emerald-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-emerald-500 to-transparent"
+        iconBg="bg-emerald-500/20"
       />
 
-      <SummaryCard
-        title="Total Shop Delivery"
+      {/* SHOP DELIVERYMEN WAY */}
+      <DashboardCard
+        title="Shop Delivery Way"
         value={data.total_way_shopDeliverymen}
-        icon={<Bike className="w-5 h-5" />}
-        color="from-sky-400/50 to-transparent"
+        icon={
+          <Bike className="text-sky-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-sky-500 to-transparent"
+        iconBg="bg-sky-500/20"
       />
 
-      <SummaryCard
-        title="Total System Delivery"
+      {/* SYSTEM DELIVERYMEN WAY */}
+      <DashboardCard
+        title="System Delivery Way"
         value={data.total_way_systemDeliverymen}
-        icon={<Truck className="w-5 h-5" />}
-        color="from-yellow-400/50 to-transparent"
+        icon={
+          <Truck className="text-rose-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-rose-500 to-transparent"
+        iconBg="bg-rose-500/20"
       />
     </section>
   );

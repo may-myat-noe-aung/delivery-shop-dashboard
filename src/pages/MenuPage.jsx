@@ -66,11 +66,22 @@ export default function MenuPage() {
 
       {/* ===== Modals ===== */}
       {openMenu && (
+        // <MenuCreateModal
+        //   shopId={shopId}
+        //   close={() => setOpenMenu(false)}
+        //   onSuccess={() => setOpenMenu(false)}
+        // />
         <MenuCreateModal
-          shopId={shopId}
-          close={() => setOpenMenu(false)}
-          onSuccess={() => setOpenMenu(false)}
-        />
+  shopId={shopId}
+  close={() => {
+    console.log("close");
+    setOpenMenu(false);
+  }}
+  onSuccess={() => {
+    console.log("success");
+    setOpenMenu(false);
+  }}
+/>
       )}
 
       {openIngredient && (

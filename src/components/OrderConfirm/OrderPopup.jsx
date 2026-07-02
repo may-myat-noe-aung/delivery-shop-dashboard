@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
@@ -33,7 +32,7 @@ export default function OrderPopup({ order, close, shopId }) {
     setLoading(true);
 
     try {
-      const endpoint = `http://38.60.244.137:3000/all-approved-orders/${localOrder.id}`;
+      const endpoint = `https://api.pwezayshops.com/all-approved-orders/${localOrder.id}`;
 
       const res = await fetch(endpoint, {
         method: "PATCH",
@@ -66,11 +65,19 @@ export default function OrderPopup({ order, close, shopId }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[#1e293b] border border-slate-700 rounded-3xl p-6 w-full max-w-2xl text-white shadow-2xl max-h-[90vh] overflow-y-auto relative">
+      <div className="bg-[#1e293b] border border-slate-700 rounded-3xl p-6 w-full max-w-2xl text-white shadow-2xl max-h-[90vh] overflow-y-scroll custom-scrollbar relative">
         {/* Close */}
-        <button
+        {/* <button
           onClick={close}
           className="absolute top-4 right-5 text-slate-400 hover:text-white text-lg"
+        >
+          ✕
+        </button> */}
+        <button
+          onClick={close}
+          className="absolute top-4 right-5 w-9 h-9 flex items-center justify-center 
+  bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white 
+  rounded-full transition duration-200"
         >
           ✕
         </button>
@@ -104,10 +111,10 @@ export default function OrderPopup({ order, close, shopId }) {
               </p>
             </div>
           </div>
-          <p>
+          {/* <p>
             <span className="text-slate-400">Location:</span>{" "}
             {localOrder.location}
-          </p>
+          </p> */}
         </div>
 
         {/* =========================
@@ -203,7 +210,7 @@ export default function OrderPopup({ order, close, shopId }) {
             <span>Tax</span>
             <span>{localOrder.tax} Ks</span>
           </div>
-           <div className="flex justify-between">
+          <div className="flex justify-between">
             <span>Delivery Fees</span>
             <span>{localOrder.delivery_fees} Ks</span>
           </div>
@@ -242,6 +249,8 @@ export default function OrderPopup({ order, close, shopId }) {
                 Pickup: {localOrder.orders_pickup ? "Done" : "Not Done"}
               </p>
               <p> Esign : {localOrder.esign ? "Done" : "Not Done"}</p>
+              <p> Kilo : {localOrder.kilo}</p>
+
               {/* <p className="text-md">Done: {localOrder.orders_done ? "Done" : "Not Done"}</p> */}
             </div>
           </div>
@@ -249,10 +258,10 @@ export default function OrderPopup({ order, close, shopId }) {
           <div>
             {localOrder.payment_photo && (
               <img
-                src={`http://38.60.244.137:3000/${localOrder.payment_photo}`}
+                src={`https://api.pwezayshops.com/${localOrder.payment_photo}`}
                 onClick={() =>
                   setPreviewImage(
-                    `http://38.60.244.137:3000/${localOrder.payment_photo}`,
+                    `https://api.pwezayshops.com/${localOrder.payment_photo}`,
                   )
                 }
                 className="mt-2 w-40 rounded-lg border border-slate-600 cursor-pointer hover:scale-105 transition"
@@ -283,7 +292,10 @@ export default function OrderPopup({ order, close, shopId }) {
               {/* Close Button */}
               <button
                 onClick={() => setPreviewImage(null)}
-                className="absolute top-2 right-2 text-white text-2xl"
+                className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center
+  bg-black/30 backdrop-blur-md border border-red-400/80
+  hover:bg-red-500 hover:text-white text-red-400
+  rounded-full transition"
               >
                 ✕
               </button>
