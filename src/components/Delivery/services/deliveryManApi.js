@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://38.60.244.137:3000";
+const API = "https://api.pwezayshops.com";
 
 export const deleteDeliveryMan = (id) =>
   axios.delete(`${API}/deliverymen/${id}`);
