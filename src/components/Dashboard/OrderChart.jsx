@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import {
   LineChart,
@@ -71,38 +70,41 @@ export default function MenuChart({ shopId }) {
       </div>
 
       {/* Chart */}
-      {loading ? (
-        <div className="h-[275px] flex items-center justify-center text-neutral-400">
-          Loading...
-        </div>
-      ) : (
-        <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
 
-            <XAxis dataKey="time" stroke="#aaa" />
+      <div className="h-[300px]">
+        {loading ? (
+          <div className="h-full flex items-center justify-center text-neutral-400">
+            Loading...
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%">
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
 
-            <YAxis stroke="#aaa" tickFormatter={(value) => ` ${value}`} />
+              <XAxis dataKey="time" stroke="#aaa" />
 
-            <Tooltip
-              formatter={(value) => [` ${value}`, "Orders"]}
-              contentStyle={{
-                backgroundColor: "#111827",
-                border: "1px solid #374151",
-                borderRadius: "10px",
-              }}
-            />
+              <YAxis stroke="#aaa" tickFormatter={(value) => ` ${value}`} />
 
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke="#6366f1"
-              strokeWidth={3}
-              dot={{ r: 3 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      )}
+              <Tooltip
+                formatter={(value) => [` ${value}`, "Orders"]}
+                contentStyle={{
+                  backgroundColor: "#111827",
+                  border: "1px solid #374151",
+                  borderRadius: "10px",
+                }}
+              />
+
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#6366f1"
+                strokeWidth={3}
+                dot={{ r: 3 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
     </div>
   );
 }

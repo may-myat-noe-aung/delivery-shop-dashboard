@@ -644,17 +644,21 @@ setMenusList(withPhoto);
       }));
 
     if (!name.trim()) {
-      showAlert("Menu Name ဖြည့်ပေးပါ", "error");
+      showAlert("Menu Name ဖြည့်ပေးပါ", "warning");
       return;
     }
+    if (!selectedCategory) {
+  showAlert("Category ရွေးပေးပါ", "warning");
+  return;
+}
 
     if (!photo) {
-      showAlert("Photo ရွေးပေးပါ", "error");
+      showAlert("Photo ရွေးပေးပါ", "warning");
       return;
     }
 
     if (cleanedPrices.length === 0) {
-      showAlert("Price အနည်းဆုံး တစ်ခုထည့်ပေးပါ", "error");
+      showAlert("Price အနည်းဆုံး တစ်ခုထည့်ပေးပါ", "warning");
       return;
     }
     setLoading(true);

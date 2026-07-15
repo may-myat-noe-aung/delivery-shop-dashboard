@@ -36,12 +36,6 @@ const DeliveryManDashboard = ({ shopId }) => {
   return (
     <div className="flex flex-col  bg-gray-900 text-gray-100">
       {showForm && (
-        // <AddDeliveryForm
-        //   formData={formData}
-        //   setFormData={setFormData}
-        //   onClose={() => setShowForm(false)}
-        //   refreshList={fetchDeliveryMen}
-        // />
         <AddDeliveryForm
           shopId={shopId}
           formData={formData}

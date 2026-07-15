@@ -95,7 +95,7 @@ export default function ReportSummaryCards({ shopId }) {
 
   if (loading || !data) {
     return (
-      <section className="grid grid-cols-4 gap-3 lg:gap-4 xl:gap-5 mb-5">
+      <section className="grid grid-cols-4 gap-3 lg:gap-4 xl:gap-5 mb-5 rounded-3xl">
         {[...Array(4)].map((_, i) => (
           <LoadingCard key={i} />
         ))}
@@ -107,10 +107,10 @@ export default function ReportSummaryCards({ shopId }) {
     <section className="grid grid-cols-4 gap-3 lg:gap-4 xl:gap-5 mb-5">
       {/* TOTAL ORDERS */}
       <DashboardCard
-        title="Total Orders"
+        title="Today's Total Orders"
         value={data.total_orders}
         icon={
-          <ShoppingCart className="text-indigo-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+          <ShoppingCart className="text-indigo-300 w-3 h-3  xl:w-5 xl:h-5" />
         }
         gradient="from-indigo-500 to-transparent"
         iconBg="bg-indigo-500/20"
@@ -118,10 +118,10 @@ export default function ReportSummaryCards({ shopId }) {
 
       {/* TOTAL AMOUNT */}
       <DashboardCard
-        title="Total Amount"
+        title="Today's Total Amount"
         value={`${Number(data.total_amount || 0).toLocaleString()} Ks`}
         icon={
-          <DollarSign className="text-emerald-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+          <DollarSign className="text-emerald-300 w-3 h-3  xl:w-5 xl:h-5" />
         }
         gradient="from-emerald-500 to-transparent"
         iconBg="bg-emerald-500/20"
@@ -129,10 +129,10 @@ export default function ReportSummaryCards({ shopId }) {
 
       {/* SHOP DELIVERYMEN WAY */}
       <DashboardCard
-        title="Shop Delivery Way"
+        title="Today's Shop Delivery Way"
         value={data.total_way_shopDeliverymen}
         icon={
-          <Bike className="text-sky-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+          <Bike className="text-sky-300 w-3 h-3  xl:w-5 xl:h-5" />
         }
         gradient="from-sky-500 to-transparent"
         iconBg="bg-sky-500/20"
@@ -140,10 +140,10 @@ export default function ReportSummaryCards({ shopId }) {
 
       {/* SYSTEM DELIVERYMEN WAY */}
       <DashboardCard
-        title="System Delivery Way"
+        title="Today's System Delivery Way"
         value={data.total_way_systemDeliverymen}
         icon={
-          <Truck className="text-rose-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+          <Truck className="text-rose-300 w-3 h-3  xl:w-5 xl:h-5" />
         }
         gradient="from-rose-500 to-transparent"
         iconBg="bg-rose-500/20"

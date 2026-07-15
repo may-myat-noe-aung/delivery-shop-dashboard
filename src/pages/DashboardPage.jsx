@@ -10,7 +10,7 @@ const DashboardPage = () => {
     return <Navigate to="/login" replace />;
   }
   return (
-    <div className=" bg-[#0f172a] text-white space-y-6">
+    <div className=" bg-[#0f172a] text-white space-y-6 ">
       <SummaryCards shopId={shopId} />
       <ShopDashboard shopId={shopId} />
 

@@ -579,15 +579,16 @@ export default function PaymentSettings({ shopId }) {
   // ✅ dropdown state (ONLY ADD)
   const [openDropdown, setOpenDropdown] = useState(null);
 
-  const paymentMethods = [
-    "KBZ",
-    "WAVE",
-    "AYA",
-    "CB",
-    "AGB",
-    "UAB",
-    "YOMA",
-    "MCB",
+
+    const paymentMethods = [
+    "KBZPay",
+    "WAVEPay",
+    "AYAPay",
+    "CBPay",
+    "AGBPay",
+    "UABPay",
+    "YOMAPay",
+    "MCBPay",
   ];
 
   // ================= FETCH =================

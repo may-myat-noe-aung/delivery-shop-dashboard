@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import { Navigate } from "react-router-dom"; // ✅ ADD THIS
 import MenuCreateModal from "../components/MenuCreate/MenuCreateModal";
@@ -72,16 +70,16 @@ export default function MenuPage() {
         //   onSuccess={() => setOpenMenu(false)}
         // />
         <MenuCreateModal
-  shopId={shopId}
-  close={() => {
-    console.log("close");
-    setOpenMenu(false);
-  }}
-  onSuccess={() => {
-    console.log("success");
-    setOpenMenu(false);
-  }}
-/>
+          shopId={shopId}
+          close={() => {
+            console.log("close");
+            setOpenMenu(false);
+          }}
+          onSuccess={() => {
+            console.log("success");
+            setOpenMenu(false);
+          }}
+        />
       )}
 
       {openIngredient && (

@@ -61,29 +61,24 @@ export default function EditIngredients({ id, currentData, onClose, onUpdate }) 
 
   return (
     <div className="fixed -inset-10 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#1a2030] p-6 rounded-2xl w-96 relative">
-        <h2 className="text-white text-lg font-bold mb-4">Edit Ingredient</h2>
+      <div className="bg-[#1a2030] p-6 rounded-2xl w-[500px] relative">
+        <h2 className="text-2xl text-indigo-500 mb-5 ">Edit Ingredient</h2>
 
         {/* PHOTO */}
-        <div className="mb-3 relative w-24 h-24">
+        <div className="mb-3 relative ">
        <div className="flex justify-center mb-3">
-           {/* <img
-            src={photo ? `data:image/png;base64,${photo}` : currentData.photoUrl}
-            alt={name}
-            className="w-24 h-24 object-cover rounded-lg"
-          /> */}
           <img
   src={photo || currentData.photoUrl}
   alt={name}
-  className="w-24 h-24 object-cover rounded-lg"
+  className="size-48 object-cover rounded-lg"
 />
           {/* Camera icon */}
           <button
             type="button"
             onClick={() => fileInputRef.current.click()}
-            className="absolute bottom-0 right-0 bg-indigo-600 p-2 rounded-full hover:bg-indigo-700 text-white"
+            className="absolute -bottom-2 right-[115px] bg-indigo-600 p-2 rounded-full hover:bg-indigo-700 text-white"
           >
-            <FiCamera />
+            <FiCamera size={20} />
           </button>
        </div>
 
@@ -98,22 +93,22 @@ export default function EditIngredients({ id, currentData, onClose, onUpdate }) 
 
         {/* NAME */}
         <div className="mb-3">
-          <label className="text-white text-sm mb-1 block">Name</label>
+          <label className="text-white mb-1 block">Name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-white text-sm"
+            className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-white "
           />
         </div>
 
         {/* PRICE */}
         <div className="mb-3">
-          <label className="text-white text-sm mb-1 block">Price</label>
+          <label className="text-white mb-1 block">Price</label>
           <input
             type="number"
             value={prices}
             onChange={(e) => setPrices(Number(e.target.value))}
-            className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-white text-sm"
+            className="w-full px-3 py-2 rounded-lg bg-neutral-900 border border-neutral-700 text-white "
           />
         </div>
 
@@ -121,14 +116,14 @@ export default function EditIngredients({ id, currentData, onClose, onUpdate }) 
         <div className="flex justify-end gap-2 mt-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white text-sm"
+            className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white "
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm"
+            className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white "
           >
             {loading ? "Saving..." : "Save"}
           </button>

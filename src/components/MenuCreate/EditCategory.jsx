@@ -163,6 +163,8 @@
 //     </div>
 //   );
 // }
+
+
 import React, { useState, useRef, useEffect } from "react";
 import { useAlert } from "../../AlertProvider";
 import { ChevronDown } from "lucide-react";
@@ -172,18 +174,24 @@ export default function EditCategory({ id, currentData, onClose, onUpdate }) {
 
   if (!currentData) return null;
 
-  const icons = [
-    "snack",
-    "alcoholic",
-    "breakfast",
-    "cake",
-    "coffee",
-    "drink",
-    "fastfood",
-    "lunch",
-    "morning",
-    "sweets",
-  ];
+const icons = [
+  "fashion",
+  "foodrestaurant",
+  "electronic",
+  "convenience",
+  "material",
+  "fastfood",
+  "snack",
+  "breakfast",
+  "cake",
+  "coffee",
+  "drink",
+  "lunch",
+  "morning",
+  "sweets",
+  "other",
+];
+
 
   const [name, setName] = useState(currentData.name);
   const [icon, setIcon] = useState(currentData.icon);
@@ -239,8 +247,8 @@ export default function EditCategory({ id, currentData, onClose, onUpdate }) {
 
   return (
     <div className="fixed -inset-10 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#111827] p-6 rounded-2xl w-[500px] border border-gray-700 shadow-2xl">
-        <h2 className="text-white text-lg font-bold mb-4">Edit Category</h2>
+      <div className="bg-[#111827] p-6 rounded-2xl w-[800px] border border-gray-700 shadow-2xl">
+        <h2 className="text-indigo-500 text-2xl font-bold mb-4">Edit Category</h2>
 
         {/* CATEGORY PREVIEW CARD */}
         {/* <div className="mb-4">
@@ -262,11 +270,11 @@ export default function EditCategory({ id, currentData, onClose, onUpdate }) {
 
         {/* ICON CARDS */}
         <div className="mb-4">
-          <label className="text-gray-300 text-sm mb-2 block">
+          <label className="text-gray-300  mb-2 block">
             Choose Icon
           </label>
 
-          <div className="grid grid-cols-5 gap-3 max-h-48 overflow-y-auto">
+          <div className="grid grid-cols-5 gap-3 max-h-[280px] overflow-y-auto bg-black">
             {icons.map((nameItem, idx) => (
               <div
                 key={idx}
@@ -279,18 +287,18 @@ export default function EditCategory({ id, currentData, onClose, onUpdate }) {
               >
                 <img
                   src={`/categoriesIcon/${nameItem}.png`}
-                  className="w-8 h-8 bg-white rounded"
+                  className="size-[100px] bg-white rounded"
                   alt={nameItem}
                 />
 
-                <p className="text-[10px] text-gray-300 mt-1">{nameItem}</p>
+                <p className="text-md text-gray-300 mt-1">{nameItem}</p>
               </div>
             ))}
           </div>
         </div>
         {/* NAME */}
         <div className="mb-4">
-          <label className="text-gray-300 text-sm mb-1 block">
+          <label className="text-gray-300  mb-1 block">
             Category Name
           </label>
 

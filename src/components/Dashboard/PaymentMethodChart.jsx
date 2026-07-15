@@ -113,6 +113,8 @@
 //     </div>
 //   );
 // }
+
+
 import React, { useEffect, useState } from "react";
 import { Wallet } from "lucide-react";
 import {
@@ -138,34 +140,77 @@ export default function PaymentMethodChart({ shopId }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!shopId) return;
+  // useEffect(() => {
+  //   if (!shopId) return;
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+  //   const fetchData = async () => {
+  //     try {
+  //       setLoading(true);
 
-        const res = await fetch(
-          `https://api.pwezayshops.com/payments-chart-shops/${shopId}`
-        );
+  //       const res = await fetch(
+  //         `https://api.pwezayshops.com/payments-chart-shops/${shopId}`
+  //       );
 
-        const json = await res.json();
+  //       const json = await res.json();
 
-        if (json.success) {
-          setData(json.data || []);
-        } else {
-          setData([]);
-        }
-      } catch (err) {
-        console.log("Payment chart error:", err);
-        setData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       if (json.success) {
+  //         setData(json.data || []);
+  //       } else {
+  //         setData([]);
+  //       }
+  //     } catch (err) {
+  //       console.log("Payment chart error:", err);
+  //       setData([]);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
+  //   fetchData();
+  // }, [shopId]);
+
+  const fetchData = async (showLoading = false) => {
+  try {
+    if (showLoading) {
+      setLoading(true);
+    }
+
+    const res = await fetch(
+      `https://api.pwezayshops.com/payments-chart-shops/${shopId}`
+    );
+
+    const json = await res.json();
+
+    if (json.success) {
+      setData(json.data || []);
+    } else {
+      setData([]);
+    }
+  } catch (err) {
+    console.log("Payment chart error:", err);
+    setData([]);
+  } finally {
+    if (showLoading) {
+      setLoading(false);
+    }
+  }
+};
+
+useEffect(() => {
+  if (!shopId) return;
+
+  // First load (show spinner)
+  fetchData(true);
+
+  // Refresh every 5 seconds (no spinner)
+  const interval = setInterval(() => {
     fetchData();
-  }, [shopId]);
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, [shopId]);
+
+
 
   const total = data.reduce((sum, item) => sum + item.total, 0);
 
@@ -178,8 +223,11 @@ export default function PaymentMethodChart({ shopId }) {
         </h3>
         <Wallet className="h-4 w-4 text-neutral-400" />
       </div>
+       <p className="text-sm text-neutral-400 ">
+          Most Used Payment Methods This Month
+      </p>
 
-      <div className="h-[285px]">
+      <div className="h-[295px]">
         {/* LOADING */}
         {loading ? (
           <div className="h-[240px] flex items-center justify-center">
@@ -188,7 +236,7 @@ export default function PaymentMethodChart({ shopId }) {
         ) : (
           <>
             {/* PIE CHART */}
-            <div className="h-[240px]">
+            <div className="2xl:h-[240px] h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie

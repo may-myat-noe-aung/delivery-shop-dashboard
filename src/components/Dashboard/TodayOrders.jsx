@@ -182,7 +182,7 @@ const handleExport = () => {
   }
 };
   return (
-    <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
+    <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6 ">
 
       {/* Stats */}
       {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

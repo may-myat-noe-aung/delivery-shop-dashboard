@@ -30,18 +30,23 @@ export default function CategoryTable({ shopId }) {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  const icons = [
-    "snack",
-    "alcoholic",
-    "breakfast",
-    "cake",
-    "coffee",
-    "drink",
-    "fastfood",
-    "lunch",
-    "morning",
-    "sweets",
-  ];
+const icons = [
+  "fashion",
+  "foodrestaurant",
+  "electronic",
+  "convenience",
+  "material",
+  "fastfood",
+  "snack",
+  "breakfast",
+  "cake",
+  "coffee",
+  "drink",
+  "lunch",
+  "morning",
+  "sweets",
+  "other",
+];
 
   const fetchData = async () => {
     try {
@@ -163,11 +168,11 @@ export default function CategoryTable({ shopId }) {
                 className="relative rounded-2xl overflow-hidden border border-slate-700 bg-[#111827] shadow-lg hover:scale-[1.03] transition-all duration-300"
               >
                 {/* ICON AREA */}
-                <div className="relative flex justify-center items-center h-28 bg-white">
+                <div className="relative flex justify-center items-center h-28 bg-black">
                   <img
                     src={`/categoriesIcon/${iconName}.png`}
                     alt={item.name}
-                    className="w-16 h-16 object-contain drop-shadow-lg"
+                    className="size-[113px] object-contain drop-shadow-lg"
                   />
 
                   {/* TOP RIGHT ICONS (LIKE INGREDIENTS) */}

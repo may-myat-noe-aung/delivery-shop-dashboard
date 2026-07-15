@@ -41,9 +41,12 @@ export default function TopMenus({ shopId }) {
         <h3 className="font-semibold text-xl text-red-400">Less 5 Menus</h3>
         <Utensils className="h-4 w-4 text-neutral-400" />
       </div>
+       <p className="text-sm text-neutral-400 ">
+   Lowest selling menus this month
+      </p>
 
       {/* List */}
-      <div className=" h-[285px] overflow-y-auto">
+      <div className=" h-[295px] custom-scrollbar overflow-y-auto">
 
         {loading ? (
           <div className="text-neutral-500 text-sm text-center mt-4">
@@ -66,7 +69,7 @@ export default function TopMenus({ shopId }) {
               </div>
 
               {/* NAME */}
-              <div className="flex-1 text-white font-medium">
+              <div className="flex-1 text-white font-medium text-sm">
                 {m.name}
               </div>
 

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { User } from "lucide-react";
 
@@ -11,7 +10,7 @@ export default function TopCustomers({ shopId }) {
     const fetchCustomers = async () => {
       try {
         const res = await fetch(
-          `https://api.pwezayshops.com/top5-customers-by-shops/${shopId}`
+          `https://api.pwezayshops.com/top5-customers-by-shops/${shopId}`,
         );
 
         const json = await res.json();
@@ -41,32 +40,29 @@ export default function TopCustomers({ shopId }) {
 
   return (
     <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
-
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <h3 className="font-semibold text-xl">Top 5 Customers</h3>
         <User className="h-4 w-4 text-neutral-400" />
       </div>
+      <p className="text-sm text-neutral-400 ">
+        Top customers this month
+      </p>
 
       {/* List */}
-      <div className="space-y-3 h-[285px] overflow-y-auto">
-
+      <div className="space-y-3  h-[290px] custom-scrollbar overflow-y-auto">
         {loading ? (
-          <div className="text-neutral-500 text-sm text-center mt-4">
+          <div className="text-neutral-500 text-sm text-center mt-4 ">
             Loading...
           </div>
         ) : error ? (
-          <div className="text-red-500 text-sm text-center mt-4">
-            {error}
-          </div>
+          <div className="text-red-500 text-sm text-center mt-4">{error}</div>
         ) : customers.length > 0 ? (
           customers.map((c, index) => (
-            
             <div
               key={index}
               className=" flex items-center justify-between p-2 rounded-lg border-b border-slate-800 hover:bg-white/[0.03] transition-all duration-200"
             >
-
               {/* RANK (your UI style) */}
               <td className="pr-2">
                 <div
@@ -74,10 +70,10 @@ export default function TopCustomers({ shopId }) {
                     index === 0
                       ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
                       : index === 1
-                      ? "bg-slate-400/10 text-slate-300 border border-slate-500/20"
-                      : index === 2
-                      ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                      : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                        ? "bg-slate-400/10 text-slate-300 border border-slate-500/20"
+                        : index === 2
+                          ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                          : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
                   }`}
                 >
                   #{index + 1}
@@ -85,17 +81,17 @@ export default function TopCustomers({ shopId }) {
               </td>
 
               {/* NAME */}
-              <div className="flex-1 font-medium text-white">
-                {c.name}
-              </div>
+              <div className="flex-1 font-medium text-white">{c.name}</div>
 
               {/* MENU */}
               <div className="flex-1 text-center">
-                <span className={`px-2 py-1 rounded-md text-xs ${
-                  c.most_order_menu
-                    ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
-                    : "bg-neutral-700/20 text-neutral-400"
-                }`}>
+                <span
+                  className={`px-2 py-1 rounded-md text-xs ${
+                    c.most_order_menu
+                      ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                      : "bg-neutral-700/20 text-neutral-400"
+                  }`}
+                >
                   {c.most_order_menu || "No menu"}
                 </span>
               </div>
@@ -106,7 +102,6 @@ export default function TopCustomers({ shopId }) {
                   {c.total_orders} orders
                 </span>
               </div>
-
             </div>
           ))
         ) : (

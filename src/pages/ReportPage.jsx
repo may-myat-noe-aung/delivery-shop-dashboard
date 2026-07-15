@@ -27,8 +27,8 @@ import SystemDeliveryManCards from "../components/Report/SystemDeliveryManCards"
 
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        <RevenueChart shopId={shopId}/>
         <TopCategoryChart shopId={shopId}/>
+        <RevenueChart shopId={shopId}/>
         </div>
       </div>
     );

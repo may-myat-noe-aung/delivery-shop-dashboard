@@ -140,7 +140,8 @@ export default function ShopSummary({ shopId }) {
 
       {/* DELIVERY FEES */}
       <DashboardCard
-        title="Delivery Fees"
+        title="
+Today's Delivery Fees"
         value={`${Number(
           data.today_delivery_fees || 0
         ).toLocaleString()} Ks`}

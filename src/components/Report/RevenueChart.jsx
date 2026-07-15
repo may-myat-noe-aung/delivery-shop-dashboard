@@ -144,7 +144,7 @@ export default function RevenueChart({ shopId }) {
   }, [type, shopId]);
 
   return (
-    <div className="col-span-2 bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
+    <div className="col-span-3 xl:col-span-2 bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
       
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
@@ -171,11 +171,11 @@ export default function RevenueChart({ shopId }) {
 
       {/* Chart */}
       {loading ? (
-        <div className="h-64 flex items-center justify-center text-neutral-400 animate-pulse">
+        <div className="h-[290] flex items-center justify-center text-neutral-400 animate-pulse">
           Loading revenue...
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={300}>
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
 

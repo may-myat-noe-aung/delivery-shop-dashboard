@@ -275,7 +275,6 @@
 
 //   category: JSON.stringify(form.category),
 // };
- 
 
 //     console.log(payload);
 
@@ -331,7 +330,7 @@
 //         text-white
 //         px-4 py-10
 //         relative overflow-hidden
-        
+
 //       "
 //     >
 //       {/* GLOW */}
@@ -818,8 +817,6 @@
 //             </div>
 //           </SectionCard>
 
-    
-
 //           {/* DELIVERY */}
 //           <SectionCard title="Delivery Information" icon={<Truck size={20} />}>
 //             <div className="flex flex-col lg:flex-row lg:items-end gap-5">
@@ -1029,104 +1026,129 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   // ================= CATEGORY =================
-  const categories = [
-    {
-      id: 1,
-      name: "Snack",
-      icon: "snack",
-    },
-    {
-      id: 2,
-      name: "Alcoholic",
-      icon: "alcoholic",
-    },
-    {
-      id: 3,
-      name: "Breakfast",
-      icon: "breakfast",
-    },
-    {
-      id: 4,
-      name: "Cake",
-      icon: "cake",
-    },
-    {
-      id: 5,
-      name: "Coffee",
-      icon: "coffee",
-    },
-    {
-      id: 6,
-      name: "Drink",
-      icon: "drink",
-    },
-    {
-      id: 7,
-      name: "Fast Food",
-      icon: "fastfood",
-    },
-    {
-      id: 8,
-      name: "Lunch",
-      icon: "lunch",
-    },
-    {
-      id: 9,
-      name: "Morning",
-      icon: "morning",
-    },
-    {
-      id: 10,
-      name: "Sweets",
-      icon: "sweets",
-    },
-  ];
+const categories = [
+  {
+    id: 1,
+    name: "Fashion",
+    icon: "fashion",
+  },
+  {
+    id: 2,
+    name: "Food & Restaurant",
+    icon: "foodrestaurant",
+  },
+  {
+    id: 3,
+    name: "Electronic",
+    icon: "electronic",
+  },
+  {
+    id: 4,
+    name: "Convenience Shop",
+    icon: "convenience",
+  },
+  {
+    id: 5,
+    name: "Material",
+    icon: "material",
+  },
+  {
+    id: 6,
+    name: "Fast Food",
+    icon: "fastfood",
+  },
+  {
+    id: 7,
+    name: "Snack",
+    icon: "snack",
+  },
+  {
+    id: 8,
+    name: "Breakfast",
+    icon: "breakfast",
+  },
+  {
+    id: 9,
+    name: "Cake",
+    icon: "cake",
+  },
+  {
+    id: 10,
+    name: "Coffee",
+    icon: "coffee",
+  },
+  {
+    id: 11,
+    name: "Drink",
+    icon: "drink",
+  },
+  {
+    id: 12,
+    name: "Lunch",
+    icon: "lunch",
+  },
+  {
+    id: 13,
+    name: "Morning",
+    icon: "morning",
+  },
+  {
+    id: 14,
+    name: "Sweets",
+    icon: "sweets",
+  },
+  {
+    id: 15,
+    name: "Other",
+    icon: "other",
+  },
+];
 
   // ================= PAYMENT METHODS =================
   const paymentMethods = [
-    "KBZ",
-    "WAVE",
-    "AYA",
-    "CB",
-    "AGB",
-    "UAB",
-    "YOMA",
-    "MCB",
+    "KBZPay",
+    "WAVEPay",
+    "AYAPay",
+    "CBPay",
+    "AGBPay",
+    "UABPay",
+    "YOMAPay",
+    "MCBPay",
   ];
 
   const [showPaymentDropdown, setShowPaymentDropdown] = useState(false);
 
   // ================= FORM =================
-const [form, setForm] = useState({
-  shopkeeper_name: "",
-  shop_name: "",
-  email: "",
-  phone: "",
-  password: "",
-  address: "",
+  const [form, setForm] = useState({
+    shopkeeper_name: "",
+    shop_name: "",
+    email: "",
+    phone: "",
+    password: "",
+    address: "",
 
-  items: "",
+    items: "",
 
-  location: {
-    latitude: "",
-    longitude: "",
-  },
-
-  payments: [
-    {
-      name: "",
-      phone: "",
-      method: "",
+    location: {
+      latitude: "",
+      longitude: "",
     },
-  ],
 
-  have_deliverymen: 1,
-  deli_fees_method: "km",
+    payments: [
+      {
+        name: "",
+        phone: "",
+        method: "",
+      },
+    ],
 
-  category: [],
+    have_deliverymen: 1,
+    deli_fees_method: "km",
 
-  photo: "",
-});
+    category: [],
+
+    photo: "",
+  });
 
   // ================= CHANGE =================
   const handleChange = (e) => {
@@ -1168,165 +1190,155 @@ const [form, setForm] = useState({
   };
 
   // ================= PHOTO =================
-const handleFileChange = (e) => {
-  const file = e.target.files[0];
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  // LIMIT
-  if (file.size > 2 * 1024 * 1024) {
-    showAlert(
-      "Image must be under 2MB",
-      "error"
-    );
+    // LIMIT
+    if (file.size > 2 * 1024 * 1024) {
+      showAlert("Image must be under 2MB", "error");
 
-    return;
-  }
+      return;
+    }
 
-  const reader = new FileReader();
+    const reader = new FileReader();
 
-  reader.onloadend = () => {
-    setForm((prev) => ({
-      ...prev,
-      photo: reader.result,
-    }));
-  };
-
-  reader.readAsDataURL(file);
-};
-
-  // ================= LOCATION =================
-const getCurrentLocation = () => {
-  if (!navigator.geolocation) {
-    showAlert(
-      "Geolocation is not supported",
-      "error"
-    );
-
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const lat = parseFloat(
-        position.coords.latitude
-      );
-
-      const lng = parseFloat(
-        position.coords.longitude
-      );
-
+    reader.onloadend = () => {
       setForm((prev) => ({
         ...prev,
-
-        location: {
-          latitude: lat,
-          longitude: lng,
-        },
+        photo: reader.result,
       }));
-
-      showAlert(
-        "Location added successfully",
-        "success"
-      );
-    },
-
-    (error) => {
-      console.error(error);
-
-      showAlert(
-        "Cannot get current location",
-        "error"
-      );
-    }
-  );
-};
-
-  // ================= SIGNUP =================
-const handleSignup = async (e) => {
-  e.preventDefault();
-
-  if (
-    !form.shopkeeper_name.trim() ||
-    !form.shop_name.trim() ||
-    !form.email.trim() ||
-    !form.phone.trim() ||
-    !form.password.trim() ||
-    !form.address.trim() ||
-    !form.items ||
-    !form.location.latitude ||
-    !form.location.longitude ||
-    !form.payments[0].name.trim() ||
-    !form.payments[0].phone.trim() ||
-    !form.payments[0].method ||
-    form.category.length === 0
-  ) {
-    showAlert("Please fill all required fields", "error");
-    return;
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(form.email)) {
-    showAlert("Email သည် မှန်ကန်သော format မဟုတ်ပါ", "warning");
-    return;
-  }
-
-  // PHONE VALIDATION
-const phoneRegex = /^[0-9]{8,12}$/;
-
-if (!phoneRegex.test(form.phone)) {
-  showAlert("Phone Number သည် မှန်ကန်သော format မဟုတ်ပါ", "warning");
-  return;
-}
-
-// PASSWORD VALIDATION
-const strongPasswordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-
-if (!strongPasswordRegex.test(form.password)) {
-  showAlert(
-    "Password သည် အနည်းဆုံး 8 လုံးရှိရမည်၊ Uppercase, Lowercase, Number နှင့် Special Character ပါဝင်ရမည်။",
-    "error"
-  );
-  return;
-}
-
-  try {
-    setLoading(true);
-
-    const payload = {
-      ...form,
-      items: Number(form.items),
-  location: `Lag ${form.location.latitude}, Log ${form.location.longitude}`,
-      payments: JSON.stringify(form.payments),
-      category: JSON.stringify(form.category),
     };
 
-    const res = await fetch("https://api.pwezayshops.com/shops", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    reader.readAsDataURL(file);
+  };
 
-    const data = await res.json();
+  // ================= LOCATION =================
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      showAlert("Geolocation is not supported", "error");
 
-    const apiMessage = data?.message || data?.error || "Unknown error";
-
-    if (res.ok) {
-      showAlert(apiMessage, "success");
-      setTimeout(() => navigate("/login"), 800);
-    } else {
-      showAlert(apiMessage, "error");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    showAlert("Server error", "error");
-  } finally {
-    setLoading(false);
-  }
-};
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = parseFloat(position.coords.latitude);
+
+        const lng = parseFloat(position.coords.longitude);
+
+        setForm((prev) => ({
+          ...prev,
+
+          location: {
+            latitude: lat,
+            longitude: lng,
+          },
+        }));
+
+        showAlert("Location added successfully", "success");
+      },
+
+      (error) => {
+        console.error(error);
+
+        showAlert("Cannot get current location", "error");
+      },
+    );
+  };
+
+  // ================= SIGNUP =================
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    if (
+      !form.shopkeeper_name.trim() ||
+      !form.shop_name.trim() ||
+      !form.email.trim() ||
+      !form.phone.trim() ||
+      !form.password.trim() ||
+      !form.address.trim() ||
+      !form.items ||
+      !form.location.latitude ||
+      !form.location.longitude ||
+      !form.payments[0].name.trim() ||
+      !form.payments[0].phone.trim() ||
+      !form.payments[0].method ||
+      form.category.length === 0
+    ) {
+      showAlert("Please fill all required fields", "error");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      showAlert("Email သည် မှန်ကန်သော format မဟုတ်ပါ", "warning");
+      return;
+    }
+
+    // PHONE VALIDATION
+    const phoneRegex = /^[0-9]{8,12}$/;
+
+    if (!phoneRegex.test(form.phone)) {
+      showAlert("Phone Number သည် မှန်ကန်သော format မဟုတ်ပါ", "warning");
+      return;
+    }
+
+    // PASSWORD VALIDATION
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (!strongPasswordRegex.test(form.password)) {
+      showAlert(
+        "Password သည် အနည်းဆုံး 8 လုံးရှိရမည်၊ Uppercase, Lowercase, Number နှင့် Special Character ပါဝင်ရမည်။",
+        "error",
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // const payload = {
+      //   ...form,
+      //   items: Number(form.items),
+      //   location: `Lag ${form.location.latitude}, Log ${form.location.longitude}`,
+      // payments: form.payments,
+      //   category: JSON.stringify(form.category),
+      // };
+const payload = {
+  ...form,
+  items: Number(form.items),
+  location: `Lag ${form.location.latitude}, Log ${form.location.longitude}`,
+  payments: form.payments,
+  category: JSON.stringify(form.category),
+}
+      const res = await fetch("https://api.pwezayshops.com/shops", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      const apiMessage = data?.message || data?.error || "Unknown error";
+
+      if (res.ok) {
+        showAlert(apiMessage, "success");
+        setTimeout(() => navigate("/login"), 800);
+      } else {
+        showAlert(apiMessage, "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showAlert("Server error", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -1478,7 +1490,7 @@ if (!strongPasswordRegex.test(form.password)) {
                   flex items-center gap-2
                   bg-indigo-500/10
                   border border-indigo-500/20
-                  px-3 py-1 rounded-xl
+                  px-3 py-2 rounded-xl
                 "
                           >
                             <img
@@ -1510,7 +1522,7 @@ if (!strongPasswordRegex.test(form.password)) {
           rounded-2xl
           p-3
           shadow-2xl
-          max-h-[300px]
+          max-h-[250px] custom-scrollbar
           overflow-y-auto
         "
                   >
@@ -1534,12 +1546,12 @@ if (!strongPasswordRegex.test(form.password)) {
                             }}
                             className={`
                   relative
-                  py-4 rounded-2xl border
+                  pb-2 pt-4 rounded-2xl border
                   transition-all
                   ${
                     active
-                      ? "border-indigo-500 bg-indigo-500/10"
-                      : "border-slate-700 bg-slate-400 hover:border-slate-500"
+                      ? "border-indigo-500 bg-black"
+                      : "border-slate-700 bg-black hover:border-slate-500"
                   }
                 `}
                           >
@@ -1551,7 +1563,7 @@ if (!strongPasswordRegex.test(form.password)) {
                       w-5 h-5 rounded-full
                       bg-indigo-500
                       text-white text-xs
-                      flex items-center justify-center
+                      flex items-center justify-center 
                     "
                               >
                                 ✓
@@ -1561,10 +1573,10 @@ if (!strongPasswordRegex.test(form.password)) {
                             <img
                               src={`/categoriesIcon/${item.icon}.png`}
                               alt={item.name}
-                              className="size-10 mx-auto"
+                              className="size-[80px] mx-auto"
                             />
 
-                            <p className="text-sm mt-2 text-white">
+                            <p className="text-sm mt-1 text-white">
                               {item.name}
                             </p>
                           </button>
@@ -1639,7 +1651,7 @@ if (!strongPasswordRegex.test(form.password)) {
               </div>
             </div>
           </SectionCard>
-                {/* PAYMENT */}
+          {/* PAYMENT */}
           <SectionCard
             title="Payment Information"
             icon={<CreditCard size={20} />}
@@ -1795,11 +1807,11 @@ if (!strongPasswordRegex.test(form.password)) {
                 <input
                   type="text"
                   readOnly
-                value={
-  form.location.latitude
-    ? `Lag ${form.location.latitude}, Log ${form.location.longitude}`
-    : ""
-}
+                  value={
+                    form.location.latitude
+                      ? `Lag ${form.location.latitude}, Log ${form.location.longitude}`
+                      : ""
+                  }
                   placeholder="Current Location"
                   className="
                     flex-1 h-12
@@ -1825,8 +1837,6 @@ if (!strongPasswordRegex.test(form.password)) {
               </div>
             </div>
           </SectionCard>
-
-    
 
           {/* DELIVERY */}
           <SectionCard title="Delivery Information" icon={<Truck size={20} />}>
@@ -1929,21 +1939,21 @@ if (!strongPasswordRegex.test(form.password)) {
           </button>
 
           <p className="mt-6 text-center text-sm text-slate-400">
-  Already have an account?{" "}
-  <button
-    type="button"
-    onClick={() => navigate("/login")}
-    className="
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="
       text-indigo-400
       hover:text-indigo-300
       font-medium
       transition
       underline-offset-4 hover:underline
     "
-  >
-    Login
-  </button>
-</p>
+            >
+              Login
+            </button>
+          </p>
         </form>
       </div>
     </div>
