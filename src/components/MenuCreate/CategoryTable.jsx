@@ -102,6 +102,21 @@ const icons = [
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+  // ===== Pagination Buttons =====
+const maxButtons = 10;
+
+const startPage =
+  Math.floor((page - 1) / maxButtons) * maxButtons + 1;
+
+const endPage = Math.min(
+  startPage + maxButtons - 1,
+  totalPages
+);
+
+const visiblePages = Array.from(
+  { length: endPage - startPage + 1 },
+  (_, i) => startPage + i
+);
 
   // 🗑 DELETE
   const handleDelete = async (id) => {
@@ -235,19 +250,19 @@ const icons = [
             </button>
 
             {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                  page === n
-                    ? "bg-indigo-300 text-black font-semibold"
-                    : "text-indigo-300 hover:bg-neutral-900"
-                }`}
-              >
-                {n}
-              </button>
-            ))}
+      {visiblePages.map((n) => (
+  <button
+    key={n}
+    onClick={() => setPage(n)}
+    className={`px-3 py-1 rounded-md border border-neutral-700 ${
+      page === n
+        ? "bg-indigo-300 text-black font-semibold"
+        : "text-indigo-300 hover:bg-neutral-900"
+    }`}
+  >
+    {n}
+  </button>
+))}
 
             {/* Next Button */}
             <button

@@ -104,6 +104,22 @@ return () => clearInterval(interval);
     startIndex + itemsPerPage,
   );
 
+  // ===== Pagination Buttons =====
+const maxButtons = 10;
+
+const startPage =
+  Math.floor((currentPage - 1) / maxButtons) * maxButtons + 1;
+
+const endPage = Math.min(
+  startPage + maxButtons - 1,
+  totalPages
+);
+
+const visiblePages = Array.from(
+  { length: endPage - startPage + 1 },
+  (_, i) => startPage + i
+);
+
   useEffect(() => setCurrentPage(1), [searchTerm]);
 
   const openEdit = (delivery) => {
@@ -395,7 +411,7 @@ const handleExport = () => {
               Prev
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            {/* {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <button
                 key={p}
                 onClick={() => setCurrentPage(p)}
@@ -407,7 +423,20 @@ const handleExport = () => {
               >
                 {p}
               </button>
-            ))}
+            ))} */}
+            {visiblePages.map((p) => (
+  <button
+    key={p}
+    onClick={() => setCurrentPage(p)}
+    className={`px-3 py-1 rounded-md border border-neutral-700 ${
+      currentPage === p
+        ? "bg-indigo-500 text-white border-indigo-600"
+        : "text-indigo-300 hover:bg-neutral-900"
+    }`}
+  >
+    {p}
+  </button>
+))}
 
             <button
               disabled={currentPage === totalPages || totalPages === 0}
