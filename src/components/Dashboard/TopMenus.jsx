@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Utensils } from "lucide-react";
+import { getAuthHeaders } from "../../auth";
 
 export default function TopMenus({ shopId }) {
   const [menus, setMenus] = useState([]);
@@ -12,7 +13,11 @@ export default function TopMenus({ shopId }) {
         setLoading(true);
 
         const res = await fetch(
-          `https://api.pwezayshops.com/top5menu-by-shops/${shopId}`
+          `https://api.pwezayshops.com/top5menu-by-shops/${shopId}`,
+          {
+            method: "GET",
+            headers: getAuthHeaders(),
+          }
         );
 
         const json = await res.json();

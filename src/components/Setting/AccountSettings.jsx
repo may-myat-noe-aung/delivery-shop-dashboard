@@ -8,6 +8,8 @@ export default function AccountSettings({ shopId }) {
 
   const [saving, setSaving] = useState(false);
 
+  const token = localStorage.getItem("shopToken");
+
   const [showPassword, setShowPassword] = useState({
     old: false,
     new: false,
@@ -80,6 +82,7 @@ export default function AccountSettings({ shopId }) {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `MSHteam ${token}`,
           },
           body: JSON.stringify({
             current_pw: form.oldPassword,

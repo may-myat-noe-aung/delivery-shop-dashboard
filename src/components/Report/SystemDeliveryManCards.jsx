@@ -7,7 +7,7 @@ import ShopDeliveryManCardsPopup from "./ShopDeliveryManCardsPopup";
 
 export default function SystemDeliveryManCards({ shopId }) {
   const { showAlert } = useAlert();
-
+const token = localStorage.getItem("shopToken");
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +38,11 @@ export default function SystemDeliveryManCards({ shopId }) {
   const fetchData = async () => {
     try {
       const res = await fetch(
-        `https://api.pwezayshops.com/report-system-deliverymen-by-shops/${shopId}`,
+        `https://api.pwezayshops.com/report-system-deliverymen-by-shops/${shopId}`,{
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          }
+        }
       );
 
       const data = await res.json();
@@ -59,7 +63,11 @@ export default function SystemDeliveryManCards({ shopId }) {
   const refreshSelectedDriver = async () => {
   try {
     const res = await fetch(
-      `https://api.pwezayshops.com/report-system-deliverymen-by-shops/${shopId}`
+      `https://api.pwezayshops.com/report-system-deliverymen-by-shops/${shopId}`,{
+        headers: {
+          Authorization: `MSHteam ${token}`,
+        }
+      }
     );
 
     const data = await res.json();

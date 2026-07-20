@@ -1,5 +1,3 @@
-
-
 import { useAlert } from "../../../AlertProvider";
 import { updateDeliveryManStatus } from "../services/deliveryManApi";
 

@@ -511,6 +511,7 @@ import { getAuth } from "./utils/auth";
 
 export default function NotificationFetcher() {
   const { shopId } = getAuth();
+  const token = localStorage.getItem("shopToken");
 
   const [notifications, setNotifications] = useState([]);
   const audioRef = useRef(null);
@@ -573,7 +574,11 @@ export default function NotificationFetcher() {
       // NEW ORDERS
       // =====================
       const orderRes = await fetch(
-        `https://api.pwezayshops.com/orders-by-shop-noti/${shopId}`
+        `https://api.pwezayshops.com/orders-by-shop-noti/${shopId}`,{
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          },
+        }
       );
 
       const orderData = await orderRes.json();
@@ -610,7 +615,11 @@ Order ID - ${latestOrder.id}`,
       // COMPLETED ORDERS
       // =====================
       const reportRes = await fetch(
-        `https://api.pwezayshops.com/report-shops/${shopId}`
+        `https://api.pwezayshops.com/report-shops/${shopId}`,{
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          },
+        }
       );
 
       const reportData = await reportRes.json();

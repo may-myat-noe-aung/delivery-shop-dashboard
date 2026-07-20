@@ -1,6 +1,6 @@
-
 import React, { useEffect, useState } from "react";
 import { Utensils } from "lucide-react";
+import { getAuthHeaders } from "../../auth";
 
 export default function TopMenus({ shopId }) {
   const [menus, setMenus] = useState([]);
@@ -13,7 +13,11 @@ export default function TopMenus({ shopId }) {
         setLoading(true);
 
         const res = await fetch(
-          `https://api.pwezayshops.com/top5-less-menu-by-shops/${shopId}`
+          `https://api.pwezayshops.com/top5-less-menu-by-shops/${shopId}`,
+          {
+             method: "GET",
+  headers: getAuthHeaders(),
+          }
         );
 
         const json = await res.json();
@@ -35,38 +39,31 @@ export default function TopMenus({ shopId }) {
 
   return (
     <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
-
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="font-semibold text-xl text-red-400">Less 5 Menus</h3>
         <Utensils className="h-4 w-4 text-neutral-400" />
       </div>
-       <p className="text-sm text-neutral-400 ">
-   Lowest selling menus this month
+      <p className="text-sm text-neutral-400 ">
+        Lowest selling menus this month
       </p>
 
       {/* List */}
       <div className=" h-[295px] custom-scrollbar overflow-y-auto">
-
         {loading ? (
           <div className="text-neutral-500 text-sm text-center mt-4">
             Loading...
           </div>
         ) : error ? (
-          <div className="text-red-500 text-sm text-center ">
-            {error}
-          </div>
+          <div className="text-red-500 text-sm text-center ">{error}</div>
         ) : menus.length > 0 ? (
           menus.map((m, i) => (
             <div
               key={i}
               className="flex items-center justify-between p-4 rounded-lg border-b border-slate-800 hover:bg-white/[0.03] transition-all duration-200"
             >
-
               {/* RANK */}
-              <div className="text-indigo-400 font-bold w-12">
-                #{i + 1}
-              </div>
+              <div className="text-indigo-400 font-bold w-12">#{i + 1}</div>
 
               {/* NAME */}
               <div className="flex-1 text-white font-medium text-sm">
@@ -86,7 +83,6 @@ export default function TopMenus({ shopId }) {
                   {m.orders} orders
                 </span>
               </div>
-
             </div>
           ))
         ) : (

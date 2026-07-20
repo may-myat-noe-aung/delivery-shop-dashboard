@@ -3,6 +3,7 @@ import { FiCamera } from "react-icons/fi"; // camera icon
 import { useAlert } from "../../AlertProvider";
 
 export default function EditIngredients({ id, currentData, onClose, onUpdate }) {
+  const token = localStorage.getItem("shopToken");
   const { showAlert, confirm } = useAlert(); // use confirm for confirmation
   const fileInputRef = useRef(null);
 
@@ -38,7 +39,8 @@ export default function EditIngredients({ id, currentData, onClose, onUpdate }) 
 
       const res = await fetch(`https://api.pwezayshops.com/ingredients/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          Authorization: `MSHteam ${token}`,},
         body: JSON.stringify(payload),
       });
 

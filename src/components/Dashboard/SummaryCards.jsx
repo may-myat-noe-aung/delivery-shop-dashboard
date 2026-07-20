@@ -1,12 +1,6 @@
-
 import React, { useEffect, useState } from "react";
-import {
-  Utensils,
-  Users,
-  DollarSign,
-  Truck,
-  TrendingUp,
-} from "lucide-react";
+import { Utensils, Users, DollarSign, Truck, TrendingUp } from "lucide-react";
+import { getAuthHeaders } from "../../auth";
 
 /* ================= CARD ================= */
 function DashboardCard({ title, value, icon, gradient, iconBg }) {
@@ -71,7 +65,11 @@ export default function ShopSummary({ shopId }) {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          `https://api.pwezayshops.com/dashboard-summaries-by-shops/${shopId}`
+          `https://api.pwezayshops.com/dashboard-summaries-by-shops/${shopId}`,
+          {
+            method: "GET",
+            headers: getAuthHeaders(),
+          },
         );
 
         const result = await res.json();
@@ -142,9 +140,7 @@ export default function ShopSummary({ shopId }) {
       <DashboardCard
         title="
 Today's Delivery Fees"
-        value={`${Number(
-          data.today_delivery_fees || 0
-        ).toLocaleString()} Ks`}
+        value={`${Number(data.today_delivery_fees || 0).toLocaleString()} Ks`}
         icon={
           <Truck className="text-rose-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
         }

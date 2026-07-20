@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { useAlert } from "../../AlertProvider";
 
 export default function CategoryCreateModal({ shopId, close, onSuccess }) {
+  const token = localStorage.getItem("shopToken");
   const { showAlert } = useAlert();
-
-  const [name, setName] = useState("");
-  const [icon, setIcon] = useState("alcoholic");
-  const [loading, setLoading] = useState(false);
 
   // ================= CATEGORY =================
 const categories = [
@@ -87,6 +84,10 @@ const categories = [
   },
 ];
 
+  const [name, setName] = useState("");
+  const [icon, setIcon] = useState(categories[0].icon);
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async () => {
     if (!name.trim()) {
       showAlert("Category name is required", "error");
@@ -101,17 +102,29 @@ const categories = [
     setLoading(true);
 
     try {
-      const res = await fetch("https://api.pwezayshops.com/categories", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          shop_id: shopId,
-          name: name.trim(),
-          icon: categories.find((c) => c.icon === icon)?.id,
-        }),
-      });
+      // const res = await fetch("https://api.pwezayshops.com/categories", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     shop_id: shopId,
+      //     name: name.trim(),
+      //     icon: categories.find((c) => c.icon === icon)?.id,
+      //   }),
+      // });
+        const res = await fetch("https://api.pwezayshops.com/categories", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `MSHteam ${token}`,
+    },
+    body: JSON.stringify({
+      shop_id: shopId,
+      name: name.trim(),
+      icon: categories.find((c) => c.icon === icon)?.id,
+    }),
+  });
 
       let data;
       try {
@@ -163,7 +176,7 @@ const categories = [
               >
                 <img
                   src={`/categoriesIcon/${item.icon}.png`}
-                  onError={() => console.log(item.icon)}
+                  
                   alt={item.name}
                   className="size-[90px] "
                 />

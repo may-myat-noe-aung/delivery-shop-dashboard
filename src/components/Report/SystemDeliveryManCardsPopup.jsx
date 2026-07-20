@@ -9,6 +9,7 @@ export default function SystemDeliveryManCardsPopup({  shopId,driver,close,
   refreshData}) {
   const [tab, setTab] = useState("notCleared");
   const [clearing, setClearing] = useState(false);
+  const token = localStorage.getItem("shopToken");
 
   const { showAlert, confirm } = useAlert();
 
@@ -50,6 +51,7 @@ export default function SystemDeliveryManCardsPopup({  shopId,driver,close,
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `MSHteam ${token}`,
           },
           body: JSON.stringify({
           shopId,

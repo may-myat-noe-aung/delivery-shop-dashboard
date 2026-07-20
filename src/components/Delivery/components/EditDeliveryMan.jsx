@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Camera, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
@@ -13,7 +12,7 @@ export default function EditDeliveryMan({
   const { showAlert } = useAlert();
 
   const [loading, setLoading] = useState(false);
-
+const token = localStorage.getItem("shopToken");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -125,6 +124,11 @@ useEffect(() => {
       const res = await axios.put(
         `https://api.pwezayshops.com/deliverymen/${activeUser.id}`,
         submitData,
+         {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       setDeliverymen((prev) =>

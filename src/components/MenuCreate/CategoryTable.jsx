@@ -4,6 +4,7 @@ import { useAlert } from "../../AlertProvider";
 import EditCategory from "./EditCategory";
 
 export default function CategoryTable({ shopId }) {
+  const token = localStorage.getItem("shopToken");
   const { showAlert, confirm } = useAlert();
 
   const [editingCategory, setEditingCategory] = useState(null);
@@ -51,7 +52,11 @@ const icons = [
   const fetchData = async () => {
     try {
       const res = await fetch(
-        `https://api.pwezayshops.com/categories/${shopId}`,
+        `https://api.pwezayshops.com/categories/${shopId}`,{
+      headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+        }
       );
 
       const data = await res.json();
@@ -106,6 +111,9 @@ const icons = [
     try {
       const res = await fetch(`https://api.pwezayshops.com/categories/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `MSHteam ${token}`,
+        }
       });
 
       const data = await res.json();

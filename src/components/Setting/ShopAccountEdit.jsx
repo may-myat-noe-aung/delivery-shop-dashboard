@@ -6,7 +6,7 @@ import { useAlert } from "../../AlertProvider";
 
 export default function AccountSettings({ shopId }) {
   const { showAlert, confirm } = useAlert();
-
+const token = localStorage.getItem("shopToken");
   const [saving, setSaving] = useState(false);
 
   const [showPassword, setShowPassword] = useState({
@@ -71,6 +71,7 @@ export default function AccountSettings({ shopId }) {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `MSHteam ${token}`,
           },
           body: JSON.stringify({
             current_pw: form.oldPassword,

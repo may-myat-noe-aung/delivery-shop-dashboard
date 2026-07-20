@@ -124,6 +124,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { getAuthHeaders } from "../../auth";
 
 const COLORS = [
   "#3B82F6",
@@ -176,7 +177,11 @@ export default function PaymentMethodChart({ shopId }) {
     }
 
     const res = await fetch(
-      `https://api.pwezayshops.com/payments-chart-shops/${shopId}`
+      `https://api.pwezayshops.com/payments-chart-shops/${shopId}`,
+      {
+        method: "GET",
+        headers: getAuthHeaders(),
+      },
     );
 
     const json = await res.json();

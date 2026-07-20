@@ -12,6 +12,7 @@ import NotificationFetcher from "../NotificationFetcher";
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const token = localStorage.getItem("shopToken");
   const { showAlert, confirm } = useAlert();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -24,10 +25,14 @@ export default function Navbar() {
   const fetchShopStatus = async () => {
     try {
       const shopId =
-        localStorage.getItem("shopId") || "S001";
+        localStorage.getItem("shopId");
 
       const res = await fetch(
-        `https://api.pwezayshops.com/shops-open/${shopId}`
+        `https://api.pwezayshops.com/shops-open/${shopId}`,{
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          }
+        }
       );
 
       const data = await res.json();
@@ -65,7 +70,9 @@ export default function Navbar() {
         ? `https://api.pwezayshops.com/off-shop/${shopId}`
         : `https://api.pwezayshops.com/open-shop/${shopId}`;
 
-      const res = await fetch(url, { method: "PATCH" });
+      const res = await fetch(url, { method: "PATCH",  headers: {
+        Authorization: `MSHteam ${token}`,
+      }});
       const data = await res.json();
 
       if (data.success) {

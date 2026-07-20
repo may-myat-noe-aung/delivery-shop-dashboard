@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import { deleteDeliveryMan } from "../services/deliveryManApi";
 import { useAlert } from "../../../AlertProvider";
 
+
 export default function DeleteDeliveryMan({
   delivery,
   onSuccess,
@@ -9,6 +10,7 @@ export default function DeleteDeliveryMan({
   setLoading,
 }) {
   const { showAlert, confirm } = useAlert();
+
 
   const handleDelete = async () => {
     const ok = await confirm(

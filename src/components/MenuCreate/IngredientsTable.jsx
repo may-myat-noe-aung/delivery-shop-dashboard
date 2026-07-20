@@ -5,7 +5,7 @@ import EditIngredients from "./EditIngredients";
 
 export default function IngredientsTable({ shopId }) {
   const { showAlert, confirm } = useAlert();
-
+const token = localStorage.getItem("shopToken");
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,33 +30,15 @@ useEffect(() => {
   return () => window.removeEventListener("resize", updateSize);
 }, []);
 
-  // const fetchData = async () => {
-  //   try {
-  //     const res = await fetch(
-  //       `https://api.pwezayshops.com/ingredients/${shopId}`,
-  //     );
-  //     const data = await res.json();
-
-  //     if (Array.isArray(data)) {
-  //       const withPhotos = data.map((item) => ({
-  //         ...item,
-  //         photoUrl: `https://api.pwezayshops.com/ingredients-uploads/${item.photo}`,
-  //       }));
-  //       setIngredients(withPhotos);
-  //     } else {
-  //       showAlert("Failed to fetch ingredients", "error");
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     showAlert("Server error", "error");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 const fetchData = async () => {
   try {
     const res = await fetch(
-      `https://api.pwezayshops.com/ingredients/${shopId}`
+      `https://api.pwezayshops.com/ingredients/${shopId}`,
+      {
+        headers: {
+        Authorization: `MSHteam ${token}`,
+        },
+      }
     );
 
     if (!res.ok) {
@@ -95,7 +77,7 @@ const fetchData = async () => {
 
     const interval = setInterval(() => {
       fetchData();
-    }, 5000); // ⏱ every 5 seconds
+    }, 1000); // ⏱ every 5 seconds
 
     return () => clearInterval(interval);
   }, [shopId]);
@@ -119,6 +101,9 @@ const fetchData = async () => {
     try {
       const res = await fetch(`https://api.pwezayshops.com/ingredients/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `MSHteam ${token}`,
+        }
       });
       const data = await res.json();
 

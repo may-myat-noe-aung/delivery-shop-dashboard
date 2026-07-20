@@ -4,6 +4,7 @@ import { useAlert } from "../../AlertProvider";
 
 export default function OrderPopup({ order, close, shopId }) {
   const { showAlert, confirm } = useAlert();
+    const token = localStorage.getItem("shopToken");
   const [loading, setLoading] = useState(false);
   const [localOrder, setLocalOrder] = useState(order);
   const [openItems, setOpenItems] = useState({}); // 🔥 accordion state
@@ -36,7 +37,7 @@ export default function OrderPopup({ order, close, shopId }) {
 
       const res = await fetch(endpoint, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",   Authorization: `MSHteam ${token}`, },
         body: JSON.stringify({ shopId }),
       });
 

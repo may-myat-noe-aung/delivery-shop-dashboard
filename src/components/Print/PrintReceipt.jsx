@@ -2,11 +2,16 @@ import React, { useEffect, useState } from "react";
 
 export default function PrintReceipt({ order, shopId }) {
   const [shopName, setShopName] = useState("MY SHOP");
+  const token = localStorage.getItem("shopToken");
 
   useEffect(() => {
     if (!shopId) return;
 
-    fetch(`https://api.pwezayshops.com/shops/${shopId}`)
+    fetch(`https://api.pwezayshops.com/shops/${shopId}`, {
+      headers: {
+        Authorization: `MSHteam ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data && data.length > 0) {

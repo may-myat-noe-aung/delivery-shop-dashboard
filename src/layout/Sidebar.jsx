@@ -19,6 +19,7 @@ export default function Sidebar() {
   const [shopPhoto, setShopPhoto] = useState(null);
   const [shopName, setShopName] = useState("Shop Admin");
   const [collapsed, setCollapsed] = useState(false);
+  const token = localStorage.getItem("shopToken");
 
   const navigate = useNavigate();
   const { showAlert, confirm } = useAlert();
@@ -28,7 +29,11 @@ export default function Sidebar() {
     if (!shopId) return;
 
     // Shop Data
-    fetch(`https://api.pwezayshops.com/shops/${shopId}`)
+    fetch(`https://api.pwezayshops.com/shops/${shopId}`,{
+      headers: {
+        Authorization: `MSHteam ${token}`,
+      }
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data && data.length > 0) {
@@ -40,7 +45,11 @@ export default function Sidebar() {
       .catch((err) => console.error(err));
 
     // Sidebar State
-    fetch(`https://api.pwezayshops.com/get-sidebar/${shopId}`)
+    fetch(`https://api.pwezayshops.com/get-sidebar/${shopId}`,{
+      headers: {
+        Authorization: `MSHteam ${token}`,
+      }
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data && data.length > 0) {
@@ -65,6 +74,7 @@ export default function Sidebar() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `MSHteam ${token}`,
         },
         body: JSON.stringify({
           // collapsed = true => sidebar 0

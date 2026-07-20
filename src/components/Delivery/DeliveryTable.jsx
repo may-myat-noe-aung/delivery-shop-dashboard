@@ -10,6 +10,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 export default function DeliveryTable({ shopId, setShowForm }) {
+  const token = localStorage.getItem("shopToken");
   const [deliverymen, setDeliverymen] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeUser, setActiveUser] = useState(null);
@@ -28,7 +29,11 @@ const fetchDeliverymen = async (showLoader = false) => {
     if (showLoader) setLoading(true);
 
     const res = await axios.get(
-      `https://api.pwezayshops.com/deliverymen-shop/${shopId}`
+      `https://api.pwezayshops.com/deliverymen-shop/${shopId}`,{
+        headers: {
+          Authorization: `MSHteam ${token}`,
+        },
+      }
     );
 
     setDeliverymen(res.data?.data || res.data || []);
@@ -51,7 +56,11 @@ return () => clearInterval(interval);
   useEffect(() => {
     if (!shopId) return;
 
-    fetch(`https://api.pwezayshops.com/shops/${shopId}`)
+    fetch(`https://api.pwezayshops.com/shops/${shopId}`,{
+      headers: {
+        Authorization: `MSHteam ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data?.length > 0) {

@@ -16,10 +16,15 @@ const DeliveryManDashboard = ({ shopId }) => {
     photo: "",
   });
   const [deliveryMen, setDeliveryMen] = useState([]);
+  const token = localStorage.getItem("shopToken");
 
   const fetchDeliveryMen = async () => {
     try {
-      const res = await axios.get(`https://api.pwezayshops.com/deliverymen-shop/${shopId}`);
+      const res = await axios.get(`https://api.pwezayshops.com/deliverymen-shop/${shopId}`,{
+        headers: {
+          Authorization: `MSHteam ${token}`,
+        },
+      });
       setDeliveryMen(res.data);
     } catch (err) {
       console.error(err);

@@ -4,10 +4,10 @@ import { useAlert } from "../../AlertProvider";
 
 export default function IngredientsCreateModal({ shopId, close, onSuccess }) {
   const { showAlert } = useAlert();
-
+const token = localStorage.getItem("shopToken");
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [photo, setPhoto] = useState(null); // ✅ FIX (null instead of "")
+  const [photo, setPhoto] = useState(null); 
   const [loading, setLoading] = useState(false);
 
   // ✅ UPDATED IMAGE HANDLER
@@ -58,6 +58,7 @@ export default function IngredientsCreateModal({ shopId, close, onSuccess }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `MSHteam ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -74,12 +75,12 @@ export default function IngredientsCreateModal({ shopId, close, onSuccess }) {
 
       if (res.ok) {
         showAlert(apiMessage, "success");
-        onSuccess();
+       onSuccess?.();
       } else {
         showAlert(apiMessage, "error");
       }
     } catch (err) {
-      console.error("❌ Error:", err);
+      console.error(" Error:", err);
       showAlert("Server error", "error");
     } finally {
       setLoading(false);

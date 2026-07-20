@@ -63,6 +63,7 @@ function LoadingCard() {
 
 /* ================= MAIN ================= */
 export default function ReportSummaryCards({ shopId }) {
+ const token = localStorage.getItem("shopToken");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +73,11 @@ export default function ReportSummaryCards({ shopId }) {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          `https://api.pwezayshops.com/report-shops-summaries/${shopId}`
+          `https://api.pwezayshops.com/report-shops-summaries/${shopId}`,{
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            }
+          }
         );
 
         const result = await res.json();
