@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { apiFetch } from "../../api";
 import AddDeliveryForm from "./AddDeliveryForm";
 import DeliveryTable from "./DeliveryTable";
 
@@ -16,16 +16,18 @@ const DeliveryManDashboard = ({ shopId }) => {
     photo: "",
   });
   const [deliveryMen, setDeliveryMen] = useState([]);
-  const token = localStorage.getItem("shopToken");
 
   const fetchDeliveryMen = async () => {
     try {
-      const res = await axios.get(`https://api.pwezayshops.com/deliverymen-shop/${shopId}`,{
-        headers: {
-          Authorization: `MSHteam ${token}`,
-        },
-      });
-      setDeliveryMen(res.data);
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/deliverymen-shop/${shopId}`,
+      );
+
+      if (!res) return;
+
+      const data = await res.json();
+
+      setDeliveryMen(data);
     } catch (err) {
       console.error(err);
     }
@@ -51,7 +53,7 @@ const DeliveryManDashboard = ({ shopId }) => {
       )}
 
       <DeliveryTable
-       shopId={shopId}
+        shopId={shopId}
         deliveryMen={deliveryMen}
         setShowForm={setShowForm} // ← pass this prop to table
         onOpenChat={(man) => {

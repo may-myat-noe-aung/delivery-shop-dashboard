@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Truck, Wifi, WifiOff, CalendarCheck } from "lucide-react";
+import { apiFetch } from "../../api";
 
 /* ================= CARD ================= */
 function DashboardCard({ title, value, icon, gradient, iconBg }) {
@@ -59,23 +60,16 @@ function LoadingCard() {
 export default function DeliverySummaryCards({ shopId }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("shopToken");
 
   useEffect(() => {
     if (!shopId) return;
 
     const fetchData = async () => {
       try {
-        const res = await fetch(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/deliveymen-summaries/${shopId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            },
-          },
         );
-
+if (!res) return;
         const result = await res.json();
 
         if (result.success) {

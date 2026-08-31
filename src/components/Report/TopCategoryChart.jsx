@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Utensils } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { apiFetch } from "../../api";
 
 const COLORS = [
   "#3B82F6",
@@ -28,14 +29,10 @@ export default function CategoryPieChart({ shopId }) {
           setLoading(true);
         }
 
-        const res = await fetch(
-          `https://api.pwezayshops.com/report-categories-by-shops/${shopId}`,{
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            }
-          }
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/report-categories-by-shops/${shopId}`
         );
-
+if (!res) return;
         const json = await res.json();
 
         if (json.success && json.data) {

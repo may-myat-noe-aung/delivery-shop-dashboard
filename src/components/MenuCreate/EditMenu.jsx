@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useAlert } from "../../AlertProvider";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { apiFetch } from "../../api";
 
 export default function EditMenu({ data, close, onUpdate }) {
   const { showAlert, confirm } = useAlert();
-  const token = localStorage.getItem("shopToken");
-  const getAuthHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `MSHteam ${token}`,
-});
+
 
   // ✅ PRE-FILL DATA
   const [name, setName] = useState(data?.name || "");
@@ -64,54 +61,96 @@ export default function EditMenu({ data, close, onUpdate }) {
   ];
 
   // ✅ FETCH LISTS
+  // useEffect(() => {
+  //   if (!data?.shop_id) return;
+
+  //   const fetchAll = async () => {
+  //     try {
+  //       const [ingRes, catRes, menuRes] = await Promise.all([
+  //         fetch(`https://api.pwezayshops.com/ingredients/${data.shop_id}`, {
+  //           method: "GET",
+  //           headers: getAuthHeaders(),
+  //         }),
+  //         fetch(`https://api.pwezayshops.com/categories/${data.shop_id}`, {
+  //           method: "GET",
+  //           headers: getAuthHeaders(),
+  //         }),
+  //         fetch(`https://api.pwezayshops.com/menu/${data.shop_id}`, {
+  //           method: "GET",
+  //           headers: getAuthHeaders(),
+  //         }),
+  //       ]);
+
+  //       const ingData = await ingRes.json();
+  //       const catData = await catRes.json();
+  //       const menuData = await menuRes.json();
+
+  //       setIngredientsList(
+  //         ingData.map((i) => ({
+  //           ...i,
+  //           photo: `https://api.pwezayshops.com/ingredients-uploads/${i.photo}`,
+  //         })),
+  //       );
+
+  //       setMenusList(
+  //         menuData.menus?.map((m) => ({
+  //           ...m,
+  //           photo: m.photo
+  //             ? `https://api.pwezayshops.com/menu-uploads/${m.photo}`
+  //             : null,
+  //         })) || [],
+  //       );
+
+  //       setCategoriesList(Array.isArray(catData) ? catData : []);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
+
+  //   fetchAll();
+  // }, [data]);
   useEffect(() => {
-    if (!data?.shop_id) return;
+  if (!data?.shop_id) return;
 
-    const fetchAll = async () => {
-      try {
-        const [ingRes, catRes, menuRes] = await Promise.all([
-          fetch(`https://api.pwezayshops.com/ingredients/${data.shop_id}`,{
-            method: "GET",
-            headers: getAuthHeaders(),
-          }),
-          fetch(`https://api.pwezayshops.com/categories/${data.shop_id}`,{
-            method: "GET",
-            headers: getAuthHeaders(),
-          }),
-          fetch(`https://api.pwezayshops.com/menu/${data.shop_id}`,{
-            method: "GET",
-            headers: getAuthHeaders(),
-          }),
-        ]);
+  const fetchAll = async () => {
+    try {
+      const [ingRes, catRes, menuRes] = await Promise.all([
+        apiFetch(`https://api.pwezayshops.com/ingredients/${data.shop_id}`),
+        apiFetch(`https://api.pwezayshops.com/categories/${data.shop_id}`),
+        apiFetch(`https://api.pwezayshops.com/menu/${data.shop_id}`),
+      ]);
 
-        const ingData = await ingRes.json();
-        const catData = await catRes.json();
-        const menuData = await menuRes.json();
+      // ✅ token expire (401) ဖြစ်ရင် apiFetch က redirect လုပ်ပြီး null ပြန်မယ်
+      if (!ingRes || !catRes || !menuRes) return;
 
-        setIngredientsList(
-          ingData.map((i) => ({
-            ...i,
-            photo: `https://api.pwezayshops.com/ingredients-uploads/${i.photo}`,
-          })),
-        );
+      const ingData = await ingRes.json();
+      const catData = await catRes.json();
+      const menuData = await menuRes.json();
 
-        setMenusList(
-          menuData.menus?.map((m) => ({
-            ...m,
-            photo: m.photo
-              ? `https://api.pwezayshops.com/menu-uploads/${m.photo}`
-              : null,
-          })) || [],
-        );
+      setIngredientsList(
+        ingData.map((i) => ({
+          ...i,
+          photo: `https://api.pwezayshops.com/ingredients-uploads/${i.photo}`,
+        }))
+      );
 
-        setCategoriesList(Array.isArray(catData) ? catData : []);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+      setMenusList(
+        (menuData.menus || []).map((m) => ({
+          ...m,
+          photo: m.photo
+            ? `https://api.pwezayshops.com/menu-uploads/${m.photo}`
+            : null,
+        }))
+      );
 
-    fetchAll();
-  }, [data]);
+      setCategoriesList(Array.isArray(catData) ? catData : []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchAll();
+}, [data]);
 
   useEffect(() => {
     if (!data?.category || categoriesList.length === 0) return;
@@ -203,14 +242,11 @@ export default function EditMenu({ data, close, onUpdate }) {
     };
     console.log("PAYLOAD:", JSON.stringify(payload, null, 2));
     try {
-      const res = await fetch(`https://api.pwezayshops.com/menu/${data.id}`,
-          {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(payload),
-  }
-      );
-
+      const res = await apiFetch(`https://api.pwezayshops.com/menu/${data.id}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+if (!res) return;
       const result = await res.json();
 
       if (res.ok) {

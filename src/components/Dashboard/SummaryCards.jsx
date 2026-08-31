@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Utensils, Users, DollarSign, Truck, TrendingUp } from "lucide-react";
-import { getAuthHeaders } from "../../auth";
+import { apiFetch } from "../../api";
 
 /* ================= CARD ================= */
 function DashboardCard({ title, value, icon, gradient, iconBg }) {
@@ -64,14 +64,11 @@ export default function ShopSummary({ shopId }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/dashboard-summaries-by-shops/${shopId}`,
-          {
-            method: "GET",
-            headers: getAuthHeaders(),
-          },
+       
         );
-
+if (!res) return;
         const result = await res.json();
 
         if (result.success) {

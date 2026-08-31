@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { getAuthHeaders } from "../../auth";
+import { apiFetch } from "../../api";
 
 export default function TodayOrders({ shopId }) {
   const [orders, setOrders] = useState([]);
@@ -20,14 +20,10 @@ export default function TodayOrders({ shopId }) {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/today-orders-by-shop/${shopId}`,
-          {
-             method: "GET",
-  headers: getAuthHeaders(),
-          }
         );
-
+if (!res) return;
         const json = await res.json();
 
         if (json.success) {

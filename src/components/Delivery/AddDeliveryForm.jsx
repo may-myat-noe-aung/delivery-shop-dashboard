@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Camera, Eye, EyeOff } from "lucide-react";
-import axios from "axios";
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -20,8 +20,6 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
     location: "",
     photo: null,
   });
-
-  const token = localStorage.getItem("shopToken");
 
   const { showAlert } = useAlert();
 
@@ -115,52 +113,47 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
       payload.append("photo", formData.photo);
     }
 
-    try {
-      setSaving(true);
+try {
+  setSaving(true);
 
-      const res = await axios.post(
-        "https://api.pwezayshops.com/deliverymen",
-        payload,
-        // { headers: { "Content-Type": "multipart/form-data" } },
-          {
-    headers: {
-      Authorization: `MSHteam ${token}`,
-    },
-  }
-      );
-
-      const data = res.data;
-
-      if (res.status === 200 || data.success) {
-        showAlert(data.message || "Delivery added successfully", "success");
-
-        onAdded?.();
-        onClose?.();
-
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          password: "",
-          confirmPassword: "",
-          location: "",
-          photo: null,
-        });
-
-        setErrors({});
-      } else {
-        showAlert(data.message || "Failed to add delivery", "error");
-      }
-    } catch (err) {
-      showAlert(
-        err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Network error",
-        "error",
-      );
-    } finally {
-      setSaving(false);
+  const res = await apiFetch(
+    "https://api.pwezayshops.com/deliverymen",
+    {
+      method: "POST",
+      body: payload,
     }
+  );
+
+  if (!res) return;
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    showAlert(data.message || "Failed to add delivery", "error");
+    return;
+  }
+
+  showAlert(data.message || "Delivery added successfully", "success");
+
+  onAdded?.();
+  onClose?.();
+
+  setFormData({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+    location: "",
+    photo: null,
+  });
+
+  setErrors({});
+} catch (err) {
+  showAlert("Network error", "error");
+} finally {
+  setSaving(false);
+}
   };
   return (
     <>

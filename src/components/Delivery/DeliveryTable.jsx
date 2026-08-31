@@ -5,12 +5,11 @@ import { Download, Edit, Search, Star } from "lucide-react";
 import EditDeliveryMan from "./components/EditDeliveryMan";
 import DeleteDeliveryMan from "./components/DeleteDeliveryMan";
 import StatusDeliveryMan from "./components/StatusDeliveryMan";
-import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { apiFetch } from "../../api";
 
 export default function DeliveryTable({ shopId, setShowForm }) {
-  const token = localStorage.getItem("shopToken");
   const [deliverymen, setDeliverymen] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeUser, setActiveUser] = useState(null);
@@ -28,15 +27,15 @@ const fetchDeliverymen = async (showLoader = false) => {
   try {
     if (showLoader) setLoading(true);
 
-    const res = await axios.get(
-      `https://api.pwezayshops.com/deliverymen-shop/${shopId}`,{
-        headers: {
-          Authorization: `MSHteam ${token}`,
-        },
-      }
-    );
+const res = await apiFetch(
+  `https://api.pwezayshops.com/deliverymen-shop/${shopId}`
+);
 
-    setDeliverymen(res.data?.data || res.data || []);
+if (!res) return;
+
+const data = await res.json();
+
+setDeliverymen(data?.data || data || []);
   } catch (err) {
     console.error("API Error:", err);
   } finally {
@@ -53,22 +52,29 @@ const interval = setInterval(() => {
 return () => clearInterval(interval);
   }, [shopId]);
 
-  useEffect(() => {
-    if (!shopId) return;
+useEffect(() => {
+  if (!shopId) return;
 
-    fetch(`https://api.pwezayshops.com/shops/${shopId}`,{
-      headers: {
-        Authorization: `MSHteam ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.length > 0) {
-          setShopName(data[0].shop_name);
-        }
-      })
-      .catch((err) => console.error("Shop Error:", err));
-  }, [shopId]);
+  const fetchShop = async () => {
+    try {
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/shops/${shopId}`
+      );
+
+      if (!res) return; // Token expired ဖြစ်ရင် apiFetch က redirect လုပ်ပြီး null ပြန်မယ်
+
+      const data = await res.json();
+
+      if (data?.length > 0) {
+        setShopName(data[0].shop_name);
+      }
+    } catch (err) {
+      console.error("Shop Error:", err);
+    }
+  };
+
+  fetchShop();
+}, [shopId]);
 
   const splitDateTime = (datetime) => {
     if (!datetime) return ["-", "-"];

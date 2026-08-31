@@ -1,18 +1,15 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAlert } from "../AlertProvider";
 import { useState, useEffect } from "react";
-import {
-  Bell,
-  RefreshCcw,
-  Store,
-  Settings,
-} from "lucide-react";
+import { Bell, RefreshCcw, Store, Settings } from "lucide-react";
 import NotificationFetcher from "../NotificationFetcher";
+import { apiFetch } from "../api";
+import FinanceNotificationFetcher from "../FinanceNotificationFetcher";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem("shopToken");
+  
   const { showAlert, confirm } = useAlert();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -24,16 +21,13 @@ export default function Navbar() {
   // =============================
   const fetchShopStatus = async () => {
     try {
-      const shopId =
-        localStorage.getItem("shopId");
+      const shopId = localStorage.getItem("shopId");
 
-      const res = await fetch(
-        `https://api.pwezayshops.com/shops-open/${shopId}`,{
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          }
-        }
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/shops-open/${shopId}`,
       );
+
+      if (!res) return;
 
       const data = await res.json();
       const status = data?.[0]?.open_shop;
@@ -55,24 +49,24 @@ export default function Navbar() {
     if (loading) return;
 
     const action = isOpen ? "close" : "open";
-    const ok = await confirm(
-      `Are you sure you want to ${action} shop?`
-    );
+    const ok = await confirm(`Are you sure you want to ${action} shop?`);
     if (!ok) return;
 
     setLoading(true);
 
     try {
-      const shopId =
-        localStorage.getItem("shopId") || "S001";
+      const shopId = localStorage.getItem("shopId") || "S001";
 
       const url = isOpen
         ? `https://api.pwezayshops.com/off-shop/${shopId}`
         : `https://api.pwezayshops.com/open-shop/${shopId}`;
 
-      const res = await fetch(url, { method: "PATCH",  headers: {
-        Authorization: `MSHteam ${token}`,
-      }});
+      const res = await apiFetch(url, {
+        method: "PATCH",
+      });
+
+      if (!res) return;
+
       const data = await res.json();
 
       if (data.success) {
@@ -107,56 +101,43 @@ export default function Navbar() {
 
   return (
     <nav className="h-16 bg-[#0f172a] border-b border-slate-800 px-6 flex items-center justify-between ">
-
       {/* ================= LEFT ================= */}
       <div className="flex items-center gap-3">
         {/* <Store className="text-indigo-400" /> */}
 
-        <h1 className="text-lg font-semibold text-indigo-300">
-          {getTitle()}
-        </h1>
+        <h1 className="text-lg font-semibold text-indigo-300">{getTitle()}</h1>
       </div>
 
       {/* ================= RIGHT ================= */}
       <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
+          <NotificationFetcher />
+            <FinanceNotificationFetcher />
 
-    <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+            <span
+              className={`text-sm font-medium ${
+                isOpen ? "text-green-400" : "text-red-400"
+              }`}
+            >
+              {isOpen ? "Open" : "Closed"}
+            </span>
 
- <NotificationFetcher />
-
-  <div className="flex items-center gap-3 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
-
-    <span
-      className={`text-sm font-medium ${
-        isOpen
-          ? "text-green-400"
-          : "text-red-400"
-      }`}
-    >
-      {isOpen ? "Open" : "Closed"}
-    </span>
-
-    <button
-      onClick={handleToggle}
-      disabled={loading}
-      className={`w-11 h-5 flex items-center rounded-full p-1 transition ${
-        isOpen
-          ? "bg-green-500"
-          : "bg-gray-500"
-      }`}
-    >
-      <div
-        className={`bg-white w-4 h-4 rounded-full shadow transform transition ${
-          isOpen ? "translate-x-5" : ""
-        }`}
-      />
-    </button>
-  </div>
-
-</div>
-
-     
-
+            <button
+              onClick={handleToggle}
+              disabled={loading}
+              className={`w-11 h-5 flex items-center rounded-full p-1 transition ${
+                isOpen ? "bg-green-500" : "bg-gray-500"
+              }`}
+            >
+              <div
+                className={`bg-white w-4 h-4 rounded-full shadow transform transition ${
+                  isOpen ? "translate-x-5" : ""
+                }`}
+              />
+            </button>
+          </div>
+        </div>
       </div>
     </nav>
   );

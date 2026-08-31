@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Store, Phone, MapPin, User, Mail } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-
+import { apiFetch } from "../../api";
 export default function ShopProfileView({ shopId }) {
   const [shop, setShop] = useState(null);
-  const token = localStorage.getItem("shopToken");
 
   // ✅ empty only (your requirement)
   const [location, setLocation] = useState({});
@@ -12,11 +11,11 @@ export default function ShopProfileView({ shopId }) {
   useEffect(() => {
     const fetchShop = async () => {
       try {
-        const res = await fetch(`https://api.pwezayshops.com/shops/${shopId}`, {
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          },
-        });
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/shops/${shopId}`,
+        );
+
+        if (!res) return;
 
         const data = await res.json();
         const shopData = data?.[0];
@@ -24,14 +23,11 @@ export default function ShopProfileView({ shopId }) {
         setShop(shopData);
 
         // ================= LOCATION API =================
-        const locRes = await fetch(
+        const locRes = await apiFetch(
           `https://api.pwezayshops.com/get-location-shops/${shopId}`,
-          {
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            },
-          },
         );
+
+        if (!locRes) return;
 
         const locData = await locRes.json();
 

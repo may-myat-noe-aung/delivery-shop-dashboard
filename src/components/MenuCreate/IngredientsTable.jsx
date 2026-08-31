@@ -2,65 +2,60 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Trash2, Edit2, Search } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
 import EditIngredients from "./EditIngredients";
+import { apiFetch } from "../../api";
 
 export default function IngredientsTable({ shopId }) {
   const { showAlert, confirm } = useAlert();
-const token = localStorage.getItem("shopToken");
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [editingId, setEditingId] = useState(null); // track which ingredient is editing
   // const pageSize = 5;
-  
+
   const [pageSize, setPageSize] = useState(12);
 
-useEffect(() => {
-  const updateSize = () => {
-    if (window.innerWidth > 1280) {
-      setPageSize(7); 
-    } else {
-      setPageSize(5); 
+  useEffect(() => {
+    const updateSize = () => {
+      if (window.innerWidth > 1280) {
+        setPageSize(7);
+      } else {
+        setPageSize(5);
+      }
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  const fetchData = async () => {
+    try {
+const res = await apiFetch(
+  `https://api.pwezayshops.com/ingredients/${shopId}`
+);
+
+if (!res?.ok) {
+  setIngredients([]);
+  return;
+}
+
+const data = await res.json();
+
+      const withPhotos = (Array.isArray(data) ? data : []).map((item) => ({
+        ...item,
+        photoUrl: `https://api.pwezayshops.com/ingredients-uploads/${item.photo}`,
+      }));
+
+      setIngredients(withPhotos);
+    } catch (err) {
+      console.error(err);
+      setIngredients([]);
+    } finally {
+      setLoading(false);
     }
   };
-
-  updateSize();
-  window.addEventListener("resize", updateSize);
-
-  return () => window.removeEventListener("resize", updateSize);
-}, []);
-
-const fetchData = async () => {
-  try {
-    const res = await fetch(
-      `https://api.pwezayshops.com/ingredients/${shopId}`,
-      {
-        headers: {
-        Authorization: `MSHteam ${token}`,
-        },
-      }
-    );
-
-    if (!res.ok) {
-      setIngredients([]);
-      return;
-    }
-
-    const data = await res.json();
-
-    const withPhotos = (Array.isArray(data) ? data : []).map((item) => ({
-      ...item,
-      photoUrl: `https://api.pwezayshops.com/ingredients-uploads/${item.photo}`,
-    }));
-
-    setIngredients(withPhotos);
-  } catch (err) {
-    console.error(err);
-    setIngredients([]);
-  } finally {
-    setLoading(false);
-  }
-};
   // useEffect(() => {
   //   if (!shopId) return;
   //   fetchData();
@@ -82,8 +77,6 @@ const fetchData = async () => {
     return () => clearInterval(interval);
   }, [shopId]);
 
-
-
   const filtered = useMemo(() => {
     return ingredients.filter((item) =>
       (item.name || "").toLowerCase().includes(searchTerm.toLowerCase()),
@@ -92,33 +85,28 @@ const fetchData = async () => {
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
-// ===== Pagination Buttons =====
-const maxButtons = 10;
+  // ===== Pagination Buttons =====
+  const maxButtons = 10;
 
-const startPage =
-  Math.floor((page - 1) / maxButtons) * maxButtons + 1;
+  const startPage = Math.floor((page - 1) / maxButtons) * maxButtons + 1;
 
-const endPage = Math.min(
-  startPage + maxButtons - 1,
-  totalPages
-);
+  const endPage = Math.min(startPage + maxButtons - 1, totalPages);
 
-const visiblePages = Array.from(
-  { length: endPage - startPage + 1 },
-  (_, i) => startPage + i
-);
+  const visiblePages = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i,
+  );
   // Delete ingredient
   const handleDelete = async (id) => {
     const ok = await confirm("Delete this ingredient?");
     if (!ok) return;
 
     try {
-      const res = await fetch(`https://api.pwezayshops.com/ingredients/${id}`, {
+      const res = await apiFetch(`https://api.pwezayshops.com/ingredients/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `MSHteam ${token}`,
-        }
+     
       });
+      if (!res) return;
       const data = await res.json();
 
       if (res.ok) {
@@ -137,26 +125,28 @@ const visiblePages = Array.from(
     <div className="mb-6">
       {/* TITLE */}
       <div className="flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-semibold text-indigo-400">Ingredients List</h2>
-            <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative">
-                    <Search
-                      size={14}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
-                    />
-        
-                    <input
-                      type="text"
-                      placeholder="Search Ingredients..."
-                      value={searchTerm}
-                      onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setPage(1);
-                      }}
-                      className="pl-10 pr-4 py-2 rounded-2xl text-sm bg-slate-900/60 border border-slate-700 text-white outline-none focus:border-indigo-500 w-full sm:w-[250px]"
-                    />
-                  </div>
-                </div>
+        <h2 className="text-2xl font-semibold text-indigo-400">
+          Ingredients List
+        </h2>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative">
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
+            />
+
+            <input
+              type="text"
+              placeholder="Search Ingredients..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+              className="pl-10 pr-4 py-2 rounded-2xl text-sm bg-slate-900/60 border border-slate-700 text-white outline-none focus:border-indigo-500 w-full sm:w-[250px]"
+            />
+          </div>
+        </div>
       </div>
 
       {/* CONTENT */}
@@ -217,7 +207,7 @@ const visiblePages = Array.from(
         </div>
       )}
 
-   {/* Pagination */}
+      {/* Pagination */}
       {totalPages > 0 && (
         <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
           <p>
@@ -239,19 +229,19 @@ const visiblePages = Array.from(
             </button>
 
             {/* Page Numbers */}
-       {visiblePages.map((n) => (
-  <button
-    key={n}
-    onClick={() => setPage(n)}
-    className={`px-3 py-1 rounded-md border border-neutral-700 ${
-      page === n
-        ? "bg-indigo-300 text-black font-semibold"
-        : "text-indigo-300 hover:bg-neutral-900"
-    }`}
-  >
-    {n}
-  </button>
-))}
+            {visiblePages.map((n) => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                  page === n
+                    ? "bg-indigo-300 text-black font-semibold"
+                    : "text-indigo-300 hover:bg-neutral-900"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
 
             {/* Next Button */}
             <button

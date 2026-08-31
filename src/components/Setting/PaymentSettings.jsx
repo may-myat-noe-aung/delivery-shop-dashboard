@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Trash2, Save, Loader2, CreditCard } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 export default function PaymentSettings({ shopId }) {
   const { showAlert, confirm } = useAlert();
-const token = localStorage.getItem("shopToken");
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -19,8 +19,7 @@ const token = localStorage.getItem("shopToken");
   // ✅ dropdown state (ONLY ADD)
   const [openDropdown, setOpenDropdown] = useState(null);
 
-
-    const paymentMethods = [
+  const paymentMethods = [
     "KBZPay",
     "WAVEPay",
     "AYAPay",
@@ -37,11 +36,12 @@ const token = localStorage.getItem("shopToken");
       try {
         setLoading(true);
 
-        const res = await fetch(`https://api.pwezayshops.com/shops/${shopId}`,{
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          }
-        });
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/shops/${shopId}`,
+        );
+
+        if (!res) return;
+
         const data = await res.json();
 
         const paymentData = data?.[0]?.payments;
@@ -114,15 +114,17 @@ const token = localStorage.getItem("shopToken");
         },
       ];
 
-      const res = await fetch(
+      const res = await apiFetch(
         `https://api.pwezayshops.com/update-payments-shops/${shopId}`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json",
-          Authorization: `MSHteam ${token}`, },
-          body: JSON.stringify({ payments: updatedPayments }),
+          body: JSON.stringify({
+            payments: updatedPayments,
+          }),
         },
       );
+
+      if (!res) return;
 
       const data = await res.json();
 
@@ -157,16 +159,15 @@ const token = localStorage.getItem("shopToken");
         })),
       };
 
-      const res = await fetch(
+      const res = await apiFetch(
         `https://api.pwezayshops.com/update-payments-shops/${shopId}`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json",
-          Authorization: `MSHteam ${token}`, },
           body: JSON.stringify(payload),
         },
       );
 
+      if (!res) return;
       const data = await res.json();
 
       if (res.ok) {

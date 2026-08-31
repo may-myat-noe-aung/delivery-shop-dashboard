@@ -1,13 +1,12 @@
-
 import React, { useState } from "react";
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 export default function IngredientsCreateModal({ shopId, close, onSuccess }) {
   const { showAlert } = useAlert();
-const token = localStorage.getItem("shopToken");
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [photo, setPhoto] = useState(null); 
+  const [photo, setPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // ✅ UPDATED IMAGE HANDLER
@@ -54,15 +53,11 @@ const token = localStorage.getItem("shopToken");
 
       console.log("🚀 Sending payload:", payload); // 🔥 DEBUG
 
-      const res = await fetch("https://api.pwezayshops.com/ingredients", {
+      const res = await apiFetch("https://api.pwezayshops.com/ingredients", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `MSHteam ${token}`,
-        },
         body: JSON.stringify(payload),
       });
-
+      if (!res) return;
       const data = await res.json();
       console.log("✅ Response:", data); // 🔥 DEBUG
 
@@ -75,7 +70,7 @@ const token = localStorage.getItem("shopToken");
 
       if (res.ok) {
         showAlert(apiMessage, "success");
-       onSuccess?.();
+        onSuccess?.();
       } else {
         showAlert(apiMessage, "error");
       }
@@ -90,7 +85,6 @@ const token = localStorage.getItem("shopToken");
   return (
     <div className="fixed -inset-10 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-[#111827] w-[500px] rounded-2xl p-6 border border-gray-700 shadow-xl max-h-[90vh] overflow-y-auto">
-        
         <h2 className="text-2xl font-semibold text-white mb-5">
           Add New Ingredient
         </h2>
@@ -125,54 +119,53 @@ const token = localStorage.getItem("shopToken");
           </div>
 
           {/* Photo */}
-        {/* Photo Upload */}
-<div>
-  <label className="text-gray-300 font-medium mb-1 block">
-    Ingredient Photo 
-  </label>
+          {/* Photo Upload */}
+          <div>
+            <label className="text-gray-300 font-medium mb-1 block">
+              Ingredient Photo
+            </label>
 
-  {/* Upload Box */}
-  <div
-    className="relative w-full h-40 border-2 border-dashed border-gray-600 rounded-xl flex items-center justify-center cursor-pointer bg-gray-900 hover:border-indigo-500 transition-colors"
-    onClick={() => document.getElementById("photoInput").click()}
-  >
-    {!photo ? (
-      <div className="text-gray-500 text-center">
-        <p className="font-medium">Click or drag image here</p>
-        <p className="text-sm">PNG, JPG, GIF up to 5MB</p>
-      </div>
-    ) : (
-      <>
-        {/* Preview Image */}
-        <img
-          src={photo}
-          alt="preview"
-          className="absolute inset-0 w-full h-full object-cover rounded-xl"
-        />
-        {/* Remove Button */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setPhoto(null);
-          }}
-          className="absolute top-2 right-2 bg-gray-800/70 hover:bg-gray-700 text-white p-1 rounded-full"
-        >
-          ✕
-        </button>
-      </>
-    )}
+            {/* Upload Box */}
+            <div
+              className="relative w-full h-40 border-2 border-dashed border-gray-600 rounded-xl flex items-center justify-center cursor-pointer bg-gray-900 hover:border-indigo-500 transition-colors"
+              onClick={() => document.getElementById("photoInput").click()}
+            >
+              {!photo ? (
+                <div className="text-gray-500 text-center">
+                  <p className="font-medium">Click or drag image here</p>
+                  <p className="text-sm">PNG, JPG, GIF up to 5MB</p>
+                </div>
+              ) : (
+                <>
+                  {/* Preview Image */}
+                  <img
+                    src={photo}
+                    alt="preview"
+                    className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                  />
+                  {/* Remove Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPhoto(null);
+                    }}
+                    className="absolute top-2 right-2 bg-gray-800/70 hover:bg-gray-700 text-white p-1 rounded-full"
+                  >
+                    ✕
+                  </button>
+                </>
+              )}
 
-    <input
-      id="photoInput"
-      type="file"
-      accept="image/*"
-      onChange={handleImage}
-      className="hidden"
-    />
-  </div>
-</div>
-          
+              <input
+                id="photoInput"
+                type="file"
+                accept="image/*"
+                onChange={handleImage}
+                className="hidden"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Buttons */}

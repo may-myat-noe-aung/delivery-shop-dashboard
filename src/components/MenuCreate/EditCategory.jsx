@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useAlert } from "../../AlertProvider";
 import { ChevronDown } from "lucide-react";
+import { apiFetch } from "../../api";
 
 export default function EditCategory({ id, currentData, onClose, onUpdate }) {
-  const token = localStorage.getItem("shopToken");
   const { showAlert, confirm } = useAlert();
 
   if (!currentData) return null;
@@ -43,15 +43,17 @@ const icons = [
     try {
       const payload = { name, icon };
 
-      const res = await fetch(`https://api.pwezayshops.com/categories/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json",
-          Authorization: `MSHteam ${token}`,
-         },
-        body: JSON.stringify(payload),
-      });
+const res = await apiFetch(
+  `https://api.pwezayshops.com/categories/${id}`,
+  {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  }
+);
 
-      const data = await res.json();
+if (!res) return;
+
+const data = await res.json();
 
       if (res.ok) {
         showAlert(data?.message || "Updated successfully", "success");

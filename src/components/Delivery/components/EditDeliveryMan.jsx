@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Camera, Eye, EyeOff } from "lucide-react";
-import axios from "axios";
 import { useAlert } from "../../../AlertProvider";
+import { apiFetch } from "../../../api";
 
 export default function EditDeliveryMan({
   open,
@@ -12,10 +12,10 @@ export default function EditDeliveryMan({
   const { showAlert } = useAlert();
 
   const [loading, setLoading] = useState(false);
-const token = localStorage.getItem("shopToken");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const shopId = localStorage.getItem("shopId");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -104,54 +104,63 @@ useEffect(() => {
         return;
       }
     }
-    try {
-      setLoading(true);
+try {
+  setLoading(true);
 
-      const submitData = new FormData();
+  const submitData = new FormData();
 
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null && value !== "") {
-          submitData.append(key, value);
-        }
-      });
-
-      submitData.set("work_type", formData.work_type || "");
-
-      if (!formData.phone) {
-        submitData.set("phone", "");
-      }
-
-      const res = await axios.put(
-        `https://api.pwezayshops.com/deliverymen/${activeUser.id}`,
-        submitData,
-         {
-    headers: {
-      Authorization: `MSHteam ${token}`,
-    },
-  }
-      );
-
-      setDeliverymen((prev) =>
-        prev.map((item) =>
-          item.id === activeUser.id
-            ? {
-                ...item,
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                location: formData.location,
-                work_type: formData.work_type,
-              }
-            : item,
-        ),
-      );
-
-      showAlert(res.data.message || "Updated successfully", "success");
-
-      setEditModal(false);
-    } catch (err) {
-      showAlert(err.response?.data?.message || "Update failed", "error");
+  Object.entries(formData).forEach(([key, value]) => {
+    if (value !== null && value !== "") {
+      submitData.append(key, value);
     }
+  });
+
+ submitData.set("work_type", shopId);
+
+  if (!formData.phone) {
+    submitData.set("phone", "");
+  }
+
+  const res = await apiFetch(
+    `https://api.pwezayshops.com/deliverymen/${activeUser.id}`,
+    {
+      method: "PUT",
+      body: submitData,
+    }
+  );
+
+  if (!res) return;
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    showAlert(data.message || "Update failed", "error");
+    return;
+  }
+
+  setDeliverymen((prev) =>
+    prev.map((item) =>
+      item.id === activeUser.id
+        ? {
+            ...item,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            location: formData.location,
+            work_type: formData.work_type,
+          }
+        : item
+    )
+  );
+
+  showAlert(data.message || "Updated successfully", "success");
+  setEditModal(false);
+} catch (err) {
+  console.error(err);
+  showAlert(err.message || "Update failed", "error");
+} finally {
+  setLoading(false);
+}
 
     // API Call
   };

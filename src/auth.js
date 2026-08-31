@@ -1,16 +1,4 @@
 
-// export const getAuth = () => {
-//   const shopId = localStorage.getItem("shopId");
-//   const haveDelivery = localStorage.getItem("haveDelivery");
-
-//   return {
-//     shopId: shopId || null,
-//     haveDelivery: haveDelivery === "1",
-//     isLoggedIn: !!shopId,
-//   };
-// };
-// utils/auth.js
-
 export const getAuth = () => {
   const shopId = localStorage.getItem("shopId");
   const token = localStorage.getItem("shopToken");

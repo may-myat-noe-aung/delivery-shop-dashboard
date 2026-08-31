@@ -1,9 +1,14 @@
 import React, { useState, useRef } from "react";
 import { FiCamera } from "react-icons/fi"; // camera icon
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
-export default function EditIngredients({ id, currentData, onClose, onUpdate }) {
-  const token = localStorage.getItem("shopToken");
+export default function EditIngredients({
+  id,
+  currentData,
+  onClose,
+  onUpdate,
+}) {
   const { showAlert, confirm } = useAlert(); // use confirm for confirmation
   const fileInputRef = useRef(null);
 
@@ -22,14 +27,16 @@ export default function EditIngredients({ id, currentData, onClose, onUpdate }) 
     //   setPhoto(reader.result.split(",")[1]); // store only base64
     // };
     reader.onloadend = () => {
-  setPhoto(reader.result);
-};
+      setPhoto(reader.result);
+    };
     reader.readAsDataURL(file);
   };
 
   const handleSave = async () => {
     // confirmation before saving
-    const confirmed = await confirm("Are you sure you want to update this Ingredient?");
+    const confirmed = await confirm(
+      "Are you sure you want to update this Ingredient?",
+    );
     if (!confirmed) return;
 
     setLoading(true);
@@ -37,13 +44,11 @@ export default function EditIngredients({ id, currentData, onClose, onUpdate }) 
       const payload = { name, prices };
       if (photo) payload.photo = photo;
 
-      const res = await fetch(`https://api.pwezayshops.com/ingredients/${id}`, {
+      const res = await apiFetch(`https://api.pwezayshops.com/ingredients/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json",
-          Authorization: `MSHteam ${token}`,},
         body: JSON.stringify(payload),
       });
-
+if (!res) return;
       const data = await res.json();
 
       if (res.ok) {
@@ -68,21 +73,21 @@ export default function EditIngredients({ id, currentData, onClose, onUpdate }) 
 
         {/* PHOTO */}
         <div className="mb-3 relative ">
-       <div className="flex justify-center mb-3">
-          <img
-  src={photo || currentData.photoUrl}
-  alt={name}
-  className="size-48 object-cover rounded-lg"
-/>
-          {/* Camera icon */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current.click()}
-            className="absolute -bottom-2 right-[115px] bg-indigo-600 p-2 rounded-full hover:bg-indigo-700 text-white"
-          >
-            <FiCamera size={20} />
-          </button>
-       </div>
+          <div className="flex justify-center mb-3">
+            <img
+              src={photo || currentData.photoUrl}
+              alt={name}
+              className="size-48 object-cover rounded-lg"
+            />
+            {/* Camera icon */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current.click()}
+              className="absolute -bottom-2 right-[115px] bg-indigo-600 p-2 rounded-full hover:bg-indigo-700 text-white"
+            >
+              <FiCamera size={20} />
+            </button>
+          </div>
 
           <input
             type="file"

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { User } from "lucide-react";
-import { getAuthHeaders } from "../../auth";
+
+import { apiFetch } from "../../api";
 
 export default function TopCustomers({ shopId }) {
   const [customers, setCustomers] = useState([]);
@@ -10,14 +11,11 @@ export default function TopCustomers({ shopId }) {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const res = await fetch(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/top5-customers-by-shops/${shopId}`,
-          {
-            method: "GET",
-            headers: getAuthHeaders(),
-          }
+     
         );
-
+if (!res) return;
         const json = await res.json();
 
         if (json.success) {

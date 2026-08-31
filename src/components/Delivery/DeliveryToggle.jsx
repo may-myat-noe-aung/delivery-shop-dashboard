@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 export default function DeliveryToggle({ shopId }) {
-  const token = localStorage.getItem("shopToken");
   const [isOpen, setIsOpen] = useState(false);
 
   // 🔥 IMPORTANT FIX: READY STATE ADDED
@@ -20,16 +19,15 @@ export default function DeliveryToggle({ shopId }) {
       if (!shopId) return;
 
       try {
-        const res = await axios.get(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/shops-deli-open/${shopId}`,
-          {
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            },
-          },
         );
 
-        const status = res.data?.[0]?.open_shop_deli;
+        if (!res) return;
+
+        const data = await res.json();
+
+        const status = data?.[0]?.open_shop_deli;
 
         // 🔥 strict conversion
         setIsOpen(status == 1 || status == "1");
@@ -37,7 +35,6 @@ export default function DeliveryToggle({ shopId }) {
         // 🔥 ONLY AFTER API DONE
         setReady(true);
       } catch (err) {
-        console.log(err);
         showAlert("Failed to load delivery status", "error");
       }
     };
@@ -67,24 +64,23 @@ export default function DeliveryToggle({ shopId }) {
         : `https://api.pwezayshops.com/open-shop-deli/${shopId}`;
 
       // const res = await axios.patch(url);
-      const res = await axios.patch(
-        url,
-        {},
-        {
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          },
-        },
-      );
+const res = await apiFetch(url, {
+  method: "PATCH",
+});
 
-      if (res.data?.success) {
-        setIsOpen((prev) => !prev);
-        showAlert(res.data.message, "success");
-      } else {
-        showAlert("Failed to update delivery", "error");
-      }
+if (!res) return;
+
+const data = await res.json();
+
+if (res.ok && data.success) {
+  setIsOpen((prev) => !prev);
+  showAlert(data.message, "success");
+} else {
+  showAlert(data.message || "Failed to update delivery", "error");
+}
     } catch (err) {
-      showAlert(err.response?.data?.error || "Something went wrong", "error");
+      console.error(err);
+      showAlert(err.message || "Something went wrong", "error");
     } finally {
       setLoading(false);
     }

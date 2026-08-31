@@ -2,11 +2,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Trash2, Pencil, Search } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
 import EditMenu from "./EditMenu";
+import { apiFetch } from "../../api";
 
 export default function MenuTable({ shopId }) {
   const { showAlert, confirm } = useAlert();
-  const token = localStorage.getItem("shopToken");
-
   const [editItem, setEditItem] = useState(null);
   const [menuList, setMenuList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,20 +36,17 @@ export default function MenuTable({ shopId }) {
   // =========================
   const fetchData = async () => {
     try {
-      const res = await fetch(`https://api.pwezayshops.com/menu/${shopId}`,{
-        headers: {
-          Authorization: `MSHteam ${token}`,
-        },
-      });
+      const res = await apiFetch(`https://api.pwezayshops.com/menu/${shopId}`);
+     if (!res) return;
       const data = await res.json();
 
       if (data && Array.isArray(data.menus)) {
         const withPhotos = data.menus.map((item) => ({
           ...item,
 
-          photoUrl: item.photo
-            ? `https://api.pwezayshops.com/menu-uploads/${item.photo}`
-            : "/placeholder.png",
+        photoUrl: item.photo
+  ? `https://api.pwezayshops.com/menu-uploads/${item.photo}`
+  : null,
 
           prices: Array.isArray(item.prices) ? item.prices : [],
           categories: Array.isArray(item.categories)
@@ -94,18 +90,14 @@ export default function MenuTable({ shopId }) {
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
   const maxButtons = 10;
 
-const startPage =
-  Math.floor((page - 1) / maxButtons) * maxButtons + 1;
+  const startPage = Math.floor((page - 1) / maxButtons) * maxButtons + 1;
 
-const endPage = Math.min(
-  startPage + maxButtons - 1,
-  totalPages
-);
+  const endPage = Math.min(startPage + maxButtons - 1, totalPages);
 
-const visiblePages = Array.from(
-  { length: endPage - startPage + 1 },
-  (_, i) => startPage + i
-);
+  const visiblePages = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i,
+  );
 
   // =========================
   // DELETE
@@ -115,12 +107,10 @@ const visiblePages = Array.from(
     if (!ok) return;
 
     try {
-      const res = await fetch(`https://api.pwezayshops.com/menu/${id}`, {
+      const res = await apiFetch(`https://api.pwezayshops.com/menu/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `MSHteam ${token}`,
-        },
       });
+     if (!res) return;
 
       const data = await res.json();
 
@@ -151,9 +141,9 @@ const visiblePages = Array.from(
         ? `https://api.pwezayshops.com/off-menu/${id}`
         : `https://api.pwezayshops.com/open-menu/${id}`;
 
-      const res = await fetch(url, { method: "PATCH",  headers: {
-          Authorization: `MSHteam ${token}`,
-        }, });
+      const res = await apiFetch(url, { method: "PATCH" });
+     if (!res) return;
+
       const data = await res.json();
 
       if (res.ok) {
@@ -223,13 +213,28 @@ const visiblePages = Array.from(
             >
               {/* IMAGE */}
               <div className="relative">
-                <img
-                  src={item.photoUrl}
-                  alt={item.name}
-                  className={`w-full h-32 object-cover ${
-                    !item.isOpen ? "grayscale blur-[1px]" : ""
-                  }`}
-                />
+             {item.photoUrl ? (
+  <img
+    src={item.photoUrl}
+    alt={item.name}
+    className={`w-full h-32 object-cover ${
+      !item.isOpen ? "grayscale blur-[1px]" : ""
+    }`}
+  />
+) : (
+  <div
+    className={`w-full h-32 flex flex-col items-center justify-center 
+    bg-slate-800 text-slate-500 ${
+      !item.isOpen ? "opacity-60" : ""
+    }`}
+  >
+    <ImageOff size={36} strokeWidth={1.5} />
+
+    <span className="text-xs mt-2">
+      No Image
+    </span>
+  </div>
+)}
 
                 {/* TOP RIGHT ICONS */}
                 <div className="absolute top-2 right-2 flex gap-2">
@@ -325,19 +330,19 @@ const visiblePages = Array.from(
             </button>
 
             {/* Page Numbers */}
-     {visiblePages.map((n) => (
-  <button
-    key={n}
-    onClick={() => setPage(n)}
-    className={`px-3 py-1 rounded-md border border-neutral-700 ${
-      page === n
-        ? "bg-indigo-300 text-black font-semibold"
-        : "text-indigo-300 hover:bg-neutral-900"
-    }`}
-  >
-    {n}
-  </button>
-))}
+            {visiblePages.map((n) => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                  page === n
+                    ? "bg-indigo-300 text-black font-semibold"
+                    : "text-indigo-300 hover:bg-neutral-900"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
 
             {/* Next Button */}
             <button

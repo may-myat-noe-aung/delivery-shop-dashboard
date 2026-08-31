@@ -4,6 +4,7 @@ import { Search, Download, Eye } from "lucide-react";
 import ReportPopup from "./ReportPopup";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { apiFetch } from "../../api";
 
 export default function ReportTable({ shopId }) {
   const token = localStorage.getItem("shopToken");
@@ -33,14 +34,10 @@ export default function ReportTable({ shopId }) {
       try {
         setLoading(true);
 
-        const res = await fetch(
-          `https://api.pwezayshops.com/report-shops/${shopId}`, {
-     headers: {
-      Authorization: `MSHteam ${token}`,
-    },
-          }
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/report-shops/${shopId}`, 
         );
-
+  if (!res) return;
         const data = await res.json();
 
         if (data.success) {

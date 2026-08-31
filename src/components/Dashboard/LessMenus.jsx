@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Utensils } from "lucide-react";
-import { getAuthHeaders } from "../../auth";
+import { apiFetch } from "../../api";
 
 export default function TopMenus({ shopId }) {
   const [menus, setMenus] = useState([]);
+  const token = localStorage.getItem("shopToken");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -12,14 +13,10 @@ export default function TopMenus({ shopId }) {
       try {
         setLoading(true);
 
-        const res = await fetch(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/top5-less-menu-by-shops/${shopId}`,
-          {
-             method: "GET",
-  headers: getAuthHeaders(),
-          }
         );
-
+        if (!res) return;
         const json = await res.json();
 
         if (json.success) {

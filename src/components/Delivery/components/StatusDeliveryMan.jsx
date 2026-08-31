@@ -9,36 +9,52 @@ export default function StatusDeliveryMan({
 }) {
   const { showAlert } = useAlert();
 
-  const changeStatus = async () => {
-    const newStatus =
-      delivery.status === "active" ? "warning" : "active";
+const changeStatus = async () => {
+  const newStatus =
+    delivery.status === "active" ? "warning" : "active";
 
-    try {
-      setLoading((prev) => ({
-        ...prev,
-        [delivery.id]: true,
-      }));
+  try {
+    setLoading((prev) => ({
+      ...prev,
+      [delivery.id]: true,
+    }));
 
-      const res = await updateDeliveryManStatus(
-        delivery.id,
-        newStatus
-      );
+    const res = await updateDeliveryManStatus(
+      delivery.id,
+      newStatus
+    );
 
-      showAlert(res.data.message || "Status Updated", "success");
+    if (!res) return; // token expired => apiFetch က logout + redirect လုပ်ပြီးသား
 
-      onSuccess(delivery.id, newStatus);
-    } catch (err) {
+    const data = await res.json();
+
+    if (!res.ok) {
       showAlert(
-        err.response?.data?.message || "Failed to Update Status",
+        data.message || "Failed to Update Status",
         "error"
       );
-    } finally {
-      setLoading((prev) => ({
-        ...prev,
-        [delivery.id]: false,
-      }));
+      return;
     }
-  };
+
+    showAlert(
+      data.message || "Status Updated",
+      "success"
+    );
+
+    onSuccess(delivery.id, newStatus);
+  } catch (err) {
+    console.error(err);
+    showAlert(
+      err.message || "Failed to Update Status",
+      "error"
+    );
+  } finally {
+    setLoading((prev) => ({
+      ...prev,
+      [delivery.id]: false,
+    }));
+  }
+};
 
   const isActive = delivery.status === "active";
 

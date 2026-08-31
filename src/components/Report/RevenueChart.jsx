@@ -1,4 +1,3 @@
-
 // import React, { useEffect, useState } from "react";
 // import {
 //   LineChart,
@@ -11,7 +10,7 @@
 // } from "recharts";
 
 // export default function RevenueChart({ shopId }) {
-//   const token = localStorage.getItem("shopToken");
+//
 //   const [type, setType] = useState("hour");
 //   const [data, setData] = useState([]);
 //   const [loading, setLoading] = useState(true);
@@ -46,7 +45,7 @@
 
 //   return (
 //     <div className="col-span-3 xl:col-span-2 bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
-      
+
 //       {/* Header */}
 //       <div className="flex justify-between items-center mb-4">
 //         <h2 className="text-xl font-semibold text-white">
@@ -109,6 +108,7 @@
 //     </div>
 //   );
 // }
+
 import React, { useEffect, useState, useCallback } from "react";
 import {
   LineChart,
@@ -119,84 +119,66 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { apiFetch } from "../../api";
 
 export default function RevenueChart({ shopId }) {
-  const token = localStorage.getItem("shopToken");
-
   const [type, setType] = useState("hour");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-
   // =========================
   // FETCH REVENUE DATA
   // =========================
-  const loadData = useCallback(async () => {
-    if (!shopId || !token) return;
+const loadData = useCallback(async (showLoading = false) => {
+  if (!shopId) return;
 
+  if (showLoading) {
     setLoading(true);
+  }
 
-    try {
-      const res = await fetch(
-        `https://api.pwezayshops.com/report-revenuecharts-by-shops/${shopId}`,
-        {
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          },
-        }
-      );
+  try {
+    const res = await apiFetch(
+      `https://api.pwezayshops.com/report-revenuecharts-by-shops/${shopId}`
+    );
 
-
-      const json = await res.json();
-
-      console.log("Revenue API:", json);
-
-
-      if (res.ok && json?.success) {
-        setData(json.data?.[type] || []);
-      } else {
-        setData([]);
-      }
-
-
-    } catch (error) {
-      console.error("Revenue API Error:", error);
-      setData([]);
-
-    } finally {
-      setLoading(false);
+    if (!res?.ok) {
+      return;
     }
 
-  }, [shopId, token, type]);
+    const json = await res.json();
 
-
+    if (json?.success) {
+      setData(json.data?.[type] || []);
+    }
+  } catch (error) {
+    console.error("Revenue API Error:", error);
+  } finally {
+    if (showLoading) {
+      setLoading(false);
+    }
+  }
+}, [shopId, type]);
 
   // =========================
   // LIVE FETCH
   // =========================
-  useEffect(() => {
+useEffect(() => {
+  if (!shopId) return;
 
-    if (!shopId || !token) return;
+  // First load only
+  loadData(true);
 
+  // Background refresh every 5s
+  const interval = setInterval(() => {
+    loadData(false);
+  }, 5000);
 
-    loadData();
-
-
-    const interval = setInterval(() => {
-      loadData();
-    }, 5000);
-
-
-    return () => clearInterval(interval);
-
-
-  }, [shopId, token, loadData]);
-
-
-
+  return () => clearInterval(interval);
+}, [shopId, loadData]);
 
   return (
-    <div className="
+    <div
+      className="
       col-span-3 xl:col-span-2
       bg-[#1a2030]/80
       backdrop-blur-xl
@@ -204,23 +186,14 @@ export default function RevenueChart({ shopId }) {
       rounded-3xl
       shadow-2xl
       p-6
-    ">
-
-
+    "
+    >
       {/* HEADER */}
       <div className="flex justify-between items-center mb-4">
-
-
-        <h2 className="text-xl font-semibold text-white">
-          Total Revenue
-        </h2>
-
-
+        <h2 className="text-xl font-semibold text-white">Total Revenue</h2>
 
         <div className="flex gap-2">
-
           {["hour", "weekly", "yearly"].map((item) => (
-
             <button
               key={item}
               onClick={() => setType(item)}
@@ -239,134 +212,75 @@ export default function RevenueChart({ shopId }) {
               `}
             >
               {item.charAt(0).toUpperCase() + item.slice(1)}
-
             </button>
-
           ))}
-
         </div>
-
-
       </div>
-
-
-
-
 
       {/* CHART AREA */}
 
       {loading ? (
-
-        <div className="
+        <div
+          className="
           h-[300px]
           flex
           items-center
           justify-center
           text-neutral-400
           animate-pulse
-        ">
+        "
+        >
           Loading revenue...
-
         </div>
-
-
       ) : data.length === 0 ? (
-
-        <div className="
+        <div
+          className="
           h-[300px]
           flex
           items-center
           justify-center
           text-neutral-400
-        ">
-          No revenue data
-
-        </div>
-
-
-      ) : (
-
-        <ResponsiveContainer
-          width="100%"
-          height={300}
+        "
         >
-
+          No revenue data
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height={300}>
           <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
 
+            <XAxis dataKey="time" stroke="#94a3b8" />
 
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#334155"
-            />
-
-
-
-            <XAxis
-              dataKey="time"
-              stroke="#94a3b8"
-            />
-
-
-
-            <YAxis
-              stroke="#94a3b8"
-            />
-
-
+            <YAxis stroke="#94a3b8" />
 
             <Tooltip
-
-              formatter={(value) =>
-                `Ks ${Number(value).toLocaleString()}`
-              }
-
-
+              formatter={(value) => `Ks ${Number(value).toLocaleString()}`}
               contentStyle={{
-                background:"#0f172a",
-                border:"1px solid #334155",
-                borderRadius:"10px",
-                color:"#fff",
+                background: "#0f172a",
+                border: "1px solid #334155",
+                borderRadius: "10px",
+                color: "#fff",
               }}
-
-
               labelStyle={{
-                color:"#94a3b8",
+                color: "#94a3b8",
               }}
-
             />
-
-
 
             <Line
-
               type="monotone"
-
               dataKey="value"
-
               stroke="#6366f1"
-
               strokeWidth={3}
-
               dot={{
-                r:4
+                r: 4,
               }}
-
               activeDot={{
-                r:7
+                r: 7,
               }}
-
             />
-
-
-
           </LineChart>
-
-
         </ResponsiveContainer>
-
       )}
-
-
     </div>
   );
 }

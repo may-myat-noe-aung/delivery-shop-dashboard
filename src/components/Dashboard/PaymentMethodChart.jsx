@@ -1,120 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { Wallet } from "lucide-react";
-// import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-
-// const COLORS = [
-//   "#3B82F6",
-//   "#10B981",
-//   "#F59E0B",
-//   "#EF4444",
-//   "#8B5CF6",
-//   "#06B6D4",
-//   "#84CC16",
-//   "#F97316",
-// ];
-
-// export default function PaymentMethodDistribution() {
-//   const [data, setData] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fakeApi = async () => {
-//       setLoading(true);
-
-//       setTimeout(() => {
-//         setData([
-//           { method: "KBZ", total: 45 },
-//           { method: "WAVE", total: 30 },
-//           { method: "AYA", total: 20 },
-//           { method: "CB", total: 15 },
-//           { method: "AGB", total: 10 },
-//           { method: "UAB", total: 8 },
-//           { method: "YOMA", total: 5 },
-//           { method: "MCB", total: 3 },
-//         ]);
-
-//         setLoading(false);
-//       }, 600);
-//     };
-
-//     fakeApi();
-//   }, []);
-
-//   const total = data.reduce((acc, item) => acc + item.total, 0);
-
-//   return (
-//     <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
-//       {/* Header */}
-//       <div className="flex items-center justify-between mb-2">
-//         <h3 className="font-semibold text-xl text-indigo-400">
-//           Payment Methods
-//         </h3>
-
-//         <Wallet className="h-4 w-4 text-neutral-400" />
-//       </div>
-
-//       <div className="h-[285px]">
-//       {loading ? (
-//   <div className="h-[250px] flex items-center justify-center">
-//     <div className="text-neutral-500 text-sm animate-pulse">
-//       Loading...
-//     </div>
-//   </div>
-// ) : (
-//           <>
-//             <div className="h-[240px]">
-//               <ResponsiveContainer width="100%" height="100%">
-//                 <PieChart>
-//                   <Pie
-//                     data={data}
-//                     dataKey="total"
-//                     nameKey="method"
-//                     innerRadius={65}
-//                     outerRadius={100}
-//                     paddingAngle={3}
-//                   >
-//                     {data.map((entry, index) => (
-//                       <Cell
-//                         key={entry.method}
-//                         fill={COLORS[index % COLORS.length]}
-//                       />
-//                     ))}
-//                   </Pie>
-
-//                   <Tooltip />
-//                 </PieChart>
-//               </ResponsiveContainer>
-//             </div>
-
-//             <div className="flex flex-wrap justify-center gap-3 mt-2">
-//               {data.slice(0, 3).map((item, index) => (
-//                 <div
-//                   key={item.method}
-//                   className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700"
-//                 >
-//                   <div
-//                     className="w-2.5 h-2.5 rounded-full"
-//                     style={{
-//                       backgroundColor: COLORS[index % COLORS.length],
-//                     }}
-//                   />
-
-//                   <span className="text-xs text-slate-300">{item.method}</span>
-
-//                   <span className="text-xs font-semibold text-white">
-//                     {item.total}
-//                   </span>
-//                 </div>
-//               ))}
-//             </div>
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-
 import React, { useEffect, useState } from "react";
 import { Wallet } from "lucide-react";
 import {
@@ -124,7 +7,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { getAuthHeaders } from "../../auth";
+import { apiFetch } from "../../api";
 
 const COLORS = [
   "#3B82F6",
@@ -176,14 +59,10 @@ export default function PaymentMethodChart({ shopId }) {
       setLoading(true);
     }
 
-    const res = await fetch(
+    const res = await apiFetch(
       `https://api.pwezayshops.com/payments-chart-shops/${shopId}`,
-      {
-        method: "GET",
-        headers: getAuthHeaders(),
-      },
     );
-
+if (!res) return;
     const json = await res.json();
 
     if (json.success) {

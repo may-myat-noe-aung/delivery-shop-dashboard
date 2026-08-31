@@ -1,17 +1,21 @@
+
+
 // import { Navigate, Outlet } from "react-router-dom";
 // import { getAuth } from "../auth";
 
 // export default function PrivateRoute() {
-//   const shopId = getAuth();
+//   const { shopId } = getAuth(); // ✅ destructure
 
 //   return shopId ? <Outlet /> : <Navigate to="/login" replace />;
 // }
-
 import { Navigate, Outlet } from "react-router-dom";
-import { getAuth } from "../auth";
 
 export default function PrivateRoute() {
-  const { shopId } = getAuth(); // ✅ destructure
+  const token = localStorage.getItem("shopToken");
 
-  return shopId ? <Outlet /> : <Navigate to="/login" replace />;
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
 }

@@ -1,11 +1,6 @@
-
 import React, { useEffect, useState } from "react";
-import {
-  ShoppingCart,
-  Clock,
-  Package,
-  CheckCircle,
-} from "lucide-react";
+import { ShoppingCart, Clock, Package, CheckCircle } from "lucide-react";
+import { apiFetch } from "../../api";
 
 /* ================= CARD ================= */
 function DashboardCard({ title, value, icon, gradient, iconBg }) {
@@ -72,14 +67,13 @@ export default function OrderSummaryCards({ shopId }) {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(
-          `https://api.pwezayshops.com/orders-summaries/${shopId}`,{
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            },
-          }
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/orders-summaries/${shopId}`,
         );
-
+       if (!res) {
+  setLoading(false);
+  return;
+}
         const result = await res.json();
 
         if (result.success) {

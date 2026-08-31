@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Edit2, Search, Trash2 } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
 import EditCategory from "./EditCategory";
+import { apiFetch } from "../../api";
 
 export default function CategoryTable({ shopId }) {
   const token = localStorage.getItem("shopToken");
@@ -51,12 +52,8 @@ const icons = [
 
   const fetchData = async () => {
     try {
-      const res = await fetch(
-        `https://api.pwezayshops.com/categories/${shopId}`,{
-      headers: {
-      Authorization: `MSHteam ${token}`,
-    },
-        }
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/categories/${shopId}`,
       );
 
       const data = await res.json();
@@ -124,13 +121,10 @@ const visiblePages = Array.from(
     if (!ok) return;
 
     try {
-      const res = await fetch(`https://api.pwezayshops.com/categories/${id}`, {
+      const res = await apiFetch(`https://api.pwezayshops.com/categories/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `MSHteam ${token}`,
-        }
       });
-
+if (!res) return;
       const data = await res.json();
 
       if (res.ok) {

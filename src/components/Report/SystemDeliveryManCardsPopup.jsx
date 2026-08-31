@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle2, AlertTriangle, X } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 // =========================
 // MAIN COMPONENT
 // =========================
-export default function SystemDeliveryManCardsPopup({  shopId,driver,close,
-  refreshData}) {
+export default function SystemDeliveryManCardsPopup({
+  shopId,
+  driver,
+  close,
+  refreshData,
+}) {
   const [tab, setTab] = useState("notCleared");
   const [clearing, setClearing] = useState(false);
-  const token = localStorage.getItem("shopToken");
 
   const { showAlert, confirm } = useAlert();
-
-
 
   // =========================
   // ESC CLOSE
@@ -45,30 +47,25 @@ export default function SystemDeliveryManCardsPopup({  shopId,driver,close,
     try {
       setClearing(true);
 
-      const response = await fetch(
-        `https://api.pwezayshops.com/clearedOrders-by-shops/${driver.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `MSHteam ${token}`,
-          },
-          body: JSON.stringify({
-          shopId,
-          }),
-        },
-      );
+const response = await apiFetch(
+  `https://api.pwezayshops.com/clearedOrders-by-shops/${driver.id}`,
+  {
+    method: "PATCH",
+    body: JSON.stringify({
+      shopId,
+    }),
+  },
+);
 
-      const result = await response.json();
+if (!response) return;
 
-     if (response.ok) {
-  showAlert(
-    result.message || "Orders cleared successfully",
-    "success"
-  );
+const result = await response.json();
 
-  await refreshData();
-} else {
+      if (response.ok) {
+        showAlert(result.message || "Orders cleared successfully", "success");
+
+        await refreshData();
+      } else {
         showAlert(result.message || "Failed to clear orders", "error");
       }
     } catch (error) {
@@ -298,7 +295,6 @@ export default function SystemDeliveryManCardsPopup({  shopId,driver,close,
                   {/* <span className="text-gray-500">
                     |
                   </span> */}
-
                 </div>
 
                 {/* RIGHT */}
@@ -311,17 +307,17 @@ export default function SystemDeliveryManCardsPopup({  shopId,driver,close,
                 >
                   {isCleared ? "Cleared" : "Pending"}
                 </span> */}
-                    <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                    <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-md">
-                      {order.kilo} kilo
-                    </span>
+                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                  <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-md">
+                    {order.kilo} kilo
+                  </span>
 
-                    <span className="text-gray-500">|</span>
+                  <span className="text-gray-500">|</span>
 
-                    <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-md">
-                      {order.delivey_fees?.toLocaleString()} Ks
-                    </span>
-                  </div>
+                  <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-md">
+                    {order.delivey_fees?.toLocaleString()} Ks
+                  </span>
+                </div>
               </div>
             ))}
           </div>

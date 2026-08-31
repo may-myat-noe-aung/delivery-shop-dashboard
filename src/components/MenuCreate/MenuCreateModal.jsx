@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useAlert } from "../../AlertProvider";
 import { ChevronDown, ChevronUp } from "lucide-react"; // ✅ ADDED ONLY THIS
+import { apiFetch } from "../../api";
 
 export default function MenuCreateModal({ shopId, close, onSuccess }) {
   const { showAlert } = useAlert();
-  const token = localStorage.getItem("shopToken");
-
-const getAuthHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `MSHteam ${token}`,
-});
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -55,13 +50,10 @@ const getAuthHeaders = () => ({
 
     const fetchIngredients = async () => {
       try {
-        const res = await fetch(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/ingredients/${shopId}`,
-            {
-    method: "GET",
-    headers: getAuthHeaders(),
-  }
         );
+        if (!res) return;
         const data = await res.json();
 
         if (!res.ok || !Array.isArray(data)) {
@@ -81,31 +73,25 @@ const getAuthHeaders = () => ({
     };
     const fetchMenus = async () => {
       try {
-        const res = await fetch(`https://api.pwezayshops.com/menu/${shopId}`,
-            {
-    method: "GET",
-    headers: getAuthHeaders(),
-  }
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/menu/${shopId}`,
         );
-
+        if (!res) return;
         const data = await res.json();
 
-    if(!res.ok || !Array.isArray(data.menus)){
-  setMenusList([]);
-  return;
-}
+        if (!res.ok || !Array.isArray(data.menus)) {
+          setMenusList([]);
+          return;
+        }
 
+        const withPhoto = data.menus.map((item) => ({
+          ...item,
+          photo: item.photo
+            ? `https://api.pwezayshops.com/menu-uploads/${item.photo}`
+            : null,
+        }));
 
-const withPhoto = data.menus.map((item)=>({
-  ...item,
-  photo:
-    item.photo
-      ? `https://api.pwezayshops.com/menu-uploads/${item.photo}`
-      : null
-}));
-
-
-setMenusList(withPhoto);
+        setMenusList(withPhoto);
       } catch (err) {
         console.error("Failed fetch menus", err);
       }
@@ -113,13 +99,11 @@ setMenusList(withPhoto);
 
     const fetchCategories = async () => {
       try {
-        const res = await fetch(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/categories/${shopId}`,
-            {
-    method: "GET",
-    headers: getAuthHeaders(),
-  }
+     
         );
+        if (!res) return;
         const data = await res.json();
 
         if (!res.ok || !Array.isArray(data)) {
@@ -194,9 +178,9 @@ setMenusList(withPhoto);
       return;
     }
     if (!selectedCategory) {
-  showAlert("Category ရွေးပေးပါ", "warning");
-  return;
-}
+      showAlert("Category ရွေးပေးပါ", "warning");
+      return;
+    }
 
     if (!photo) {
       showAlert("Photo ရွေးပေးပါ", "warning");
@@ -210,10 +194,8 @@ setMenusList(withPhoto);
     setLoading(true);
 
     try {
-      const res = await fetch("https://api.pwezayshops.com/menu", {
+      const res = await apiFetch("https://api.pwezayshops.com/menu", {
         method: "POST",
-        // headers: { "Content-Type": "application/json" },
-          headers: getAuthHeaders(),
         body: JSON.stringify({
           shop_id: shopId,
           name: name.trim(),
@@ -227,7 +209,7 @@ setMenusList(withPhoto);
           photo: photo || null,
         }),
       });
-
+if (!res) return;
       const data = await res.json();
 
       console.log(data);

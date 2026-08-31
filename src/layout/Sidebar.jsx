@@ -14,12 +14,14 @@ import { useEffect, useState } from "react";
 import { getAuth } from "../auth";
 import { useAlert } from "../AlertProvider";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiFetch } from "../api";
+import logo from "../../public/logo/pwyzay.jpg";
+import { DollarSign } from "lucide-react";
 
 export default function Sidebar() {
   const [shopPhoto, setShopPhoto] = useState(null);
   const [shopName, setShopName] = useState("Shop Admin");
   const [collapsed, setCollapsed] = useState(false);
-  const token = localStorage.getItem("shopToken");
 
   const navigate = useNavigate();
   const { showAlert, confirm } = useAlert();
@@ -27,34 +29,29 @@ export default function Sidebar() {
   useEffect(() => {
     const { shopId } = getAuth();
     if (!shopId) return;
+    apiFetch(`https://api.pwezayshops.com/shops/${shopId}`)
+      .then((res) => {
+        if (!res) return null;
 
-    // Shop Data
-    fetch(`https://api.pwezayshops.com/shops/${shopId}`,{
-      headers: {
-        Authorization: `MSHteam ${token}`,
-      }
-    })
-      .then((res) => res.json())
+        return res.json();
+      })
       .then((data) => {
         if (data && data.length > 0) {
           const shop = data[0];
+
           setShopName(shop.shop_name);
           setShopPhoto(shop.photo);
         }
       })
       .catch((err) => console.error(err));
+    apiFetch(`https://api.pwezayshops.com/get-sidebar/${shopId}`)
+      .then((res) => {
+        if (!res) return null;
 
-    // Sidebar State
-    fetch(`https://api.pwezayshops.com/get-sidebar/${shopId}`,{
-      headers: {
-        Authorization: `MSHteam ${token}`,
-      }
-    })
-      .then((res) => res.json())
+        return res.json();
+      })
       .then((data) => {
         if (data && data.length > 0) {
-          // 1 = open
-          // 0 = close
           setCollapsed(Number(data[0].sidebar) === 0);
         }
       })
@@ -70,18 +67,17 @@ export default function Sidebar() {
     setCollapsed(newCollapsed);
 
     try {
-      await fetch(`https://api.pwezayshops.com/change-sidebar/${shopId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `MSHteam ${token}`,
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/change-sidebar/${shopId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            sidebar: newCollapsed ? 0 : 1,
+          }),
         },
-        body: JSON.stringify({
-          // collapsed = true => sidebar 0
-          // collapsed = false => sidebar 1
-          sidebar: newCollapsed ? 0 : 1,
-        }),
-      });
+      );
+
+      if (!res) return;
     } catch (err) {
       console.error(err);
     }
@@ -91,14 +87,10 @@ export default function Sidebar() {
     const ok = await confirm("Are you sure you want to logout?");
     if (!ok) return;
 
-    document.cookie = "shopId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    document.cookie =
-      "haveDelivery=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-
-    localStorage.removeItem("shopId");
-    localStorage.removeItem("haveDelivery");
+    localStorage.clear();
 
     showAlert("Logged out successfully!", "success");
+
     navigate("/login", { replace: true });
   };
 
@@ -124,19 +116,23 @@ export default function Sidebar() {
         {collapsed ? <MdChevronRight size={18} /> : <MdChevronLeft size={18} />}
       </button>
 
-      {/* 👤 Profile */}
       <div
         className={`flex items-center mb-4 ${
           collapsed ? "justify-center" : "gap-3"
         }`}
       >
-        <img
+        {/* <img
           src={
             shopPhoto
               ? `https://api.pwezayshops.com/shop-uploads/${shopPhoto}`
               : "https://via.placeholder.com/40"
           }
           alt="Shop"
+          className="w-10 h-10 rounded-full object-cover border border-slate-600"
+        /> */}
+        <img
+          src={logo}
+          alt="logo"
           className="w-10 h-10 rounded-full object-cover border border-slate-600"
         />
 
@@ -173,6 +169,11 @@ export default function Sidebar() {
             to: "/delivery-men",
             icon: <MdDeliveryDining size={20} />,
             label: "Delivery Men",
+          },
+             {
+            to: "/finance",
+            icon: <DollarSign size={20} />,
+            label: "Finances",
           },
           { to: "/report", icon: <MdAssessment size={20} />, label: "Report" },
           {

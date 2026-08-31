@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { getAuthHeaders } from "../../auth";
+import { apiFetch } from "../../api";
 
 export default function MenuChart({ shopId }) {
   const [type, setType] = useState("hour");
@@ -17,14 +17,11 @@ export default function MenuChart({ shopId }) {
 
   const fetchChartData = async (selectedType) => {
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `https://api.pwezayshops.com/values-chart-by-shops/${shopId}`,
-        {
-          method: "GET",
-          headers: getAuthHeaders(),
-        },
+    
       );
-
+if (!res) return;
       const json = await res.json();
 
       if (json.success) {

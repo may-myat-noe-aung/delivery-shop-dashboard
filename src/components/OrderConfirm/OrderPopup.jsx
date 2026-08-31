@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 export default function OrderPopup({ order, close, shopId }) {
   const { showAlert, confirm } = useAlert();
-    const token = localStorage.getItem("shopToken");
   const [loading, setLoading] = useState(false);
   const [localOrder, setLocalOrder] = useState(order);
   const [openItems, setOpenItems] = useState({}); // 🔥 accordion state
@@ -35,11 +35,15 @@ export default function OrderPopup({ order, close, shopId }) {
     try {
       const endpoint = `https://api.pwezayshops.com/all-approved-orders/${localOrder.id}`;
 
-      const res = await fetch(endpoint, {
+      const res = await apiFetch(endpoint, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json",   Authorization: `MSHteam ${token}`, },
         body: JSON.stringify({ shopId }),
       });
+
+      if (!res) {
+  setLoading(false);
+  return;
+}
 
       const data = await res.json();
 

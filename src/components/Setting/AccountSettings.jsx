@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import { Lock, Eye, EyeOff, Save, Loader2, ShieldCheck } from "lucide-react";
 
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 export default function AccountSettings({ shopId }) {
   const { showAlert, confirm } = useAlert();
 
   const [saving, setSaving] = useState(false);
-
-  const token = localStorage.getItem("shopToken");
 
   const [showPassword, setShowPassword] = useState({
     old: false,
@@ -76,20 +75,18 @@ export default function AccountSettings({ shopId }) {
         new_pw: form.newPassword,
       });
 
-      const res = await fetch(
+      const res = await apiFetch(
         `https://api.pwezayshops.com/change-passwords-shops/${shopId}`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `MSHteam ${token}`,
-          },
           body: JSON.stringify({
             current_pw: form.oldPassword,
             new_pw: form.newPassword,
           }),
         },
       );
+
+      if (!res) return;
 
       const data = await res.json();
 

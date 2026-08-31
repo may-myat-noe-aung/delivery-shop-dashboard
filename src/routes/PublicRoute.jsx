@@ -1,20 +1,23 @@
-// import { Navigate } from "react-router-dom";
-// import { getAuth } from "../auth";
-// // import { getAuth } from "./auth";
+
+// import { Navigate, Outlet } from "react-router-dom";
 
 // export default function PublicRoute({ children }) {
-//   const shopId = getAuth();
+//   const shopId = localStorage.getItem("shopId");
 
-//   return shopId ? <Navigate to="/" replace /> : children;
+//   // ✅ already logged in → go dashboard
+//   if (shopId) {
+//     return <Navigate to="/" replace />;
+//   }
+
+//   return children ? children : <Outlet />;
 // }
-
 import { Navigate, Outlet } from "react-router-dom";
 
 export default function PublicRoute({ children }) {
-  const shopId = localStorage.getItem("shopId");
+  const token = localStorage.getItem("shopToken");
 
-  // ✅ already logged in → go dashboard
-  if (shopId) {
+  // ✅ Already logged in → prevent login/signup page
+  if (token) {
     return <Navigate to="/" replace />;
   }
 

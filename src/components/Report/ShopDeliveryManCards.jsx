@@ -4,6 +4,7 @@ import { useAlert } from "../../AlertProvider";
 
 import ShopDeliveryManCardsPopup from "./ShopDeliveryManCardsPopup";
 import { Search } from "lucide-react";
+import { apiFetch } from "../../api";
 
 export default function ShopDeliveryManCards({ shopId }) {
   const { showAlert } = useAlert();
@@ -37,12 +38,8 @@ const token = localStorage.getItem("shopToken");
 
   const fetchData = async () => {
     try {
-      const res = await fetch(
-        `https://api.pwezayshops.com/report-shops-deliverymen-by-shops/${shopId}`,{
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          }
-        }
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/report-shops-deliverymen-by-shops/${shopId}`,
       );
 
       const data = await res.json();
@@ -62,14 +59,10 @@ const token = localStorage.getItem("shopToken");
 
   const refreshSelectedDriver = async () => {
   try {
-    const res = await fetch(
-      `https://api.pwezayshops.com/report-shops-deliverymen-by-shops/${shopId}`,{
-           headers: {
-            Authorization: `MSHteam ${token}`,
-          }
-      }
+    const res = await apiFetch(
+      `https://api.pwezayshops.com/report-shops-deliverymen-by-shops/${shopId}`,
     );
-
+if (!res) return;
     const data = await res.json();
 
     if (data.success) {

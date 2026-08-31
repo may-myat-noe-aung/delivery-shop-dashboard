@@ -6,10 +6,10 @@ import PrintInvoice from "../Print/PrintInvoice";
 import PrintReceipt from "../Print/PrintReceipt";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { apiFetch } from "../../api";
 
 export default function OrdersTable({ shopId }) {
   const { showAlert, confirm } = useAlert();
-  const token = localStorage.getItem("shopToken");
   const [pickedOrders, setPickedOrders] = useState({});
   const [orders, setOrders] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -42,13 +42,13 @@ export default function OrdersTable({ shopId }) {
 
     const fetchAndUpdate = async () => {
       try {
-        const res = await fetch(
-          `https://api.pwezayshops.com/orders-by-shop/${shopId}`,{
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            },
-          }
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/orders-by-shop/${shopId}`,
         );
+       if (!res) {
+  setLoading(false);
+  return;
+}
         const data = await res.json();
         if (data.success) {
           setOrders(data.data);
@@ -83,13 +83,13 @@ export default function OrdersTable({ shopId }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(
-        `https://api.pwezayshops.com/orders-by-shop/${shopId}`,{
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          },
-        }
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/orders-by-shop/${shopId}`,
       );
+     if (!res) {
+  setLoading(false);
+  return;
+}
       const data = await res.json();
 
       if (data.success) {
@@ -130,17 +130,17 @@ export default function OrdersTable({ shopId }) {
     if (!isConfirmed) return;
 
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `https://api.pwezayshops.com/pickup-order/${orderId}`,
         {
           method: "PATCH",
-            headers: {
-      "Content-Type": "application/json",
-      Authorization: `MSHteam ${token}`,
-    },
-          
         },
       );
+
+     if (!res) {
+  setLoading(false);
+  return;
+}
 
       const data = await res.json();
 
@@ -435,7 +435,6 @@ export default function OrdersTable({ shopId }) {
                               handlePickup(order.id, order);
                             }, 1500);
                           }}
-                        
                           className={`
     flex items-center gap-2
     px-3 py-2

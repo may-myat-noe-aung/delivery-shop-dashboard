@@ -1,11 +1,6 @@
-
 import React, { useEffect, useState } from "react";
-import {
-  ShoppingCart,
-  DollarSign,
-  Bike,
-  Truck,
-} from "lucide-react";
+import { ShoppingCart, DollarSign, Bike, Truck } from "lucide-react";
+import { apiFetch } from "../../api";
 
 /* ================= CARD ================= */
 function DashboardCard({ title, value, icon, gradient, iconBg }) {
@@ -63,7 +58,6 @@ function LoadingCard() {
 
 /* ================= MAIN ================= */
 export default function ReportSummaryCards({ shopId }) {
- const token = localStorage.getItem("shopToken");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -72,13 +66,11 @@ export default function ReportSummaryCards({ shopId }) {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(
-          `https://api.pwezayshops.com/report-shops-summaries/${shopId}`,{
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            }
-          }
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/report-shops-summaries/${shopId}`,
         );
+
+        if (!res) return;
 
         const result = await res.json();
 
@@ -136,9 +128,7 @@ export default function ReportSummaryCards({ shopId }) {
       <DashboardCard
         title="Today's Shop Delivery Way"
         value={data.total_way_shopDeliverymen}
-        icon={
-          <Bike className="text-sky-300 w-3 h-3  xl:w-5 xl:h-5" />
-        }
+        icon={<Bike className="text-sky-300 w-3 h-3  xl:w-5 xl:h-5" />}
         gradient="from-sky-500 to-transparent"
         iconBg="bg-sky-500/20"
       />
@@ -147,9 +137,7 @@ export default function ReportSummaryCards({ shopId }) {
       <DashboardCard
         title="Today's System Delivery Way"
         value={data.total_way_systemDeliverymen}
-        icon={
-          <Truck className="text-rose-300 w-3 h-3  xl:w-5 xl:h-5" />
-        }
+        icon={<Truck className="text-rose-300 w-3 h-3  xl:w-5 xl:h-5" />}
         gradient="from-rose-500 to-transparent"
         iconBg="bg-rose-500/20"
       />

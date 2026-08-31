@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Camera, Save, Loader2, MapPin } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
-
+import { apiFetch } from "../../api";
 export default function ShopProfileEdit({ shopId }) {
   const { showAlert, confirm } = useAlert();
-  const token = localStorage.getItem("shopToken");
+  
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -107,12 +107,13 @@ export default function ShopProfileEdit({ shopId }) {
       try {
         setLoading(true);
 
-        const res = await fetch(`https://api.pwezayshops.com/shops/${shopId}`,{
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          }
-        });
-        const data = await res.json();
+const res = await apiFetch(
+  `https://api.pwezayshops.com/shops/${shopId}`
+);
+
+if (!res) return;
+
+const data = await res.json();
 
         const shopData = data?.[0];
 
@@ -125,14 +126,13 @@ export default function ShopProfileEdit({ shopId }) {
         let locationString = "";
 
         try {
-          const locRes = await fetch(
-            `https://api.pwezayshops.com/get-location-shops/${shopId}`,{
-              headers: {
-                Authorization: `MSHteam ${token}`,
-              }
-            }
-          );
-          const locData = await locRes.json();
+      const locRes = await apiFetch(
+  `https://api.pwezayshops.com/get-location-shops/${shopId}`
+);
+
+if (!locRes) return;
+
+const locData = await locRes.json();
 
           locationString =
             typeof locData?.location === "string"
@@ -242,46 +242,43 @@ export default function ShopProfileEdit({ shopId }) {
     try {
       setSaving(true);
 
-      const res = await fetch(`https://api.pwezayshops.com/shops/${shopId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `MSHteam ${token}`,
-        },
-        body: JSON.stringify(form),
-      });
+const res = await apiFetch(
+  `https://api.pwezayshops.com/shops/${shopId}`,
+  {
+    method: "PUT",
+    body: JSON.stringify(form),
+  }
+);
+
+if (!res) return;
 
       const data = await res.json();
       // ================= UPDATE LOCATION =================
-      await fetch(
-        `https://api.pwezayshops.com/change-location-shops/${shopId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `MSHteam ${token}`,
-          },
-          body: JSON.stringify({
-            location: form.location,
-            address: form.address,
-          }),
-        },
-      );
+    const locationRes = await apiFetch(
+  `https://api.pwezayshops.com/change-location-shops/${shopId}`,
+  {
+    method:"PATCH",
+    body:JSON.stringify({
+      location: form.location,
+      address: form.address,
+    }),
+  }
+);
+
+if (!locationRes) return;
 
       // ================= UPDATE SHOP CATEGORIES =================
-      const categoryRes = await fetch(
-        `https://api.pwezayshops.com/shops-categories/${shopId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `MSHteam ${token}`,
-          },
-          body: JSON.stringify({
-            categories: form.categories,
-          }),
-        },
-      );
+ const categoryRes = await apiFetch(
+  `https://api.pwezayshops.com/shops-categories/${shopId}`,
+  {
+    method:"PATCH",
+    body:JSON.stringify({
+      categories: form.categories,
+    }),
+  }
+);
+
+if (!categoryRes) return;
 
       const categoryData = await categoryRes.json();
       console.log(categoryData);

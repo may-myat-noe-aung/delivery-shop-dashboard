@@ -1,88 +1,88 @@
 import React, { useState } from "react";
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 export default function CategoryCreateModal({ shopId, close, onSuccess }) {
-  const token = localStorage.getItem("shopToken");
   const { showAlert } = useAlert();
 
   // ================= CATEGORY =================
-const categories = [
-  {
-    id: 1,
-    name: "Fashion",
-    icon: "fashion",
-  },
-  {
-    id: 2,
-    name: "Food & Restaurant",
-    icon: "foodrestaurant",
-  },
-  {
-    id: 3,
-    name: "Electronic",
-    icon: "electronic",
-  },
-  {
-    id: 4,
-    name: "Convenience Shop",
-    icon: "convenience",
-  },
-  {
-    id: 5,
-    name: "Material",
-    icon: "material",
-  },
-  {
-    id: 6,
-    name: "Fast Food",
-    icon: "fastfood",
-  },
-  {
-    id: 7,
-    name: "Snack",
-    icon: "snack",
-  },
-  {
-    id: 8,
-    name: "Breakfast",
-    icon: "breakfast",
-  },
-  {
-    id: 9,
-    name: "Cake",
-    icon: "cake",
-  },
-  {
-    id: 10,
-    name: "Coffee",
-    icon: "coffee",
-  },
-  {
-    id: 11,
-    name: "Drink",
-    icon: "drink",
-  },
-  {
-    id: 12,
-    name: "Lunch",
-    icon: "lunch",
-  },
-  {
-    id: 13,
-    name: "Morning",
-    icon: "morning",
-  },
-  {
-    id: 14,
-    name: "Sweets",
-    icon: "sweets",
-  },
-  {
-    id: 15,
-    name: "Other",
-    icon: "other",
-  },
-];
+  const categories = [
+    {
+      id: 1,
+      name: "Fashion",
+      icon: "fashion",
+    },
+    {
+      id: 2,
+      name: "Food & Restaurant",
+      icon: "foodrestaurant",
+    },
+    {
+      id: 3,
+      name: "Electronic",
+      icon: "electronic",
+    },
+    {
+      id: 4,
+      name: "Convenience Shop",
+      icon: "convenience",
+    },
+    {
+      id: 5,
+      name: "Material",
+      icon: "material",
+    },
+    {
+      id: 6,
+      name: "Fast Food",
+      icon: "fastfood",
+    },
+    {
+      id: 7,
+      name: "Snack",
+      icon: "snack",
+    },
+    {
+      id: 8,
+      name: "Breakfast",
+      icon: "breakfast",
+    },
+    {
+      id: 9,
+      name: "Cake",
+      icon: "cake",
+    },
+    {
+      id: 10,
+      name: "Coffee",
+      icon: "coffee",
+    },
+    {
+      id: 11,
+      name: "Drink",
+      icon: "drink",
+    },
+    {
+      id: 12,
+      name: "Lunch",
+      icon: "lunch",
+    },
+    {
+      id: 13,
+      name: "Morning",
+      icon: "morning",
+    },
+    {
+      id: 14,
+      name: "Sweets",
+      icon: "sweets",
+    },
+    {
+      id: 15,
+      name: "Other",
+      icon: "other",
+    },
+  ];
 
   const [name, setName] = useState("");
   const [icon, setIcon] = useState(categories[0].icon);
@@ -102,31 +102,18 @@ const categories = [
     setLoading(true);
 
     try {
-      // const res = await fetch("https://api.pwezayshops.com/categories", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     shop_id: shopId,
-      //     name: name.trim(),
-      //     icon: categories.find((c) => c.icon === icon)?.id,
-      //   }),
-      // });
-        const res = await fetch("https://api.pwezayshops.com/categories", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `MSHteam ${token}`,
-    },
-    body: JSON.stringify({
-      shop_id: shopId,
-      name: name.trim(),
-      icon: categories.find((c) => c.icon === icon)?.id,
-    }),
-  });
+    const res = await apiFetch("https://api.pwezayshops.com/categories", {
+  method: "POST",
+  body: JSON.stringify({
+    shop_id: shopId,
+    name: name.trim(),
+    icon: categories.find((c) => c.icon === icon)?.id,
+  }),
+});
 
-      let data;
+if (!res) return;
+
+let data;
       try {
         data = await res.json();
       } catch {
@@ -168,15 +155,14 @@ const categories = [
               <div
                 key={item.id}
                 onClick={() => setIcon(item.icon)}
-                className={`p-2 rounded-xl border  cursor-pointer flex flex-col items-center transition  ${
-                  icon === item.icon
+                className={`p-2 rounded-xl border  cursor-pointer flex flex-col items-center transition  ${icon === item.icon
                     ? "border-indigo-500 border-2 bg-black"
                     : "border-gray-700 bg-black hover:border-gray-500"
-                }`}
+                  }`}
               >
                 <img
                   src={`/categoriesIcon/${item.icon}.png`}
-                  
+
                   alt={item.name}
                   className="size-[90px] "
                 />
@@ -210,9 +196,8 @@ const categories = [
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className={`px-4 py-2 text-white rounded ${
-              loading ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600"
-            }`}
+            className={`px-4 py-2 text-white rounded ${loading ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600"
+              }`}
           >
             {loading ? "Creating..." : "Create"}
           </button>

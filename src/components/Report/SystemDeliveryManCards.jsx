@@ -4,10 +4,11 @@ import { useAlert } from "../../AlertProvider";
 
 import { Search } from "lucide-react";
 import ShopDeliveryManCardsPopup from "./ShopDeliveryManCardsPopup";
+import { apiFetch } from "../../api";
 
 export default function SystemDeliveryManCards({ shopId }) {
   const { showAlert } = useAlert();
-const token = localStorage.getItem("shopToken");
+
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,33 +19,29 @@ const token = localStorage.getItem("shopToken");
   const [selectedDriver, setSelectedDriver] = useState(null);
 
   // const pageSize = 6;
-    const [pageSize, setPageSize] = useState(6);
-  
-    useEffect(() => {
-      const updateSize = () => {
-        if (window.innerWidth > 1280) {
-          setPageSize(6);
-        } else {
-          setPageSize(4);
-        }
-      };
-  
-      updateSize();
-      window.addEventListener("resize", updateSize);
-  
-      return () => window.removeEventListener("resize", updateSize);
-    }, []);
+  const [pageSize, setPageSize] = useState(6);
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (window.innerWidth > 1280) {
+        setPageSize(6);
+      } else {
+        setPageSize(4);
+      }
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   const fetchData = async () => {
     try {
-      const res = await fetch(
-        `https://api.pwezayshops.com/report-system-deliverymen-by-shops/${shopId}`,{
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          }
-        }
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/report-system-deliverymen-by-shops/${shopId}`,
       );
-
+if (!res) return;
       const data = await res.json();
 
       if (data.success) {
@@ -61,54 +58,50 @@ const token = localStorage.getItem("shopToken");
   };
 
   const refreshSelectedDriver = async () => {
-  try {
-    const res = await fetch(
-      `https://api.pwezayshops.com/report-system-deliverymen-by-shops/${shopId}`,{
-        headers: {
-          Authorization: `MSHteam ${token}`,
+    try {
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/report-system-deliverymen-by-shops/${shopId}`,
+      );
+      if (!res) return;
+      const data = await res.json();
+
+      if (data.success) {
+        const updatedDrivers = data.data || [];
+
+        setDrivers(updatedDrivers);
+
+        // IMPORTANT
+        if (selectedDriver) {
+          const updatedDriver = updatedDrivers.find(
+            (d) => d.id === selectedDriver.id,
+          );
+
+          if (updatedDriver) {
+            setSelectedDriver(updatedDriver);
+          }
         }
       }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      const updatedDrivers = data.data || [];
-
-      setDrivers(updatedDrivers);
-
-      // IMPORTANT
-      if (selectedDriver) {
-        const updatedDriver = updatedDrivers.find(
-          (d) => d.id === selectedDriver.id
-        );
-
-        if (updatedDriver) {
-          setSelectedDriver(updatedDriver);
-        }
-      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
-useEffect(() => {
-  if (!shopId) return;
+  useEffect(() => {
+    if (!shopId) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  // first fetch
-  fetchData();
-
-  // auto fetch every 5s
-  const interval = setInterval(() => {
+    // first fetch
     fetchData();
-  }, 500);
 
-  // cleanup
-  return () => clearInterval(interval);
-}, [shopId]);
+    // auto fetch every 5s
+    const interval = setInterval(() => {
+      fetchData();
+    }, 500);
+
+    // cleanup
+    return () => clearInterval(interval);
+  }, [shopId]);
 
   const filtered = useMemo(() => {
     return drivers.filter((driver) =>
@@ -134,7 +127,7 @@ useEffect(() => {
           System Delivery Men
         </h2>
 
-           <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative">
             <Search
               size={14}
@@ -159,7 +152,9 @@ useEffect(() => {
       {loading ? (
         <div className="text-center py-10 text-gray-400">Loading...</div>
       ) : paginated.length === 0 ? (
-        <div className="text-center py-10 text-gray-400">No System Delivery Men found</div>
+        <div className="text-center py-10 text-gray-400">
+          No System Delivery Men found
+        </div>
       ) : (
         <>
           {/* GRID */}
@@ -220,9 +215,7 @@ useEffect(() => {
                     {driver.email}
                   </p>
 
-                  <p className="text-gray-400 text-sm mt-1">
-                    {driver.phone}
-                  </p>
+                  <p className="text-gray-400 text-sm mt-1">{driver.phone}</p>
 
                   {/* ACTION */}
                   <button
@@ -243,71 +236,70 @@ useEffect(() => {
             ))}
           </div>
 
-      
-              {/* Pagination */}
-      {totalPages > 0 && (
-        <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
-          <p>
-            Page {totalPages === 0 ? 0 : page} of {totalPages}
-          </p>
+          {/* Pagination */}
+          {totalPages > 0 && (
+            <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
+              <p>
+                Page {totalPages === 0 ? 0 : page} of {totalPages}
+              </p>
 
-          <div className="flex gap-2 flex-wrap">
-            {/* Prev Button */}
-            <button
-              disabled={page === 1}
-              onClick={() => setPage(Math.max(1, page - 1))}
-              className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                page === 1
-                  ? "text-neutral-500 cursor-not-allowed"
-                  : "text-indigo-400 hover:bg-neutral-900"
-              }`}
-            >
-              Prev
-            </button>
+              <div className="flex gap-2 flex-wrap">
+                {/* Prev Button */}
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                    page === 1
+                      ? "text-neutral-500 cursor-not-allowed"
+                      : "text-indigo-400 hover:bg-neutral-900"
+                  }`}
+                >
+                  Prev
+                </button>
 
-            {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                  page === n
-                    ? "bg-indigo-300 text-black font-semibold"
-                    : "text-indigo-300 hover:bg-neutral-900"
-                }`}
-              >
-                {n}
-              </button>
-            ))}
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (n) => (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n)}
+                      className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                        page === n
+                          ? "bg-indigo-300 text-black font-semibold"
+                          : "text-indigo-300 hover:bg-neutral-900"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ),
+                )}
 
-            {/* Next Button */}
-            <button
-              disabled={page === totalPages}
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                page === totalPages
-                  ? "text-neutral-500 cursor-not-allowed"
-                  : "text-indigo-500 hover:bg-neutral-900"
-              }`}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+                {/* Next Button */}
+                <button
+                  disabled={page === totalPages}
+                  onClick={() => setPage(Math.min(totalPages, page + 1))}
+                  className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                    page === totalPages
+                      ? "text-neutral-500 cursor-not-allowed"
+                      : "text-indigo-500 hover:bg-neutral-900"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
 
       {/* POPUP */}
       {selectedDriver && (
-  
-
-<ShopDeliveryManCardsPopup
-  shopId={shopId}
-  driver={selectedDriver}
-  close={() => setSelectedDriver(null)}
-  refreshData={refreshSelectedDriver}
-/>
+        <ShopDeliveryManCardsPopup
+          shopId={shopId}
+          driver={selectedDriver}
+          close={() => setSelectedDriver(null)}
+          refreshData={refreshSelectedDriver}
+        />
       )}
     </div>
   );

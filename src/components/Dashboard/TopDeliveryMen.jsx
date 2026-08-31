@@ -9,7 +9,7 @@ import {
 import { BiEnvelope } from "react-icons/bi";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { getAuthHeaders } from "../../auth";
+import { apiFetch } from "../../api";
 
 export default function TopDeliveryMen({ shopId }) {
   const [drivers, setDrivers] = useState([]);
@@ -19,14 +19,11 @@ export default function TopDeliveryMen({ shopId }) {
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
-        const res = await fetch(
+        const res = await apiFetch(
           `https://api.pwezayshops.com/top5deliverymen-by-shops/${shopId}`,
-          {
-            method: "GET",
-            headers: getAuthHeaders(),
-          }
+      
         );
-
+if (!res) return;
         const json = await res.json();
 
         if (json.success) {

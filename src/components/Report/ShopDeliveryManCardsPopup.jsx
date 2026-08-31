@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle2, AlertTriangle, X } from "lucide-react";
 import { useAlert } from "../../AlertProvider";
+import { apiFetch } from "../../api";
 
 // =========================
 // MAIN COMPONENT
@@ -44,21 +45,19 @@ const token = localStorage.getItem("shopToken");
     try {
       setClearing(true);
 
-      const response = await fetch(
-        `https://api.pwezayshops.com/clearedOrders-by-shops/${driver.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `MSHteam ${token}`,
-          },
-          body: JSON.stringify({
-          shopId,
-          }),
-        },
-      );
+const response = await apiFetch(
+  `https://api.pwezayshops.com/clearedOrders-by-shops/${driver.id}`,
+  {
+    method: "PATCH",
+    body: JSON.stringify({
+      shopId,
+    }),
+  }
+);
 
-      const result = await response.json();
+if (!response) return;
+
+const result = await response.json();
 
      if (response.ok) {
   showAlert(

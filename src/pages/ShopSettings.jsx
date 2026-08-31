@@ -9,24 +9,20 @@ import AccountSettings from "../components/Setting/AccountSettings";
 import PaymentSettings from "../components/Setting/PaymentSettings";
 import ShopProfileView from "../components/Setting/ShopProfileView";
 import ShopProfileEdit from "../components/Setting/ShopProfileEdit";
+import { apiFetch } from "../api";
 
 export default function ShopSettings() {
+  const shopId = localStorage.getItem("shopId");
   const [tab, setTab] = useState("profile");
-  const token = localStorage.getItem("shopToken");
-
-  const { shopId } = getAuth();
-
   const [shop, setShop] = useState(null);
 
   useEffect(() => {
     const fetchShop = async () => {
       try {
-        const res = await fetch(`https://api.pwezayshops.com/shops/${shopId}`,{
-          headers: {
-            Authorization: `MSHteam ${token}`,
-          }
-        });
-
+        const res = await apiFetch(
+          `https://api.pwezayshops.com/shops/${shopId}`,
+        );
+if (!res) return;
         const data = await res.json();
 
         setShop(data?.[0]);

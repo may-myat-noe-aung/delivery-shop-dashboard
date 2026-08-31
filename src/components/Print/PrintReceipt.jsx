@@ -1,35 +1,57 @@
 import React, { useEffect, useState } from "react";
+import { apiFetch } from "../../api";
 
 export default function PrintReceipt({ order, shopId }) {
   const [shopName, setShopName] = useState("MY SHOP");
-  const token = localStorage.getItem("shopToken");
 
-  useEffect(() => {
-    if (!shopId) return;
+  // useEffect(() => {
+  //   if (!shopId) return;
 
-    fetch(`https://api.pwezayshops.com/shops/${shopId}`, {
-      headers: {
-        Authorization: `MSHteam ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.length > 0) {
-          setShopName(data[0].shop_name);
-        }
-      })
-      .catch((err) => console.error(err));
-  }, [shopId]);
+  //   apiFetch(`https://api.pwezayshops.com/shops/${shopId}`)
+  //     .then((res) => {
+  //       if (!res) return null;
 
+  //       return res.json();
+  //     })
+  //     .then((data) => {
+  //       if (data && data.length > 0) {
+  //         setShopName(data[0].shop_name);
+  //       }
+  //     })
+  //     .catch((err) => console.error(err));
+  // }, [shopId]);
+useEffect(() => {
+  if (!shopId) return;
+
+  const fetchShop = async () => {
+    try {
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/shops/${shopId}`
+      );
+
+      if (!res) return;
+
+      const data = await res.json();
+
+      if (data?.length > 0) {
+        setShopName(data[0].shop_name);
+      }
+
+    } catch (err) {
+      console.error("Shop fetch error:", err);
+    }
+  };
+
+  fetchShop();
+
+}, [shopId]);
   if (!order) return null;
 
   return (
     <div className="print:block hidden w-[300px] p-4 text-black text-xs">
       {/* HEADER */}
       <div className="text-center mb-3">
-        <h2 className="font-bold text-lg uppercase">
-          {shopName}
-        </h2>
+        <h2 className="font-bold text-lg uppercase">{shopName}</h2>
 
         <p>Order: {order.id}</p>
         <p>{new Date(order.created_at).toLocaleString()}</p>
@@ -54,21 +76,15 @@ export default function PrintReceipt({ order, shopId }) {
               {item.menu_name} x {item.quantity}
             </span>
 
-            <span>
-              {item.total.toLocaleString()} Ks
-            </span>
+            <span>{item.total.toLocaleString()} Ks</span>
           </div>
 
-          <div className="text-[10px] text-gray-700">
-            Size: {item.size}
-          </div>
+          <div className="text-[10px] text-gray-700">Size: {item.size}</div>
 
           {item.ingredients?.length > 0 && (
             <div className="text-[10px] text-gray-700">
               Ingredients:{" "}
-              {item.ingredients
-                .map((ing) => ing.ingredients_name)
-                .join(", ")}
+              {item.ingredients.map((ing) => ing.ingredients_name).join(", ")}
             </div>
           )}
         </div>
