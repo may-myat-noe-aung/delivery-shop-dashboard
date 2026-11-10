@@ -29,104 +29,129 @@
 //   const [showPassword, setShowPassword] = useState(false);
 
 //   // ================= CATEGORY =================
-//   const categories = [
-//     {
-//       id: 1,
-//       name: "Snack",
-//       icon: "snack",
-//     },
-//     {
-//       id: 2,
-//       name: "Alcoholic",
-//       icon: "alcoholic",
-//     },
-//     {
-//       id: 3,
-//       name: "Breakfast",
-//       icon: "breakfast",
-//     },
-//     {
-//       id: 4,
-//       name: "Cake",
-//       icon: "cake",
-//     },
-//     {
-//       id: 5,
-//       name: "Coffee",
-//       icon: "coffee",
-//     },
-//     {
-//       id: 6,
-//       name: "Drink",
-//       icon: "drink",
-//     },
-//     {
-//       id: 7,
-//       name: "Fast Food",
-//       icon: "fastfood",
-//     },
-//     {
-//       id: 8,
-//       name: "Lunch",
-//       icon: "lunch",
-//     },
-//     {
-//       id: 9,
-//       name: "Morning",
-//       icon: "morning",
-//     },
-//     {
-//       id: 10,
-//       name: "Sweets",
-//       icon: "sweets",
-//     },
-//   ];
+// const categories = [
+//   {
+//     id: 1,
+//     name: "Fashion",
+//     icon: "fashion",
+//   },
+//   {
+//     id: 2,
+//     name: "Food & Restaurant",
+//     icon: "foodrestaurant",
+//   },
+//   {
+//     id: 3,
+//     name: "Electronic",
+//     icon: "electronic",
+//   },
+//   {
+//     id: 4,
+//     name: "Convenience Shop",
+//     icon: "convenience",
+//   },
+//   {
+//     id: 5,
+//     name: "Material",
+//     icon: "material",
+//   },
+//   {
+//     id: 6,
+//     name: "Fast Food",
+//     icon: "fastfood",
+//   },
+//   {
+//     id: 7,
+//     name: "Snack",
+//     icon: "snack",
+//   },
+//   {
+//     id: 8,
+//     name: "Breakfast",
+//     icon: "breakfast",
+//   },
+//   {
+//     id: 9,
+//     name: "Cake",
+//     icon: "cake",
+//   },
+//   {
+//     id: 10,
+//     name: "Coffee",
+//     icon: "coffee",
+//   },
+//   {
+//     id: 11,
+//     name: "Drink",
+//     icon: "drink",
+//   },
+//   {
+//     id: 12,
+//     name: "Lunch",
+//     icon: "lunch",
+//   },
+//   {
+//     id: 13,
+//     name: "Morning",
+//     icon: "morning",
+//   },
+//   {
+//     id: 14,
+//     name: "Sweets",
+//     icon: "sweets",
+//   },
+//   {
+//     id: 15,
+//     name: "Other",
+//     icon: "other",
+//   },
+// ];
 
 //   // ================= PAYMENT METHODS =================
 //   const paymentMethods = [
-//     "KBZ",
-//     "WAVE",
-//     "AYA",
-//     "CB",
-//     "AGB",
-//     "UAB",
-//     "YOMA",
-//     "MCB",
+//     "KBZPay",
+//     "WAVEPay",
+//     "AYAPay",
+//     "CBPay",
+//     "AGBPay",
+//     "UABPay",
+//     "YOMAPay",
+//     "MCBPay",
 //   ];
 
 //   const [showPaymentDropdown, setShowPaymentDropdown] = useState(false);
 
 //   // ================= FORM =================
-// const [form, setForm] = useState({
-//   shopkeeper_name: "",
-//   shop_name: "",
-//   email: "",
-//   phone: "",
-//   password: "",
-//   address: "",
+//   const [form, setForm] = useState({
+//     shopkeeper_name: "",
+//     shop_name: "",
+//     email: "",
+//     phone: "",
+//     password: "",
+//     address: "",
 
-//   items: "",
+//     items: "",
 
-//   location: {
-//     latitude: "",
-//     longitude: "",
-//   },
-
-//   payments: [
-//     {
-//       name: "",
-//       phone: "",
-//       method: "",
+//     location: {
+//       latitude: "",
+//       longitude: "",
 //     },
-//   ],
 
-//   have_deliverymen: 1,
-//   deli_fees_method: "km",
+//     payments: [
+//       {
+//         name: "",
+//         phone: "",
+//         method: "",
+//       },
+//     ],
 
-//   category: [],
+//     have_deliverymen: 1,
+//     deli_fees_method: "km",
 
-//   photo: "",
-// });
+//     category: [],
+
+//     photo: "",
+//   });
 
 //   // ================= CHANGE =================
 //   const handleChange = (e) => {
@@ -168,156 +193,155 @@
 //   };
 
 //   // ================= PHOTO =================
-// const handleFileChange = (e) => {
-//   const file = e.target.files[0];
+//   const handleFileChange = (e) => {
+//     const file = e.target.files[0];
 
-//   if (!file) return;
+//     if (!file) return;
 
-//   // LIMIT
-//   if (file.size > 2 * 1024 * 1024) {
-//     showAlert(
-//       "Image must be under 2MB",
-//       "error"
-//     );
+//     // LIMIT
+//     if (file.size > 2 * 1024 * 1024) {
+//       showAlert("Image must be under 2MB", "error");
 
-//     return;
-//   }
+//       return;
+//     }
 
-//   const reader = new FileReader();
+//     const reader = new FileReader();
 
-//   reader.onloadend = () => {
-//     setForm((prev) => ({
-//       ...prev,
-//       photo: reader.result,
-//     }));
-//   };
-
-//   reader.readAsDataURL(file);
-// };
-
-//   // ================= LOCATION =================
-// const getCurrentLocation = () => {
-//   if (!navigator.geolocation) {
-//     showAlert(
-//       "Geolocation is not supported",
-//       "error"
-//     );
-
-//     return;
-//   }
-
-//   navigator.geolocation.getCurrentPosition(
-//     (position) => {
-//       const lat = parseFloat(
-//         position.coords.latitude
-//       );
-
-//       const lng = parseFloat(
-//         position.coords.longitude
-//       );
-
+//     reader.onloadend = () => {
 //       setForm((prev) => ({
 //         ...prev,
-
-//         location: {
-//           latitude: lat,
-//           longitude: lng,
-//         },
+//         photo: reader.result,
 //       }));
+//     };
 
-//       showAlert(
-//         "Location added successfully",
-//         "success"
-//       );
-//     },
+//     reader.readAsDataURL(file);
+//   };
 
-//     (error) => {
-//       console.error(error);
+//   // ================= LOCATION =================
+//   const getCurrentLocation = () => {
+//     if (!navigator.geolocation) {
+//       showAlert("Geolocation is not supported", "error");
 
-//       showAlert(
-//         "Cannot get current location",
-//         "error"
-//       );
+//       return;
 //     }
-//   );
-// };
+
+//     navigator.geolocation.getCurrentPosition(
+//       (position) => {
+//         const lat = parseFloat(position.coords.latitude);
+
+//         const lng = parseFloat(position.coords.longitude);
+
+//         setForm((prev) => ({
+//           ...prev,
+
+//           location: {
+//             latitude: lat,
+//             longitude: lng,
+//           },
+//         }));
+
+//         showAlert("Location added successfully", "success");
+//       },
+
+//       (error) => {
+//         console.error(error);
+
+//         showAlert("Cannot get current location", "error");
+//       },
+//     );
+//   };
 
 //   // ================= SIGNUP =================
-// const handleSignup = async (e) => {
-//   e.preventDefault();
+//   const handleSignup = async (e) => {
+//     e.preventDefault();
 
-//   // CATEGORY VALIDATION
-//   if (form.category.length === 0) {
-//     showAlert(
-//       "Please select category",
-//       "error"
-//     );
-
-//     return;
-//   }
-
-//   try {
-//     setLoading(true);
-
-//     // PAYLOAD
-//  const payload = {
-//   ...form,
-
-//   items: Number(form.items),
-
-//   // location: JSON.stringify({
-//   //   latitude: Number(form.location.latitude),
-//   //   longitude: Number(form.location.longitude),
-//   // }),
-//   location: `Lat ${Number(form.location.latitude)}, Long ${Number(form.location.longitude)}`,
-
-//   payments: JSON.stringify(form.payments),
-
-//   category: JSON.stringify(form.category),
-// };
-
-//     console.log(payload);
-
-//     const res = await fetch(
-//       "https://api.pwezayshops.com/shops",
-//       {
-//         method: "POST",
-
-//         headers: {
-//           "Content-Type":
-//             "application/json",
-//         },
-
-//         body: JSON.stringify(payload),
-//       }
-//     );
-
-//     const data = await res.json();
-
-//     console.log(data);
-
-//     const apiMessage =
-//       data?.message ||
-//       data?.error ||
-//       "Unknown error";
-
-//     if (res.ok) {
-//       showAlert(apiMessage, "success");
-
-//       setTimeout(() => {
-//         navigate("/login");
-//       }, 800);
-//     } else {
-//       showAlert(apiMessage, "error");
+//     if (
+//       !form.shopkeeper_name.trim() ||
+//       !form.shop_name.trim() ||
+//       !form.email.trim() ||
+//       !form.phone.trim() ||
+//       !form.password.trim() ||
+//       !form.address.trim() ||
+//       !form.items ||
+//       !form.location.latitude ||
+//       !form.location.longitude ||
+//       !form.payments[0].name.trim() ||
+//       !form.payments[0].phone.trim() ||
+//       !form.payments[0].method ||
+//       form.category.length === 0
+//     ) {
+//       showAlert("Please fill all required fields", "error");
+//       return;
 //     }
-//   } catch (err) {
-//     console.error(err);
 
-//     showAlert("Server error", "error");
-//   } finally {
-//     setLoading(false);
-//   }
-// };
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(form.email)) {
+//       showAlert("Email သည် မှန်ကန်သော format မဟုတ်ပါ", "warning");
+//       return;
+//     }
+
+//     // PHONE VALIDATION
+//     const phoneRegex = /^[0-9]{8,12}$/;
+
+//     if (!phoneRegex.test(form.phone)) {
+//       showAlert("Phone Number သည် မှန်ကန်သော format မဟုတ်ပါ", "warning");
+//       return;
+//     }
+
+//     // PASSWORD VALIDATION
+//     const strongPasswordRegex =
+//       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+//     if (!strongPasswordRegex.test(form.password)) {
+//       showAlert(
+//         "Password သည် အနည်းဆုံး 8 လုံးရှိရမည်၊ Uppercase, Lowercase, Number နှင့် Special Character ပါဝင်ရမည်။",
+//         "error",
+//       );
+//       return;
+//     }
+
+//     try {
+//       setLoading(true);
+
+//       // const payload = {
+//       //   ...form,
+//       //   items: Number(form.items),
+//       //   location: `Lag ${form.location.latitude}, Log ${form.location.longitude}`,
+//       // payments: form.payments,
+//       //   category: JSON.stringify(form.category),
+//       // };
+// const payload = {
+//   ...form,
+//   items: Number(form.items),
+//   location: `Lag ${form.location.latitude}, Log ${form.location.longitude}`,
+//   payments: form.payments,
+//   category: JSON.stringify(form.category),
+// }
+//       const res = await fetch("https://api.pwezayshops.com/shops", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(payload),
+//       });
+
+//       const data = await res.json();
+
+//       const apiMessage = data?.message || data?.error || "Unknown error";
+
+//       if (res.ok) {
+//         showAlert(apiMessage, "success");
+//         setTimeout(() => navigate("/login"), 800);
+//       } else {
+//         showAlert(apiMessage, "error");
+//       }
+//     } catch (err) {
+//       console.error(err);
+//       showAlert("Server error", "error");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
 //   return (
 //     <div
@@ -469,7 +493,7 @@
 //                   flex items-center gap-2
 //                   bg-indigo-500/10
 //                   border border-indigo-500/20
-//                   px-3 py-1 rounded-xl
+//                   px-3 py-2 rounded-xl
 //                 "
 //                           >
 //                             <img
@@ -501,7 +525,7 @@
 //           rounded-2xl
 //           p-3
 //           shadow-2xl
-//           max-h-[300px]
+//           max-h-[250px] custom-scrollbar
 //           overflow-y-auto
 //         "
 //                   >
@@ -525,12 +549,12 @@
 //                             }}
 //                             className={`
 //                   relative
-//                   py-4 rounded-2xl border
+//                   pb-2 pt-4 rounded-2xl border
 //                   transition-all
 //                   ${
 //                     active
-//                       ? "border-indigo-500 bg-indigo-500/10"
-//                       : "border-slate-700 bg-slate-400 hover:border-slate-500"
+//                       ? "border-indigo-500 bg-black"
+//                       : "border-slate-700 bg-black hover:border-slate-500"
 //                   }
 //                 `}
 //                           >
@@ -552,10 +576,10 @@
 //                             <img
 //                               src={`/categoriesIcon/${item.icon}.png`}
 //                               alt={item.name}
-//                               className="size-10 mx-auto"
+//                               className="size-[80px] mx-auto"
 //                             />
 
-//                             <p className="text-sm mt-2 text-white">
+//                             <p className="text-sm mt-1 text-white">
 //                               {item.name}
 //                             </p>
 //                           </button>
@@ -630,7 +654,7 @@
 //               </div>
 //             </div>
 //           </SectionCard>
-//                 {/* PAYMENT */}
+//           {/* PAYMENT */}
 //           <SectionCard
 //             title="Payment Information"
 //             icon={<CreditCard size={20} />}
@@ -788,7 +812,7 @@
 //                   readOnly
 //                   value={
 //                     form.location.latitude
-//                       ? `Lat ${form.location.latitude}, Log ${form.location.longitude}`
+//                       ? `Lag ${form.location.latitude}, Log ${form.location.longitude}`
 //                       : ""
 //                   }
 //                   placeholder="Current Location"
@@ -916,6 +940,23 @@
 //               "Create Shop Account"
 //             )}
 //           </button>
+
+//           <p className="mt-6 text-center text-sm text-slate-400">
+//             Already have an account?{" "}
+//             <button
+//               type="button"
+//               onClick={() => navigate("/login")}
+//               className="
+//       text-indigo-400
+//       hover:text-indigo-300
+//       font-medium
+//       transition
+//       underline-offset-4 hover:underline
+//     "
+//             >
+//               Login
+//             </button>
+//           </p>
 //         </form>
 //       </div>
 //     </div>
@@ -995,8 +1036,11 @@
 //   );
 // }
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import axios from "axios";
+
 import {
   Camera,
   Eye,
@@ -1011,9 +1055,11 @@ import {
   Package,
   CreditCard,
   Truck,
+  Check,
 } from "lucide-react";
 
 import { useAlert } from "../AlertProvider";
+const API_BASE = "https://api.pwezayshops.com";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -1025,84 +1071,117 @@ export default function SignupPage() {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  const [blocks, setBlocks] = useState([]);
+  const [blocksLoading, setBlocksLoading] = useState(false);
+  const [selectedBlock, setSelectedBlock] = useState("");
+  const [showBlockDropdown, setShowBlockDropdown] = useState(false);
+
+  useEffect(() => {
+    const fetchBlocks = async () => {
+      try {
+        setBlocksLoading(true);
+
+        const res = await axios.get(`${API_BASE}/get-blocks`);
+
+        const result = res.data?.data?.blocks;
+
+        if (!Array.isArray(result)) {
+          console.error("Invalid blocks response:", res.data);
+          return;
+        }
+
+        setBlocks(result);
+      } catch (error) {
+        console.error(
+          "GET BLOCKS ERROR:",
+          error.response?.data || error.message,
+        );
+      } finally {
+        setBlocksLoading(false);
+      }
+    };
+
+    fetchBlocks();
+  }, []);
+
   // ================= CATEGORY =================
-const categories = [
-  {
-    id: 1,
-    name: "Fashion",
-    icon: "fashion",
-  },
-  {
-    id: 2,
-    name: "Food & Restaurant",
-    icon: "foodrestaurant",
-  },
-  {
-    id: 3,
-    name: "Electronic",
-    icon: "electronic",
-  },
-  {
-    id: 4,
-    name: "Convenience Shop",
-    icon: "convenience",
-  },
-  {
-    id: 5,
-    name: "Material",
-    icon: "material",
-  },
-  {
-    id: 6,
-    name: "Fast Food",
-    icon: "fastfood",
-  },
-  {
-    id: 7,
-    name: "Snack",
-    icon: "snack",
-  },
-  {
-    id: 8,
-    name: "Breakfast",
-    icon: "breakfast",
-  },
-  {
-    id: 9,
-    name: "Cake",
-    icon: "cake",
-  },
-  {
-    id: 10,
-    name: "Coffee",
-    icon: "coffee",
-  },
-  {
-    id: 11,
-    name: "Drink",
-    icon: "drink",
-  },
-  {
-    id: 12,
-    name: "Lunch",
-    icon: "lunch",
-  },
-  {
-    id: 13,
-    name: "Morning",
-    icon: "morning",
-  },
-  {
-    id: 14,
-    name: "Sweets",
-    icon: "sweets",
-  },
-  {
-    id: 15,
-    name: "Other",
-    icon: "other",
-  },
-];
+  const categories = [
+    {
+      id: 1,
+      name: "Fashion",
+      icon: "fashion",
+    },
+    {
+      id: 2,
+      name: "Food & Restaurant",
+      icon: "foodrestaurant",
+    },
+    {
+      id: 3,
+      name: "Electronic",
+      icon: "electronic",
+    },
+    {
+      id: 4,
+      name: "Convenience Shop",
+      icon: "convenience",
+    },
+    {
+      id: 5,
+      name: "Material",
+      icon: "material",
+    },
+    {
+      id: 6,
+      name: "Fast Food",
+      icon: "fastfood",
+    },
+    {
+      id: 7,
+      name: "Snack",
+      icon: "snack",
+    },
+    {
+      id: 8,
+      name: "Breakfast",
+      icon: "breakfast",
+    },
+    {
+      id: 9,
+      name: "Cake",
+      icon: "cake",
+    },
+    {
+      id: 10,
+      name: "Coffee",
+      icon: "coffee",
+    },
+    {
+      id: 11,
+      name: "Drink",
+      icon: "drink",
+    },
+    {
+      id: 12,
+      name: "Lunch",
+      icon: "lunch",
+    },
+    {
+      id: 13,
+      name: "Morning",
+      icon: "morning",
+    },
+    {
+      id: 14,
+      name: "Sweets",
+      icon: "sweets",
+    },
+    {
+      id: 15,
+      name: "Other",
+      icon: "other",
+    },
+  ];
 
   // ================= PAYMENT METHODS =================
   const paymentMethods = [
@@ -1300,20 +1379,16 @@ const categories = [
     try {
       setLoading(true);
 
-      // const payload = {
-      //   ...form,
-      //   items: Number(form.items),
-      //   location: `Lag ${form.location.latitude}, Log ${form.location.longitude}`,
-      // payments: form.payments,
-      //   category: JSON.stringify(form.category),
-      // };
-const payload = {
-  ...form,
-  items: Number(form.items),
-  location: `Lag ${form.location.latitude}, Log ${form.location.longitude}`,
-  payments: form.payments,
-  category: JSON.stringify(form.category),
-}
+      const payload = {
+        ...form,
+        items: Number(form.items),
+        location: `Lag ${form.location.latitude}, Log ${form.location.longitude}`,
+        payments: form.payments,
+        category: JSON.stringify(form.category),
+
+        blocks: selectedBlock,
+      };
+
       const res = await fetch("https://api.pwezayshops.com/shops", {
         method: "POST",
         headers: {
@@ -1784,6 +1859,133 @@ const payload = {
           {/* LOCATION */}
           <SectionCard title="Location Information" icon={<MapPin size={20} />}>
             <div className="space-y-5 ">
+              
+{/* CUSTOM BLOCK SELECT */}
+<div className="space-y-2">
+  <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
+    <MapPin size={16} className="text-indigo-400" />
+    ရပ်ကွက် / Block
+  </label>
+
+  <div className="relative">
+    {/* Dropdown Trigger */}
+    <button
+      type="button"
+      onClick={() => setShowBlockDropdown((prev) => !prev)}
+      disabled={blocksLoading}
+      className={`
+        flex h-14 w-full items-center justify-between
+        rounded-2xl border px-4 text-left
+        transition-all duration-200
+        ${
+          showBlockDropdown
+            ? "border-indigo-500 bg-indigo-500/10 ring-4 ring-indigo-500/10"
+            : "border-slate-700 bg-slate-900 hover:border-indigo-500/60"
+        }
+        disabled:cursor-not-allowed disabled:opacity-60
+      `}
+    >
+      <span className="flex min-w-0 items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10">
+          <MapPin size={18} className="text-indigo-400" />
+        </span>
+
+        <span className={selectedBlock ? "text-white" : "text-slate-400"}>
+          {blocksLoading
+            ? "Loading blocks..."
+            : selectedBlock || "ရပ်ကွက် ရွေးချယ်ပါ"}
+        </span>
+      </span>
+
+      <svg
+        className={`h-5 w-5 shrink-0 text-slate-400 transition-transform ${
+          showBlockDropdown ? "rotate-180 text-indigo-400" : ""
+        }`}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          d="m6 9 6 6 6-6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+
+    {/* Custom Options Panel */}
+    {showBlockDropdown && (
+      <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-slate-700 bg-[#0B1220] p-2 shadow-2xl shadow-black/40">
+        <div className="mb-2 flex items-center justify-between px-3 py-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Available Blocks
+          </span>
+
+          <span className="rounded-full bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-400">
+            {blocks.length} blocks
+          </span>
+        </div>
+
+        <div className="max-h-56 space-y-1 overflow-y-auto">
+          {blocksLoading ? (
+            <div className="flex items-center justify-center gap-2 py-6 text-sm text-slate-400">
+              <Loader2 size={16} className="animate-spin" />
+              Loading blocks...
+            </div>
+          ) : blocks.length === 0 ? (
+            <p className="py-6 text-center text-sm text-slate-400">
+              No blocks available
+            </p>
+          ) : (
+            blocks.map((block, index) => (
+              <button
+                key={`${block}-${index}`}
+                type="button"
+                onClick={() => {
+                  setSelectedBlock(block);
+                  setShowBlockDropdown(false);
+                }}
+                className={`
+                  flex w-full items-center justify-between
+                  rounded-xl px-3 py-3 text-left
+                  transition-all duration-150
+                  ${
+                    selectedBlock === block
+                      ? "border border-indigo-500/30 bg-indigo-500/10 text-indigo-300"
+                      : "border border-transparent text-slate-300 hover:border-slate-700 hover:bg-slate-800 hover:text-white"
+                  }
+                `}
+              >
+                <span className="flex items-center gap-3">
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                      selectedBlock === block
+                        ? "bg-indigo-500/20 text-indigo-300"
+                        : "bg-slate-800 text-slate-400"
+                    }`}
+                  >
+                    <MapPin size={16} />
+                  </span>
+
+                  <span className="text-sm font-medium">{block}</span>
+                </span>
+
+                {selectedBlock === block && (
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-white">
+                    <Check size={14} />
+                  </span>
+                )}
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+
               <textarea
                 name="address"
                 value={form.address}
